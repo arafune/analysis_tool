@@ -1,0 +1,1 @@
+../../qpi/doc/qpi.rst

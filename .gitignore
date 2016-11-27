@@ -3,3 +3,4 @@ rhk/rhk/__pycache__
 rhk/test/rhk/__pycache__
 rhksm4-checkpoint.ipynb
 *.pyc
+doc/build

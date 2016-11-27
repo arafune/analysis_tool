@@ -14,29 +14,80 @@ from types import MethodType
 
 
 class ExtStruct(struct.Struct):
-    '''Helper class to treat pack/unpack smoothly'''
+    '''.. py:class:: ExtStruct()
+
+    Helper class to treat pack/unpack smoothly'''
 
     def __init__(self, fmt):
         super().__init__(fmt)
 
     def unpack_from_file(self, fhandle):
-        '''Helper function to unpack from file'''
+        '''.. py:method:: unpack_from_file(fhandle)
+
+        Helper function to unpack from file
+
+        Parameters
+        ----------
+        fhandle: io.IOBase
+            The file handle
+        '''
         return self.unpack(fhandle.read(self.size))
 
 
 def get_objects_from_list(fhandle, n, parent):
+    '''.. py:function:: get_objects_from_list(fhandle, n, parent)
+
+    Parameters
+    ------------
+    fhandle: io.IOBase
+       The file handle
+    n: int
+       Number of objects to read
+    parent: object
+       Parent Object
+
+    Returns
+    ----------
+    list
+       Contains RHKObject
+'''
     return [RHKObject(fhandle, parent) for i in range(n)]
 
 
 class RHKObject:
+    '''.. py:class:: RHKObject()
 
+    Class for RHKObject, used as the parent class for the data
+structure defined by RHK.
+
+    Attributes
+    --------------
+    objtype: int
+    
+    offset: int
+    
+    size: int
+
+'''
     packer = ExtStruct('<3I')
+    '''format is '<3I'
+'''
 
     classes = {}
 
     @classmethod
     def registObjType(self, obj_id, obj_name):
         RHKObject.classes[obj_id] = obj_name
+        '''.. py:classmethod:: registObjType(parameters)
+
+        Register object whose class is defined.
+
+        Parameters
+        -------------
+        obj_id: int
+            The object id
+        obj_name: object
+'''
 
     objectIds = ['Undefined', 'PageIndexHeader', 'PageIndexArray',  # 0 1 2
                  'PageHeader', 'PageData', 'ImageDriftHeader',      # 3 4 5
@@ -44,6 +95,7 @@ class RHKObject:
                  'ColorInfo', 'StringData', 'TipTrackHeader',       # 9 10 11
                  'TipTrackData', 'PRM', 'Thumbnail',                # 12 13 14
                  'PRMHeader', 'ThumbnailHeader', 'AppInfo']         # 15 16 17
+    '''list for object id defined by RHK'''
 
     def __init__(self, fhandle, parent):
         self.parent = parent
@@ -58,7 +110,6 @@ class RHKObject:
                 self.read = MethodType(objclass.read, self)
             if hasattr(objclass, '__str__'):
                 self.__str__ = MethodType(objclass.__str__, self)
-#
 
     def __str__(self):
         if self.objtype in RHKObject.classes:
@@ -72,10 +123,24 @@ class RHKObject:
             return this
 
     def read(self, fhandle):
+        '''.. py:method:: read(fhandle)
+
+        Attributes
+        ----------
+        fhandle: io.IOBase
+            File handle
+'''
         fhandle.seek(self.offset)
         self.contents = fhandle.read(self.size)
 
     def read_children(self, fhandle):
+        '''.. py:method:: read_children(fhandle)
+
+        Attributes
+        -----------
+        fhandle: io.IOBase
+            File handle
+'''
         for child in self.children:
             #            print(self.offset, child.objtype, child.size)
             child.read(fhandle)
@@ -91,15 +156,37 @@ which contains the array of page offsets and other info.  Using the
 index array we can locate the required page data, thumbnail data for
 the respective page, etc without reading th eentire SM4 file
 
-    See rhk_sm4_read_page_index_header in rhk-sm4.c
+
+    .. seealso::
+
+    rhk_sm4_read_page_index_header in rhk-sm4.c
 
     Attributes
     ----------------
-    pagecount, children, reserved
+    pagecount: int
+        The number of pages
+    children: list
+        list object that contains following child objects
+
+        1. Page Index Array
+    reserved: int
+        0   (Not used, just prepared for future by RHK)
     '''
     packer = ExtStruct('<4I')
+    '''format is '<4I'
+'''
 
     def read(self, fhandle):
+        '''.. py:method:read(file)
+
+        Reader for Page Index Header. This method should not be
+        directly by the user
+
+        Parameters
+        ------------
+        fhandle: io.IOBase
+            file handle
+'''
         fhandle.seek(self.offset)
         header = RHKPageIndexHeader.packer.unpack_from_file(fhandle)
         self.pagecount = header[0]
@@ -113,24 +200,42 @@ the respective page, etc without reading th eentire SM4 file
 
 
 class RHKPage:
-    '''.. py::class::RHKPage
+    '''.. class:py::RHKPage
 
     Class for RHK Page
 
     Attributes
     ----------------
-         page_id, datatype, datatype_name,
-         soucetype, sourcetype_name, pagecount, children, reserved
+    page_id: str
 
+    datatype: int
 
-      Object List: Stores the Page Index Objects.  Currently we are storing:
+    datatype_name: str
+
+    soucetype: int
+        number of sourcetype
+    sourcetype_name: str
+
+    pagecount: int
+
+    children: list
+
+        Object List: Stores the Page Index Objects.  Currently we are
+        storing:
+
         1. Page Header
         2. Page Data
         3. Thumbnail
         4. Thumbnail header
-    '''
+
+    reserved: int
+       0  (Not used, just prepared for future by RHK)
+
+'''
 
     packer = ExtStruct('<16s4I')
+    '''format is '<16s4I'
+'''
 
     def __init__(self, fhandle):
         datatypes = ['image data', 'line/spectra data', 'xy_data',
@@ -146,6 +251,16 @@ class RHKPage:
         self.children = get_objects_from_list(fhandle, self.objcount, self)
 
     def read(self, fhandle):
+        '''.. py:method:: read(fhandle)
+
+        Reader for Page Index Array.  This method should not be
+        directly by the user
+
+        Attributes
+        -----------
+        fhandle: io.IOBase
+            file handle
+'''
         for child in self.children:
             child.read(fhandle)
 
@@ -154,12 +269,28 @@ class RHKPage:
 
 
 class RHKPageIndexArray:  # Object Id: 2
-    '''.. py::class:: RHKPageIndexArray
+    '''.. py:class:: RHKPageIndexArray
 
-    Class for RHK Page Index Array
-    '''
+    Class for RHK Page Index Array (RHK object id: 2)
+
+    Attributes
+    -----------
+    pages: list
+        List for storing RHKPage objects
+'''
 
     def read(self, fhandle):
+        '''.. py:method:: read(file)
+
+        Reader for Page Index Array.  This method should not be
+        directly by the user
+
+        Parameters
+        ------------
+        fhandle: io.IOBase
+            file handle
+'''
+
         fhandle.seek(self.offset)
         self.pages = [RHKPage(fhandle) for i in range(self.parent.pagecount)]
         for page in self.pages:
@@ -174,13 +305,128 @@ class RHKPageIndexArray:  # Object Id: 2
 class RHKPageHeader:  # Object id: 3
     '''.. py::class:: RHKPageHeader
 
-    Class for RHK Page Header
+    Class for RHK Page Header. (RHK object id : 3)
 
-    See rhk_sm4_read_page_header in rhk-sm4.c
-    '''
+    Attributes
+    -----------
+    fieldsize: int
+        The total size of page parameters
+    strcount:int
+        The number of the strings in the page
+    page:int
+        The kind of data that an image represents.
+
+        0. undefined
+        1. topographic image
+        2. curent image
+        3. aux image
+        4. force image
+        5. signal image
+        6. image FFT transform
+        7. noise power spectrum
+        8. line test
+        9. oscilloscope
+        10. image IV 4x4
+        11. image IV 8x8
+
+    datasubsource: int
+        Additional information on the stored data page.
+    linetype:int
+        The kind of data is represented by a line or spetral page
+
+         0. not a line
+         1. histogram
+         2. cross section
+         3. line test
+         4. oscilloscope
+         5. reserved
+         6. noise power spectrum
+         7. I-V spectrum
+         8. I-Z spectrum
+         9. image X average
+         10. image Y average
+         11. noise autocorrelation spectrum
+         12. multichannel analyzer data
+         13. renormalized IV data from variable gap IV
+         14. image histogram spectra
+         15. image cross section
+         16. image avearge
+         17. image cross section (Gsection_fdata)
+         18. image out spectra (Goutspec)
+         19. Datalog Spectrum (Gdatalog)
+         20. Gxy
+         21. Electro chemistry (Gechem)
+         22. Discrete Spectroscopy (Gdiscspec_data)
+
+    x_coord, y_coord: int
+        The corner position in pixel
+    x_size, y_size: int
+        The pixel width and the height of the image
+    image_type: int
+
+        0. raw page
+        1. processed page
+        2. calculated page
+        3. imported page
+    scan_dir: int
+        The scan direction in an image.
+
+        0. right
+        1. left
+        2. up
+        3. down
+
+    group_id: int
+    data_size: int
+        Total number of data bytes in the data section
+    min_z_value, max_z_value: int
+        minimum and maximum Z values
+    x_scale, y_scale, z_scale: float
+        The X, Y, Z physical units per **pixel** or **bit**.
+    xy_scale: float
+        The change in X in physical units per Y line, used for drift
+        correctino.
+    x_offset, y_offset, z_offset: float
+        The origin of the X, value or the X coord of the image
+        center.  The physical unit is 'x_offset' + 'x_scale' + (x
+        number)
+    period: float
+        The time to acquire each data point.
+    bias: float
+        The sample bias in volts.
+    current: float
+        The absolute value of the sample current in amps.
+    angle: float
+        The angle by which the image is rotated.
+    colorinfocount: int
+        The number of color info
+    grid_x_size, grid_y_size: int
+        Spectral grid size in X and Y.
+    objcount: int
+        The count of objects after page header.
+
+
+    .. seealso::
+
+       rhk_sm4_read_page_header in rhk-sm4.c
+'''
+
     packer = ExtStruct('<2H3I7iI2i11f3iI64B')
+    '''format is '<2H3I7iI2i11f3iI64B'
+'''
 
     def read(self, fhandle):
+        '''.. py:method:: read(file)
+
+        Reader for Page Header.  This method should not be directly by
+        the user
+
+        Parameters
+        ------------
+        fhandle: io.IOBase
+            file handle
+
+        '''
         fhandle.seek(self.offset)
         self.header = RHKPageHeader.packer.unpack_from_file(fhandle)
         self.fieldsize = self.header[0]
@@ -232,9 +478,23 @@ class RHKPageData:
 
      Class for RHK Page data.
      the most important information (Mapping data, spectral data)
-     '''
+
+    Attributes
+    -----------
+    data: tuple
+        The matrix data. Note that the item is int for STM/QPI image
+'''
 
     def read(self, fhandle):
+        '''.. py:method:: read(file)
+
+        Reader for Page Data.  This method should not be directly by the user
+
+        Parameters
+        ------------
+        fhandle: io.IOBase
+            file handle
+'''
         if self.parent.datatype == 0:
             packstr = "<" + str(self.size // 4) + "l"
             RHKPageData.packer = ExtStruct(packstr)
@@ -248,9 +508,25 @@ class RHKPageData:
 
 
 class RHKStringData:    # Object id: 10
+    '''.. py:class:: RHKStringData
+
+    Class for RHK string. (RHK object id : 10)
+'''
+
     packer = ExtStruct('<H')
+    '''format is '<H'
+'''
 
     def read(self, fhandle):
+        '''.. py:method:: read(file)
+
+        Reader for String Data.  This method should not be directly by the user
+
+        Parameters
+        ------------
+        fhandle: io.IOBase
+            file handle
+'''
         fhandle.seek(self.offset)
         self.strings = []
         for ins in range(self.parent.strcount):
@@ -263,10 +539,25 @@ class RHKStringData:    # Object id: 10
 
 
 class RHKPRMHeader:  # Object id: 15
+    '''.. py:class::RHKPRMHeader
+
+    Class for RHK PRM Header. (RHK object id : 15)
+'''
 
     packer = ExtStruct('<3I')
+    '''format is '<3I'
+'''
 
     def read(self, fhandle):
+        '''.. py:method:read(file)
+
+        Reader for PRM Header.  This method should not be directly by the user
+
+        Parameters
+        ------------
+        fhandle: io.IOBase
+            file handle
+'''
         fhandle.seek(self.offset)
         self.header = RHKThumbnailHeader.packer.unpack_from_file(fhandle)
         self.compression = self.header[0]
@@ -278,10 +569,35 @@ class RHKPRMHeader:  # Object id: 15
 
 
 class RHKThumbnailHeader:  # Object id: 16
+    '''.. py:class::RHKThumbnailHeader
+
+    Class for RHK Thumbnail header. (RHK object id : 16)
+
+    Attributes
+    --------------
+    width: int
+       Pixel width
+    height: int
+       Lines per frame
+    nformat:int
+       0 (= Raw data)
+'''
 
     packer = ExtStruct('<3I')
+    '''format is '<3I'
+    '''
 
     def read(self, fhandle):
+        '''.. py:method:read(file)
+
+        Reader for Thumbnail header.  This method should not be
+        directly by the user
+
+        Parameters
+        ------------
+        fhandle: io.IOBase
+            file handle
+'''
         fhandle.seek(self.offset)
         self.header = RHKThumbnailHeader.packer.unpack_from_file(fhandle)
         self.width = self.header[0]
@@ -311,9 +627,37 @@ RHKObject.registObjType(16, RHKThumbnailHeader)
 
 
 class SM4File:
-    '''Loader for SM4 file'''
+    '''.. py:class:: SM4File(file)
+
+    Class for Loading SM4 file
+
+    Attributes
+    -------------
+    signature: str
+
+    pagecount:int
+       The total pages in the file
+    children:list
+       The list contains the child objects.
+
+       1. Page index Header
+       2. PRM Data
+       3. PRM Header
+
+    reserved:int
+        0   (Not used, just prepared for future by RHK)
+    ndata: int
+
+
+    Paramters
+    ----------
+    file: str or io.IObase
+        File name or file handle of 'SM4'
+    '''
 
     packer = ExtStruct('<36s5I')
+    '''format is '<36s5I'
+'''
 
     def __init__(self, filename):
         if isinstance(filename, str):

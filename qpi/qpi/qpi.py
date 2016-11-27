@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-''' .. py:module:: qpi
+'''.. py:module:: qpi
 
 Module to extract the line profile data about QPI results.
 '''
@@ -15,7 +15,14 @@ class QPI(object):
 
     Attributes
     ------------
-    data, physical_size, bias, current
+    data: tuple, list, np.ndarray
+       1D or 2D matrix data.  The size of data should be n**2. 
+    physical_size: float
+       The length of the horizontal line.
+    bias: float
+       The bias voltage in V unit.
+    current
+       The tunneling current in nA unit.
     '''
 
     def __init__(self, data, physical_size=0, bias=0, current=0, dataname=''):
@@ -77,7 +84,19 @@ class QPI(object):
 
 
 def qpidataload(filename):
-    '''Data loader for the file converted from SM4'''
+    '''.. py:function:: qpidataload(file)
+
+    Data loader for the file converted from SM4
+
+    Parameters
+    ----------
+    filename: str
+       The file name of SM4-file.
+
+    Returns
+    -------
+        QPI: QPI object
+    '''
     dataname = os.path.splitext(filename)[0]
     thefile = open(filename)
     data = []
@@ -99,6 +118,20 @@ def qpidataload(filename):
 
 
 def anglestring(angle):
+    '''.. py:function::anglestring(angle)
+
+    parameters
+    -----------
+    angle: float
+          The angle.
+
+
+    Returns
+    ---------
+    str
+          When the angle is negative, return 'm'+abs(angle).
+
+'''
     if angle < 0:
         return "m"+str(abs(angle))
     else:
