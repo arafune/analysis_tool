@@ -3,17 +3,18 @@
 from distutils.core import setup
 import sys
 
-reqpkgs = ['numpy', 'matplotlib']
-setup(name='qpi',
+reqpkgs = ['numpy']
+setup(name='analysis_tool',
         version='0.0.1',
         author='Ryuichi Arafune',
         maintainer='Ryuichi Arafune',
         maintainer_email='ryuichi.arafune@gmail.com',
-        description='QPI pattern analysis module'
+        description='Python tools for analyzing experimental data (STM, LPES,,,)',
         py_moddules=[
-            'qpi.qpi'
+            'stm.qpi'
+            'stm.rhksm4'
             ],
         requires=reqpkgs,
-        data_files=[('etc', ['rmqpi.py']),]
+        data_files=[('etc', ['rmanalysis_tool.py']),]
         )
 

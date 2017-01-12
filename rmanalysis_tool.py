@@ -9,7 +9,7 @@ Created on Nov. 25 (2016).
 if __name__ == '__main__':
     import sys
     import os
-    logfile = sys.argv[1] if len(sys.argv) > 1 else 'install-rhk.txt'
+    logfile = sys.argv[1] if len(sys.argv) > 1 else 'install-analysis_tool.txt'
     file = open(logfile)
     for line in file:
         line = line.rstrip('\n')
