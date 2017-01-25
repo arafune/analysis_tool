@@ -103,9 +103,8 @@ def qpidataload(filename):
     with thefile:
         [next(thefile) for i in range(4)]
         tmp = next(thefile)
-        bias, bias_unit, current, current_unit = \
-            float(tmp.split()[3]), tmp.split()[4],
-        float(tmp.split()[6]), tmp.split()[7]
+        bias, bias_unit, current = (float(tmp.split()[3]),
+                                        tmp.split()[4], float(tmp.split()[6]))
         if bias_unit in "mV,":
             bias = float(bias) / 1000
         [next(thefile) for i in range(2)]
