@@ -3,7 +3,7 @@
 from distutils.core import setup
 import sys
 
-reqpkgs = ['numpy']
+reqpkgs = ['numpy', 'lxml']
 setup(name='analysis_tool',
         version='0.0.1',
         author='Ryuichi Arafune',
