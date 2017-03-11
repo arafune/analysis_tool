@@ -4,7 +4,7 @@ import os
 from nose.tools import with_setup
 from nose.tools import eq_
 from nose.tools import ok_
-import rhk.rhksm4
+import rhksm4 
 
 
 class TestSM4(object):
@@ -16,11 +16,11 @@ class TestSM4(object):
         datadir = os.path.abspath(os.path.dirname(__file__)) + '/data/'
         #
         data_file1 = datadir + 'data3293FFT.sm4'
-        self.fft = rhk.rhksm4.SM4File(data_file1)
+        self.fft = rhksm4.SM4File(data_file1)
         #
         data_file2 = datadir + 'Co_Ru0001_1300.SM4'
         data2 = open(data_file2, 'rb')
-        self.co_ru = rhk.rhksm4.SM4File(data2)
+        self.co_ru = rhksm4.SM4File(data2)
 
     @with_setup(setup=setup)
     def test_fileheader(self):
@@ -58,7 +58,7 @@ class TestSM4(object):
     def test_Page(self):
         #
         page = self.fft.children[0].children[0].pages[0]
-        ok_(isinstance(page, rhk.rhksm4.RHKPage))
+        ok_(isinstance(page, rhksm4.RHKPage))
         eq_('image data', page.datatype_name)
         eq_('processed page', page.sourcetype_name)
         eq_(4, page.objcount)
@@ -67,7 +67,7 @@ class TestSM4(object):
     def test_PageHeader(self):
         #
         ph = self.fft.children[0].children[0].pages[0].children[0]
-        ok_(isinstance(ph, rhk.rhksm4.RHKObject))
+        ok_(isinstance(ph, rhksm4.RHKObject))
         #
         eq_('PageHeader', ph.objname)
         #
