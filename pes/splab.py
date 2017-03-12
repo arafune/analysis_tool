@@ -70,7 +70,7 @@ class SPRegion(object):
                                                     if elm2.tag == 'double']
                                                    for elm in detectors])
         self.counts = np.array([int(tmp) for tmp in
-                                r.xmlregion.find('.//ulong[@type_name="Counts"]').text.split()])
+                                xmlregion.find('.//ulong[@type_name="Counts"]').text.split()])
 
 
 def load(splab_xml):
