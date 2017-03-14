@@ -16,6 +16,21 @@ class SPLab(object):
     '''..py:class:: SPlab(xmlfile)
 
 Treat a SPLab xml file as the Python Object
+
+    Parameters
+    -----------
+    
+    xmlfile: filename or file handle of a Specs xml file
+
+    Attributes
+    -----------
+    root: lxml.etree._Element
+
+    version: text
+        version number of SPlab.
+
+    groups: list
+        list object stores SPGroup object
     '''
     def __init__(self, file):
         xml = etree.parse(file)
@@ -31,6 +46,14 @@ class SPGroup(object):
     '''.. py:class:: SPGroup(group)
 
     Capsulated a "RegionGroup" struct
+
+    Attributes
+    ----------
+    name: text
+        group name
+
+    regions: list
+        list object stores SPRegion object    
     '''
     def __init__(self, xmlgroup):
         self.name = xmlgroup[0].text
@@ -44,6 +67,28 @@ class SPRegion(object):
     '''.. py:class:: SPRegion(region)
 
     Capsulated a "RegionData" struct
+
+    Attributes
+    -----------
+    name: text
+        region name
+
+    param: dictionary
+        dictionary object stores measurement parameters
+
+    mcd_head_tail: tuple
+        value of mcd head and tail
+
+    analyer_info: dictionary
+        dictionary object stores name and dispersion element  for detector
+
+    counts: numpy.ndarray
+        row_count.  The first axis is ch#.  
+        The second energy, the third (non-dispersion, usually axis).
+
+    
+
+    
     '''
     def __init__(self, xmlregion):
         self.xmlregion = xmlregion
@@ -69,9 +114,15 @@ class SPRegion(object):
                                                     for elm2 in elm
                                                     if elm2.tag == 'double']
                                                    for elm in detectors])
-        self.counts = np.array([int(tmp) for tmp in
-                                xmlregion.find('.//ulong[@type_name="Counts"]').text.split()])
-
+        counts = np.array([int(tmp) for tmp in
+                           xmlregion.find('.//ulong[@type_name="Counts"]').
+                           text.split()])
+        self.counts = counts.reshape(self.param["curves_per_scan"],
+                                     self.param["values_per_curve"]+
+                                     self.mcd_head_tail[0]+
+                                     self.mcd_head_tail[1],
+                                     len(self.analyzer_info['Detector']))
+                       
 
 def load(splab_xml):
     '''.. py:function:: load(filename)
