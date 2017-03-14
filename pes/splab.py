@@ -147,7 +147,31 @@ class SPRegion(object):
                                               self.mcd_head_tail[1])]
                                        for i in range(len(self.analyzer_info['Detector']))])
 
+        def allocateintensity(self, counts2D, energy_axis_ch):
+            '''.. py:method:: allocateintensity(counts2D, energy_axis_ch)
 
+            Return array allocated the signal by interpolating
+
+            parameters
+            ------------
+
+            counts2D: np.array
+                ARPES mapping raw data.  The values are usually int.
+
+            energy_axis_ch: np.array
+                numpy array. Use energy_axis_ch[ch#]
+
+            
+'''
+            corrected = []
+            for aData in counts2D:
+                f = interpolate.interp1d(energy_axis_ch,
+                                         aData,
+                                         bounds_error = False,
+                                         fill_value = (aData[0],
+                                                       aData[-1]))
+                corrected.append(f(self.energy_axis))
+            return np.array(corrected)        
         
 def load(splab_xml):
     '''.. py:function:: load(filename)
