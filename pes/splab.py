@@ -83,13 +83,8 @@ class SPRegion(object):
     analyer_info: dictionary
         dictionary object stores name and dispersion element  for detector
 
-    counts: numpy.ndarray
-        row_count.  The first axis is ch#.  
-        The second energy, the third (non-dispersion, usually axis).
-
-    
-
-    
+    rawcounts: numpy.ndarray
+        row count. 4-D array. rawcounts[scan#][detector_ch#][angle#][energy#]
     '''
     def __init__(self, xmlregion):
         self.xmlregion = xmlregion
@@ -115,14 +110,17 @@ class SPRegion(object):
                                                     for elm2 in elm
                                                     if elm2.tag == 'double']
                                                    for elm in detectors])
-        self.counts = np.array([int(tmp) for tmp in
-                           xmlregion.find('.//ulong[@type_name="Counts"]').
-                           text.split()]).reshape(
-                               self.param["curves_per_scan"],
-                               self.param["values_per_curve"]+
-                               self.mcd_head_tail[0]+
-                               self.mcd_head_tail[1],
-                               len(self.analyzer_info['Detector'])).transpose(2, 1, 0)
+        counts = np.array([[int(count)
+                            for count
+                            in elm.text.split()]
+                           for elm
+                           in xmlregion.findall('.//ulong[@type_name="Counts"]')])
+        # self.rawcount[scan#][ch#][angle#][energy#]
+        self.rawcounts = counts.reshape(self.param['num_scans'],
+                                       self.param['curves_per_scan'],
+                                       self.param['values_per_curve']+
+                                       self.mcd_head_tail[0]+self.mcd_head_tail[1],
+                                       len(self.analyzer_info['Detector'])).transpose(0, 3, 1, 2)
         # energy_axis_ch
         #E_{0n} =E_0+s_n =E1–h*delta+sn
         E1 = self.param['kinetic_energy']
@@ -135,19 +133,19 @@ class SPRegion(object):
         # self.mcd_head_tail[1] -1) * self.param['scan_delta']
         # values_per_curve+
         # np.linspace(sn, en,  
-        self.energy_axis = [E1 + delta * i
-                            for i
-                            in range(self.param['values_per_curve'])]
+        self.energy_axis = np.array([E1 + delta * i
+                                     for i
+                                     in range(self.param['values_per_curve'])])
         # energy_axis_ch would be local before release
-        self.energy_axis_ch = [[E1 - h * delta
-                                + self.analyzer_info['Detector'][i][1]
-                                * self.param['pass_energy']
-                                + delta * j
-                                for j in
-                                range(self.param['values_per_curve'] +
-                                      self.mcd_head_tail[0] +
-                                      self.mcd_head_tail[1])]
-                               for i in range(len(self.analyzer_info['Detector']))]
+        self.energy_axis_ch =np.array([[E1 - h * delta
+                                        + self.analyzer_info['Detector'][i][1]
+                                        * self.param['pass_energy']
+                                        + delta * j
+                                        for j in
+                                        range(self.param['values_per_curve'] +
+                                              self.mcd_head_tail[0] +
+                                              self.mcd_head_tail[1])]
+                                       for i in range(len(self.analyzer_info['Detector']))])
 
 
         
