@@ -9,6 +9,7 @@ lxml package is required to treat xml file.
 import os
 import bz2
 import numpy as np
+from scipy import interpolate
 from lxml import etree
 
 
@@ -114,16 +115,40 @@ class SPRegion(object):
                                                     for elm2 in elm
                                                     if elm2.tag == 'double']
                                                    for elm in detectors])
-        counts = np.array([int(tmp) for tmp in
+        self.counts = np.array([int(tmp) for tmp in
                            xmlregion.find('.//ulong[@type_name="Counts"]').
-                           text.split()])
-        self.counts = counts.reshape(self.param["curves_per_scan"],
-                                     self.param["values_per_curve"]+
-                                     self.mcd_head_tail[0]+
-                                     self.mcd_head_tail[1],
-                                     len(self.analyzer_info['Detector']))
-                       
+                           text.split()]).reshape(
+                               self.param["curves_per_scan"],
+                               self.param["values_per_curve"]+
+                               self.mcd_head_tail[0]+
+                               self.mcd_head_tail[1],
+                               len(self.analyzer_info['Detector'])).transpose(2, 1, 0)
+        # energy_axis_ch
+        #E_{0n} =E_0+s_n =E1–h*delta+sn
+        E1 = self.param['kinetic_energy']
+        h = self.mcd_head_tail[0]
+        delta=self.param['scan_delta']
+        # sn = dn * pass_energy
+        #    = self.analyzer_info['Detector'][n][1] * self.param['pass_energy']
 
+        # en = sn + (self.values_per_curve + self.mcd_head_tail[0] +
+        # self.mcd_head_tail[1] -1) * self.param['scan_delta']
+        # values_per_curve+
+        # np.linspace(sn, en,  
+        self.energy_axis = [E1 + delta * i for i in self.param['values_per_curve']]
+        # energy_axis_ch would be local before release
+        self.energy_axis_ch = [[E1 - h * delta
+                                - self.analyzer_info['Detector'][i][1]
+                                * self.param['pass_energy']
+                                + delta * j
+                                for j in
+                                range(self.param['values_per_curve'] +
+                                      self.mcd_head_tail[0] +
+                                      self.mcd_head_tail[1])]
+                               for i in range(len(self.analyzer_info['Detector']))]
+
+
+        
 def load(splab_xml):
     '''.. py:function:: load(filename)
 
