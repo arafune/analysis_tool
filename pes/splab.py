@@ -135,10 +135,12 @@ class SPRegion(object):
         # self.mcd_head_tail[1] -1) * self.param['scan_delta']
         # values_per_curve+
         # np.linspace(sn, en,  
-        self.energy_axis = [E1 + delta * i for i in self.param['values_per_curve']]
+        self.energy_axis = [E1 + delta * i
+                            for i
+                            in range(self.param['values_per_curve'])]
         # energy_axis_ch would be local before release
         self.energy_axis_ch = [[E1 - h * delta
-                                - self.analyzer_info['Detector'][i][1]
+                                + self.analyzer_info['Detector'][i][1]
                                 * self.param['pass_energy']
                                 + delta * j
                                 for j in
