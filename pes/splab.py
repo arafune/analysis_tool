@@ -20,7 +20,7 @@ Treat a SPLab xml file as the Python Object
 
     Parameters
     -----------
-    
+
     xmlfile: filename or file handle of a Specs xml file
 
     Attributes
@@ -38,9 +38,9 @@ Treat a SPLab xml file as the Python Object
         self.root = xml.getroot()
         self.version = self.root.get('version')
         self.groups = []
-        for gr in self.root[0]:
-            if gr.get('type_name') == "RegionGroup":
-                self.groups.append(SPGroup(gr))
+        for group in self.root[0]:
+            if group.get('type_name') == "RegionGroup":
+                self.groups.append(SPGroup(group))
 
 
 class SPGroup(object):
@@ -54,7 +54,7 @@ class SPGroup(object):
         group name
 
     regions: list
-        list object stores SPRegion object    
+        list object stores SPRegion object
     '''
     def __init__(self, xmlgroup):
         self.name = xmlgroup[0].text
@@ -91,10 +91,10 @@ class SPRegion(object):
         self.name = xmlregion[0].text
         self.param = {}
         for elm in xmlregion[1]:
-            if 'scan_mode' == elm.get('name'):
+            if elm.get('name') == 'scan_mode':
                 self.param[elm.get('name')] = elm[0].text
-            elif elm.get('name') in  ['num_scans', 'curves_per_scan',
-                                    'values_per_curve']:
+            elif elm.get('name') in ['num_scans', 'curves_per_scan',
+                                     'values_per_curve']:
                 self.param[elm.get('name')] = int(elm.text)
             else:
                 try:
@@ -110,69 +110,84 @@ class SPRegion(object):
                                                     for elm2 in elm
                                                     if elm2.tag == 'double']
                                                    for elm in detectors])
+        num_detectors = len(self.analyzer_info['Detector'])
+        counts_tag = './/ulong[@type_name="Counts"]'
         counts = np.array([[int(count)
                             for count
                             in elm.text.split()]
                            for elm
-                           in xmlregion.findall('.//ulong[@type_name="Counts"]')])
+                           in xmlregion.findall(counts_tag)])
         # self.rawcount[scan#][ch#][angle#][energy#]
         self.rawcounts = counts.reshape(self.param['num_scans'],
-                                       self.param['curves_per_scan'],
-                                       self.param['values_per_curve']+
-                                       self.mcd_head_tail[0]+self.mcd_head_tail[1],
-                                       len(self.analyzer_info['Detector'])).transpose(0, 3, 1, 2)
+                                        self.param['curves_per_scan'],
+                                        self.param['values_per_curve'] +
+                                        self.mcd_head_tail[0] +
+                                        self.mcd_head_tail[1],
+                                        num_detectors).transpose(0, 3, 1, 2)
         # energy_axis_ch
-        #E_{0n} =E_0+s_n =E1–h*delta+sn
+        # E_{0n} =E_0+s_n =E1–h*delta+sn
         E1 = self.param['kinetic_energy']
-        h = self.mcd_head_tail[0]
-        delta=self.param['scan_delta']
+        mcdhead = self.mcd_head_tail[0]
+        delta = self.param['scan_delta']
         # sn = dn * pass_energy
         #    = self.analyzer_info['Detector'][n][1] * self.param['pass_energy']
 
         # en = sn + (self.values_per_curve + self.mcd_head_tail[0] +
         # self.mcd_head_tail[1] -1) * self.param['scan_delta']
         # values_per_curve+
-        # np.linspace(sn, en,  
+        # np.linspace(sn, en
         self.energy_axis = np.array([E1 + delta * i
                                      for i
                                      in range(self.param['values_per_curve'])])
         # energy_axis_ch would be local before release
-        self.energy_axis_ch =np.array([[E1 - h * delta
-                                        + self.analyzer_info['Detector'][i][1]
-                                        * self.param['pass_energy']
-                                        + delta * j
-                                        for j in
-                                        range(self.param['values_per_curve'] +
-                                              self.mcd_head_tail[0] +
-                                              self.mcd_head_tail[1])]
-                                       for i in range(len(self.analyzer_info['Detector']))])
+        self.energy_axis_ch = np.array([[E1 - mcdhead * delta +
+                                         self.analyzer_info['Detector'][i][1] *
+                                         self.param['pass_energy'] +
+                                         delta * j
+                                         for j in
+                                         range(self.param['values_per_curve'] +
+                                               self.mcd_head_tail[0] +
+                                               self.mcd_head_tail[1])]
+                                        for i in range(num_detectors)])
 
-        def allocateintensity(self, counts2D, energy_axis_ch):
-            '''.. py:method:: allocateintensity(counts2D, energy_axis_ch)
+        # Most cases, the required data is
+        # * angle resolved
+        #  but
+        # summing up each detector data and each scan
+        scan_integrated = np.sum(self.rawcounts, axis=0)
+        apportioned = []
+        for ch, data in enumerate(scan_integrated):
+            correcteddata = self.allocateintensity(data,
+                                                   self.energy_axis_ch[ch])
+            apportioned.append(correcteddata)
+        apportioned = np.array(apportioned)
+        self.arpes = np.sum(apportioned, axis=0)
 
-            Return array allocated the signal by interpolating
+    def allocateintensity(self, counts_2d, energy_axis_ch):
+        '''.. py:method:: allocateintensity(counts2D, energy_axis_ch)
 
-            parameters
-            ------------
+        Return array allocated the signal by interpolating
 
-            counts2D: np.array
-                ARPES mapping raw data.  The values are usually int.
+        parameters
+        ------------
 
-            energy_axis_ch: np.array
-                numpy array. Use energy_axis_ch[ch#]
+        counts_2d: np.array
+            ARPES mapping raw data. The values are usually int.
 
-            
+        energy_axis_ch: np.array
+            numpy array. Use energy_axis_ch[ch#]
 '''
-            corrected = []
-            for aData in counts2D:
-                f = interpolate.interp1d(energy_axis_ch,
-                                         aData,
-                                         bounds_error = False,
-                                         fill_value = (aData[0],
-                                                       aData[-1]))
-                corrected.append(f(self.energy_axis))
-            return np.array(corrected)        
-        
+        corrected = []
+        for a_data in counts_2d:
+            interpf = interpolate.interp1d(energy_axis_ch,
+                                           a_data,
+                                           bounds_error=False,
+                                           fill_value=(a_data[0],
+                                                       a_data[-1]))
+            corrected.append(interpf(self.energy_axis))
+        return np.array(corrected)
+
+
 def load(splab_xml):
     '''.. py:function:: load(filename)
 
