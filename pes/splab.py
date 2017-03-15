@@ -203,31 +203,6 @@ class SPRegion(object):
         arpes.angle_axis = self.angle_axis
         return arpes
 
-    def allocateintensity(self, counts_2d, energy_axis_ch):
-        # Slow!  Use broadcast technique!!
-        '''.. py:method:: allocateintensity(counts2D, energy_axis_ch)
-
-        Return array allocated the signal by interpolating
-
-        parameters
-        ------------
-
-        counts_2d: np.array
-            ARPES mapping raw data. The values are usually int.
-
-        energy_axis_ch: np.array
-            numpy array. Use energy_axis_ch[ch#]
-'''
-        corrected = []
-        for a_data in counts_2d:
-            interpf = interpolate.interp1d(energy_axis_ch,
-                                           a_data,
-                                           bounds_error=False,
-                                           fill_value=(a_data[0],
-                                                       a_data[-1]))
-            corrected.append(interpf(self.energy_axis))
-        return np.array(corrected)
-
 
 class ARPESdata(object):
     '''.. py:class:: ARPESdata
