@@ -170,6 +170,12 @@ class SPRegion(object):
 #            apportioned.append(correcteddata)
         apportioned = np.array(apportioned)
         self.arpes = np.sum(apportioned, axis=0)
+        for elm in xmlregion.findall(".//string[@name='name']"):
+            if elm.text == "OrdinateRange":
+                p = elm.getparent()
+                anglespan = float(
+                    p.find(".//any[@name='value']").find(".//double").text)
+        self.anglespan = anglespan 
 
     def allocateintensity(self, counts_2d, energy_axis_ch):
         # Slow!  Use broadcast technique!!
