@@ -196,13 +196,13 @@ class SPRegion(object):
         Returns
         --------
 
-        ARPESmap: object
+        ARPESmap: arpes.ARPESMap object
 '''
-        arpes = arpes.ARPESmap()
-        arpes.intensities = self.arpes
-        arpes.energy_axis = self.energy_axis
-        arpes.angle_axis = self.angle_axis
-        return arpes
+        arpes_data = arpes.ARPESmap()
+        arpes_data.intensities = self.arpes
+        arpes_data.energy_axis = self.energy_axis
+        arpes_data.angle_axis = self.angle_axis
+        return arpes_data
 
 
 def load(splab_xml):
