@@ -215,6 +215,22 @@ class SPRegion(object):
         return np.array(corrected)
 
 
+class ARPESmap(object):
+    '''.. py:class:: ARPESmap()
+
+    Class for ARPES intensity data  with infomation of physical axes.
+'''
+    def __init__(self):
+        self.intensities = np.zeros(0)
+        self.energy_axis = np.zeros(0)
+        self.angle_axis = np.zeros(0)
+
+    def energy_start_end(self):
+        return self.energy_axis[0], self.energy_axis[-1],
+
+    def angle_start_end(self):
+        return self.angle_axis[0], self.angle_axis[-1]
+
 def load(splab_xml):
     '''.. py:function:: load(filename)
 
