@@ -157,13 +157,22 @@ class SPRegion(object):
         scan_integrated = np.sum(self.rawcounts, axis=0)
         apportioned = []
         for ch, data in enumerate(scan_integrated):
-            correcteddata = self.allocateintensity(data,
-                                                   self.energy_axis_ch[ch])
-            apportioned.append(correcteddata)
+            interp_f = interpolate.interp1d(self.energy_axis_ch[ch],
+                                            data,
+                                            bounds_error=False,
+                                            fill_value='extrapolate')
+            # Note: As broadcast technique in interp1d is used, the
+            # intensity at the highest energy is little bit different
+            # from that in the output from SpecsLab originally.
+            apportioned.append(interp_f(self.energy_axis))
+#            correcteddata = self.allocateintensity(data,
+#                                                   self.energy_axis_ch[ch])
+#            apportioned.append(correcteddata)
         apportioned = np.array(apportioned)
         self.arpes = np.sum(apportioned, axis=0)
 
     def allocateintensity(self, counts_2d, energy_axis_ch):
+        # Slow!  Use broadcast technique!!
         '''.. py:method:: allocateintensity(counts2D, energy_axis_ch)
 
         Return array allocated the signal by interpolating
