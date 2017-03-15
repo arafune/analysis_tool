@@ -9,7 +9,6 @@ lxml package is required to treat xml file.
 import os
 import bz2
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy import interpolate
 from lxml import etree
 import arpes
