@@ -85,6 +85,18 @@ class SPRegion(object):
 
     rawcounts: numpy.ndarray
         row count. 4-D array. rawcounts[scan#][detector_ch#][angle#][energy#]
+
+    arpes: numpy.ndarray
+        2D mapping data for ARPES
+
+    energy_axis:numpy.ndarray
+
+    energy_axis_ch:numpy.ndarray
+        energy axis for each detector.
+        energy_axis_ch[detector_ch] returns the np.array of the energy axis.
+
+    anglespan: float
+        The value of the angle span
     '''
     def __init__(self, xmlregion):
         self.xmlregion = xmlregion
