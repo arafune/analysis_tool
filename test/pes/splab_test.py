@@ -61,3 +61,23 @@ class TestSPLab(object):
                                              [15.4413, 0.0763826, 1]]), 
                                    self.splab041.groups[0].regions[0].analyzer_info['Detector'])
 
+    @with_setup(setup=setup)
+    def test_mcd_head_tail(self):
+        eq_(self.splab041.groups[0].regions[0].mcd_head_tail[0], 8)
+        eq_(self.splab041.groups[0].regions[0].mcd_head_tail[1], 8)
+
+    @with_setup(setup=setup)
+    def test_energy_axis(self):
+        '''Test for energy axis including channel separated energy axis'''
+        np.testing.assert_allclose(
+            np.array([5.1, 5.11, 5.12, 5.13]),
+            self.splab041.groups[0].regions[0].energy_axis[0:4])
+                                   
+        np.testing.assert_allclose(
+            np.array([5.1 + i *0.01 for i in range(211)]),
+            self.splab041.groups[0].regions[0].energy_axis)
+        np.testing.assert_allclose(
+            np.array([4.935258, 4.945258,
+                      4.955258, 4.965258,
+                      4.975258]),
+            self.splab041.groups[0].regions[0].energy_axis_ch[0][0:5])
