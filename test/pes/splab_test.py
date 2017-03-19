@@ -71,8 +71,7 @@ class TestSPLab(object):
         '''Test for energy axis including channel separated energy axis'''
         np.testing.assert_allclose(
             np.array([5.1, 5.11, 5.12, 5.13]),
-            self.splab041.groups[0].regions[0].energy_axis[0:4])
-                                   
+            self.splab041.groups[0].regions[0].energy_axis[0:4])                                   
         np.testing.assert_allclose(
             np.array([5.1 + i *0.01 for i in range(211)]),
             self.splab041.groups[0].regions[0].energy_axis)
