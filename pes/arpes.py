@@ -48,6 +48,26 @@ class ARPESdata(object):
                        0))
         return ax
 
+    def showspectra(self, spacing='auto', color='blue'):
+        '''.. py:method:: show()
+
+        Show the waterfall view
+
+        Parameters
+        -----------
+        spacing: text, float
+            The y(non-energy axis)-offset between the neighboring spectra.
+        '''
+        numspectra = self.intensities.shape[0]
+        maxintensity = np.max(self.intensities)
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        maxintensity = np.max(self.intensities)
+        if spacing=='auto':
+            spacing = int(maxintensity * 7 /2 / numspectra)
+        for no, spectrum in enumerate(reversed(self.intensities)):
+            ax.plot(self.energy_axis, spectrum + spacing * no, color=color)
+        return fig, ax
 
 class ARPESmap(ARPESdata):
     '''.. py:class:: ARPESmap()
