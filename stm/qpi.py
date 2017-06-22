@@ -77,9 +77,9 @@ class QPI(object):
                                self.pixels)
         else:
             return np.linspace(- self.physical_size / 2.0 *
-                               np.abs(1 / np.sin(angle * degree)),
+                               np.abs(1 / np.sin(angle_deg * degree)),
                                self.physical_size / 2.0 *
-                               np.abs(1 / np.sin(angle * degree)),
+                               np.abs(1 / np.sin(angle_deg * degree)),
                                self.pixels)
 
 
