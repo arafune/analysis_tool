@@ -15,15 +15,8 @@ from mpl_toolkits.mplot3d import axes3d
 #
 def Hamiltonian(q,kx, ky, J):
     ham=np.zeros((q,q), dtype=np.complex)
-
+    ham[range(q), range(q)]=-J*2.0*np.cos([kx-float(i) * 2.0*np.pi/float(q) for i in range(q)])
     for i in range(q):
-        for j in range(q):
-            ham[i][j]=0.0+0.0j
-
-
-    for i in range(q):
-        ham[i][i]=-J*2.0*np.cos(kx-float(i)*2.0*np.pi/float(q))
-
         if (0<i & i<q-1):
             ham[i][i+1]=-J*np.exp(ky*1.0j)
             ham[i][i-1]=-J*np.exp(-ky*1.0j)
