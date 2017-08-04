@@ -13,40 +13,33 @@ from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 #
 #
-def Hamiltonian(q,kx, ky, J):
-    ham=np.zeros((q,q), dtype=np.complex)
-    ham[range(q), range(q)]=-J*2.0*np.cos([kx-float(i) * 2.0*np.pi/float(q) for i in range(q)])
-    for i in range(q):
-        if (0<i & i<q-1):
-            ham[i][i+1]=-J*np.exp(ky*1.0j)
-            ham[i][i-1]=-J*np.exp(-ky*1.0j)
-
-    ham[0][q-1]=-J*np.exp(-ky*1.0j)
-    ham[q-1][0]=-J*np.exp(ky*1.0j)
-    ham[0][1]=-J*np.exp(ky*1.0j)
-    ham[q-1][q-2]=-J*np.exp(-ky*1.0j)
-
+def Hamiltonian(q, kx, ky, J):
+    ham = np.zeros((q, q), dtype=np.complex)
+    ham[range(q), range(q)] = -J*2.0*np.cos([kx - float(i) * 2.0 * np.pi / float(q) for i in range(q)])
+    ham[range(1, q-1), range(2, q)] = -J*np.exp(ky*1.0j)
+    ham[range(1, q-1), range(0, q-2)] = -J*np.exp(-ky*1.0j)
+    #
+    ham[0][q-1] = -J*np.exp(-ky*1.0j)
+    ham[q-1][0] = -J*np.exp(ky*1.0j)
+    ham[0][1] = -J*np.exp(ky*1.0j)
+    ham[q-1][q-2] = -J*np.exp(-ky*1.0j)
     return ham
 
-
-
-
-
-q=6
+q = 6
 
 #check the band degeneracy corresponds to Landau level
-ky=np.pi/float(q)
+ky = np.pi/float(q)
 #ky=0.0
 #eigenvalue should be degenerate for kx=kx+2pi*n/q
 
 eigen=[]
 for i in range(q+1):
-    kx=-2.0/float(q)*float(i)*np.pi+np.pi/float(q)
-    ham=Hamiltonian(q, kx, ky, 0.1)
-    l=np.linalg.eigvalsh(ham, UPLO='L')
+    kx = -2.0/float(q)*float(i)*np.pi+np.pi/float(q)
+    ham = Hamiltonian(q, kx, ky, 0.1)
+    l = np.linalg.eigvalsh(ham, UPLO='L')
     print('kx='+str(kx)+'  ky='+str(ky))
     print(l)
-    eigreal=[]
+    eigreal = []
     for j in range(q):
         eigreal.append(l[j].real)
 
@@ -55,11 +48,11 @@ for i in range(q+1):
 #degeneracy condition seems to be satisfied
 
 
-ksample=50
-kxmesh=np.linspace(-np.pi, np.pi, ksample)
-kymesh=np.linspace(-np.pi/float(q), np.pi/float(q), ksample)
+ksample = 50
+kxmesh = np.linspace(-np.pi, np.pi, ksample)
+kymesh = np.linspace(-np.pi/float(q), np.pi/float(q), ksample)
 
-X,Y =np.meshgrid(kxmesh,kymesh)
+X, Y = np.meshgrid(kxmesh, kymesh)
 
 eigen=[]
 
