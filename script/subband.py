@@ -33,6 +33,12 @@ ky = np.pi/float(q)
 #eigenvalue should be degenerate for kx=kx+2pi*n/q
 
 eigen=[]
+hams = np.array([Hamiltonian(q,
+                             -2.0/float(q)*float(i)*np.pi+np.pi/float(q),
+                             ky,
+                             0.1) for i in range(q+1)])
+ls = np.linalg.eigvalsh(hams, UPLO='L')
+print (hams.shape)
 for i in range(q+1):
     kx = -2.0/float(q)*float(i)*np.pi+np.pi/float(q)
     ham = Hamiltonian(q, kx, ky, 0.1)
@@ -44,10 +50,7 @@ for i in range(q+1):
         eigreal.append(l[j].real)
 
     eigen.append(sorted(eigreal))
-
 #degeneracy condition seems to be satisfied
-
-
 ksample = 50
 kxmesh = np.linspace(-np.pi, np.pi, ksample)
 kymesh = np.linspace(-np.pi/float(q), np.pi/float(q), ksample)
