@@ -1,0 +1,2 @@
+Acquire::http::proxy "http://wwwout.nims.go.jp:8888";
+Acquire::https::proxy "https://wwwout.nims.go.jp:8888";
