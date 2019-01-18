@@ -2,14 +2,20 @@
   <head>
     <title>LakeShore330</title>
     <script>
-      setTimeout(function () { location.reload();  }, 5000);
-    </script>    
+      function reloadimg(e,timer){ 
+      setTimeout( function(){
+      e.src = "LTdata.png?r=" + Math.random(); 
+      },timer); 
+      }
+    </script>
   </head>
   <body>
     <h1>LakeShore330</h1>
-    <img src='./LTdata.png', width=80%>
+    <img src="LTdata.png" onload="reloadimg(this,1000)" onerror="reloadimg(this,5000)" width=80% />    
     <address>
       <a href="mailto:ryuichi.arafune@gmail.com">荒船 竜一</a>
     </address>
   </body>
 </html>
+
+
