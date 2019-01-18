@@ -23,8 +23,8 @@ aptproxy="/etc/apt/apt.conf.d/80proxy"
 if hostname -I | grep '^144.213' > /dev/null  2>&1 ; then
 	if [ ! -e $aptproxy ]; then
 		cat <<EOF > $aptproxy
-		Acquire::http::proxy "http://wwwout.nims.go.jp:8888";
-		Acquire::https::proxy "http://wwwout.nims.go.jp:8888";
+Acquire::http::proxy "http://wwwout.nims.go.jp:8888";
+Acquire::https::proxy "http://wwwout.nims.go.jp:8888";
 EOF
 	fi
 else
