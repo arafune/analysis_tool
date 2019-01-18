@@ -1,6 +1,7 @@
 # LTMeasure
 ## How to install
-
+* 必要パッケージ
+    * matplotlib
 
 ## How to Use
 ### サーバー側
