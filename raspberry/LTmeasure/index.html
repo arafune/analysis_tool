@@ -18,16 +18,32 @@
           minTimeout: 2000,
           type: 'html'
         },
-
         function(data){
           $("#lastload").text(data);
         });
       });
-    </script>    
+    </script>
+    <style type="text/css">
+      <!--
+	  h1{
+	  padding:10px;
+	  font-size:24px;
+	  }
+	  body{
+	  padding:10px;
+	  font-size:48px;
+	  }
+	-->
+    </style>
   </head>
   <body>
     <h1>LakeShore330</h1>
-    <div id="lastload">aaa</div>    
+    <!-- <div id="lastload" font="15" color="red" >aaa</div> -->
+    <div id="lastload">
+      <font size="5" color="#ff0000">
+	aaa
+      </font>
+    </div>    
     <img src="LTdata.png" onload="reloadimg(this,1000)"
 	 onerror="reloadimg(this,5000)" width=80% />
     <address>
@@ -35,5 +51,6 @@
     </address>
   </body>
 </html>
+
 
 
