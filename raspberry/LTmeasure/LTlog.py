@@ -76,10 +76,10 @@ def get_temperature(address=12, dummy=False):
     ---------
          (datetime object, temperature, temperature)
     '''
-    inst = Gpib.Gpib(0, address, timeout=60)
     if dummy:
         return read_dummy(2)
     else:
+        inst = Gpib.Gpib(0, address, timeout=60)
         now = datetime.datetime.now()
         inst.write('SCHN A')
         inst.write('SDAT?')
@@ -103,6 +103,7 @@ def draw_lakeshore330(data):
 if __name__ == '__main__':
     logfile = 'LTlog.dat'
     lastread = 'lastread.dat'
+    maxdatalength = 300
     drawevery = 5  # seconds
     sleepingtime = 1  # seconds
     if not init_lakeshore330(12):
@@ -114,14 +115,19 @@ if __name__ == '__main__':
             data[0].append(now)
             data[1].append(tempA)
             data[2].append(tempB)
+            if len(data[0]) > 300:
+                del data[0][0]
+                del data[1][0]
+                del data[2][0]
             nowstr = now.strftime('%Y-%m-%d %H:%M:%S')
+            print(nowstr, tempA, tempB)
             with open(lastread, mode='w') as f:
                 str = '{}\n{:.2f}\n{:.2f}\n'.format(nowstr, tempA, tempB)
                 f.write(str)
             with open(logfile, mode='a') as f:
                 str = '{}\t{:.2f}\t{:.2f}\n'.format(nowstr, tempA, tempB)
                 f.write(str)
-            if now.seccond % drawevery == 0:
+            if now.second % drawevery == 0:
                 draw_lakeshore330(data)
             sleep(sleepingtime)
     except KeyboardInterrupt:
