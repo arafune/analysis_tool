@@ -94,6 +94,7 @@ def draw_lakeshore330(data):
     """1st column が datetime オブジェクトの2Dデータを読み込んでグラフにする。"""
     fig = plt.figure(figsize=(15, 10), dpi=200)
     ax = fig.add_subplot(111)
+    plt.subplots_adjust(top=0.98, right=0.98, left=0.05, bottom=0.05)
     ax.plot_date(data[0], data[1], fmt='-', label='Upper sensor')
     ax.plot_date(data[0], data[2], fmt='-', label='Lower sensor')
     ax.legend(loc=2)
