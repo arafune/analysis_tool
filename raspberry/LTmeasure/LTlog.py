@@ -98,6 +98,8 @@ def draw_lakeshore330(data):
     ax.plot_date(data[0], data[2], fmt='-', label='Lower sensor')
     ax.legend(loc=2)
     plt.savefig('LTdata.png')
+    plt.close()
+    return True
 
 
 if __name__ == '__main__':
@@ -129,7 +131,8 @@ if __name__ == '__main__':
                 f.write(str)
             if now.second % drawevery == 0:
                 draw_lakeshore330(data)
-            sleep(sleepingtime)
+            else:
+                sleep(sleepingtime)
     except KeyboardInterrupt:
         if not dummy:
             terminate_lakeshore330()
