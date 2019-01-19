@@ -6,7 +6,12 @@ import datetime
 import argparse
 import matplotlib.pyplot as plt
 import random
-import Gpib
+import sys
+from time import sleep
+try:
+    import Gpib
+except ModuleNotFoundError:
+    dummy = True
 
 
 def build_dummydate():
@@ -32,7 +37,10 @@ def read_dummy(n_ch):
 
 
 def init_lakeshore330(address=12):
-    inst = Gpib.Gpib(0, address, timeout=60)
+    try:
+        inst = Gpib.Gpib(0, address, timeout=60)
+    except NameError:  # <<< FIXME
+        return False
     inst.write("*IDN?")
     if 'LSCI,MODEL330' in inst.read(100):
         inst.write('CCHN A')
@@ -93,4 +101,30 @@ def draw_lakeshore330(data):
 
 
 if __name__ == '__main__':
-    pass
+    logfile = 'LTlog.dat'
+    lastread = 'lastread.dat'
+    drawevery = 5  # seconds
+    sleepingtime = 1  # seconds
+    if not init_lakeshore330(12):
+        dummy = True
+    data = [[], [], []]
+    try:
+        while True:
+            now, tempA, tempB = get_temperature(dummy=dummy)
+            data[0].append(now)
+            data[1].append(tempA)
+            data[2].append(tempB)
+            nowstr = now.strftime('%Y-%m-%d %H:%M:%S')
+            with open(lastread, mode='w') as f:
+                str = '{}\n{:.2f}\n{:.2f}\n'.format(nowstr, tempA, tempB)
+                f.write(str)
+            with open(logfile, mode='a') as f:
+                str = '{}\t{:.2f}\t{:.2f}\n'.format(nowstr, tempA, tempB)
+                f.write(str)
+            if now.seccond % drawevery == 0:
+                draw_lakeshore330(data)
+            sleep(sleepingtime)
+    except KeyboardInterrupt:
+        if not dummy:
+            terminate_lakeshore330()
+        sys.exit()
