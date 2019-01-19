@@ -92,7 +92,7 @@ def get_temperature(address=12, dummy=False):
 
 def draw_lakeshore330(data):
     """1st column が datetime オブジェクトの2Dデータを読み込んでグラフにする。"""
-    fig = plt.figure(figsize=(15, 10), dpi=200)
+    fig = plt.figure(figsize=(15, 10))
     ax = fig.add_subplot(111)
     plt.subplots_adjust(top=0.98, right=0.98, left=0.05, bottom=0.05)
     ax.plot_date(data[0], data[1], fmt='-', label='Upper sensor')
@@ -109,6 +109,7 @@ if __name__ == '__main__':
     maxdatalength = 300
     drawevery = 5  # seconds
     sleepingtime = 1  # seconds
+    #
     if not init_lakeshore330(12):
         dummy = True
     data = [[], [], []]
