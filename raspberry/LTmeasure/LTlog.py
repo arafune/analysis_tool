@@ -10,6 +10,7 @@ import sys
 from time import sleep
 try:
     import Gpib
+    dummy = False
 except ModuleNotFoundError:
     dummy = True
 
@@ -42,7 +43,7 @@ def init_lakeshore330(address=12):
     except NameError:  # <<< FIXME
         return False
     inst.write("*IDN?")
-    if 'LSCI,MODEL330' in inst.read(100):
+    if 'LSCI,MODEL330' in inst.read(100).decode("UTF-8"):
         inst.write('CCHN A')
         inst.write('CUNI K')
         inst.write('SUNI K')
