@@ -115,7 +115,7 @@ if __name__ == '__main__':
     if args.dummy:
         dummy = True
     else:
-        dummuy = False
+        dummuy = dummy
     #
     logfile = 'LTlog.dat'
     lastread = 'lastread.dat'

@@ -76,11 +76,22 @@ def draw_pressure_temperature(data):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--dummy',
+                        action='store_true', default=False,
+                        help='Use dummy data')
+    args = parser.parse_args()
+    #
     logfile = 'BakingLog.dat'
     lastread = 'lastread.dat'
     maxdatalength = 300
     drawevery = 5  # seconds
     sleepingtime = 1  # seconds
+    #
+    if args.dummy:
+        dummy = True
+    else
+        dummy = dummy
     #
     data = [[], [], [], [], []]
     try:
