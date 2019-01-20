@@ -85,10 +85,10 @@ def get_temperature(address=12, dummy=False):
         now = datetime.datetime.now()
         inst.write('SCHN A')
         inst.write('SDAT?')
-        temperature_a = inst.read(1024)
+        temperature_a = inst.read(1024).decode('UTF-8')
         inst.write('SCHN B')
         inst.write('SDAT?')
-        temperature_b = inst.read(1024)
+        temperature_b = inst.read(1024).decode('UTF-8')
         return(now, float(temperature_a), float(temperature_b))
 
 
