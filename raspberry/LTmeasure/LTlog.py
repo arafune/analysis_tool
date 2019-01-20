@@ -106,6 +106,17 @@ def draw_lakeshore330(data):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--dummy',
+                        action='store_true',
+                        default=False,
+                        help='Use dummy data')
+    args = parser.parse_args()
+    if args.dummy:
+        dummy = True
+    else:
+        dummuy = False
+    #
     logfile = 'LTlog.dat'
     lastread = 'lastread.dat'
     maxdatalength = 300
