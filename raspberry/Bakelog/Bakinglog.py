@@ -55,11 +55,12 @@ def get_data(dummy=False):
 def draw_pressure_temperature(data):
     """1st column が datetime オブジェクトの2Dデータを読み込んでグラフにする。"""
     fig = plt.figure(figsize=(30, 10))
-    plt.subplots_adjust(top=0.98, right=0.98, left=0.05, bottom=0.05)
-    #
-    ax1 = fig.add_subplot(111)
-    ax1.plot_date(data[0], data[1], fmt='-', label='Analysis Pressure')
-    ax1.plot_date(data[0], data[2], fmt='-', label='Preparation Pressure')
+    ax1 = fig.add_subplot(121)
+    ax1.plot_date(data[0], data[1], color='red',
+                    fmt='-', label='Analysis Pressure')
+    ax1.plot_date(data[0], data[2], color='blue',
+                    fmt='-', label='Preparation Pressure')
+    ax1.set_ylabel('Pressure  (mbar)')
     ax1.set_yscale('log')
     ax1.legend(loc=2)
     #
@@ -67,6 +68,8 @@ def draw_pressure_temperature(data):
     ax2.plot_date(data[0], data[3], fmt='-', label='temperature_phoibos')
     ax2.plot_date(data[0], data[4], fmt='-', label='temperature_Analyis')
     ax2.legend(loc=2)
+    ax2.set_ylabel('Temperature  (C)')
+    plt.subplots_adjust(top=0.98, right=0.98, left=0.05, bottom=0.05, wspace=.1)
     plt.savefig('BakingLogdata.png')
     plt.close()
     return True
