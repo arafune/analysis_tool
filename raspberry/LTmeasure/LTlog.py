@@ -101,6 +101,7 @@ def draw_lakeshore330(data):
     plt.subplots_adjust(top=0.98, right=0.98, left=0.05, bottom=0.05)
     ax.plot_date(data[0], data[1], fmt='-', label='Upper sensor')
     ax.plot_date(data[0], data[2], fmt='-', label='Lower sensor')
+    ax.set_ylabel('Temperature  (K)')
     ax.legend(loc=2)
     plt.savefig('LTdata.png', dpi=72)
     plt.close()
