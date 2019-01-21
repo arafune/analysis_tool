@@ -5,7 +5,7 @@
 import datetime
 import argparse
 import matplotlib
-matplotlib.use('cairo')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import random
 import sys
