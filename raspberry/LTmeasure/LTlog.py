@@ -4,6 +4,8 @@
 
 import datetime
 import argparse
+import matplotlib
+matplotlib.use('cairo')
 import matplotlib.pyplot as plt
 import random
 import sys
@@ -100,7 +102,7 @@ def draw_lakeshore330(data):
     ax.plot_date(data[0], data[1], fmt='-', label='Upper sensor')
     ax.plot_date(data[0], data[2], fmt='-', label='Lower sensor')
     ax.legend(loc=2)
-    plt.savefig('LTdata.png')
+    plt.savefig('LTdata.png', dpi=72)
     plt.close()
     return True
 
