@@ -114,6 +114,12 @@ if __name__ == '__main__':
                         action='store_true',
                         default=False,
                         help='Use dummy data')
+    parser.add_argument('--period', type=float,
+            help='Measurement period (default:1s)')
+    parser.add_argument('--period', type=int,
+            help='Plot priod (default: 5s)')
+    parser.add_argument('--max_length', type=int,
+            help='Number of data for plot (default: 300)')
     args = parser.parse_args()
     if args.dummy:
         dummy = True
