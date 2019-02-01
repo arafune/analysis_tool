@@ -34,7 +34,10 @@ def build_dummydate():
 def read_dummy(n_ch):
     '''Return random data
 
-    n_ch: number of channels
+    Parameters
+    ----------
+    n_ch: int
+        number of channels
     '''
     data = [datetime.datetime.now()]
     data[1: 1] = [random.random() for a in range(n_ch)]
@@ -42,6 +45,13 @@ def read_dummy(n_ch):
 
 
 def init_lakeshore330(address=12):
+    '''Init Lakeshore330 GPIB setting
+
+    Parameters
+    ----------
+    address: int
+        GPIB address of Lakeshore330 (default:12)
+    '''
     try:
         inst = Gpib.Gpib(0, address, timeout=60)
     except (NameError, gpib.GpibError):  # <<< FIXME
@@ -62,6 +72,13 @@ def init_lakeshore330(address=12):
 
 
 def terminate_lakeshore330(address=12):
+    '''Terminate Lakeshore330 GPIB setting
+
+    Parameters
+    ----------
+    address: int
+        GPIB address of Lakeshore330 (default:12)
+    '''
     inst = Gpib.Gpib(0, address, timeout=60)
     inst.write('*RST')
     inst.write('*CLS')
@@ -136,7 +153,6 @@ if __name__ == '__main__':
     if not init_lakeshore330(12):
         dummy = True
     data = [[], [], []]
-    
     try:
         while True:
             now, tempA, tempB = get_temperature(dummy=dummy)
