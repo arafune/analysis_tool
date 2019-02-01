@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import random
 import sys
 from time import sleep
+from multiprocessing import Process
 try:
     import Gpib
     import gpib
@@ -129,6 +130,7 @@ if __name__ == '__main__':
     if not init_lakeshore330(12):
         dummy = True
     data = [[], [], []]
+    
     try:
         while True:
             now, tempA, tempB = get_temperature(dummy=dummy)
@@ -148,9 +150,9 @@ if __name__ == '__main__':
                 str = '{}\t{:.2f}\t{:.2f}\n'.format(nowstr, tempA, tempB)
                 f.write(str)
             if now.second % drawevery == 0:
-                draw_lakeshore330(data)
-            else:
-                sleep(sleepingtime)
+                p = Process(target = draw_lakeshore330, args = (data,))
+                p.start()
+            sleep(sleepingtime)
     except KeyboardInterrupt:
         if not dummy:
             terminate_lakeshore330()
