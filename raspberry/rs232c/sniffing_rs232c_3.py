@@ -4,11 +4,9 @@ import datetime
  
  
 def to_hex(input_str):
-#    outpur_str =type(input_str)
-    print(type(input_str))
-    outpur_str = " ".join("{:02x}".format(c for c in input_str)
+    output_str = ' '.join(['{:02x}'.format(c) for c in input_str])
     # 4b 41 20 30 20 46 46 0d
-    return outpur_str
+    return output_str
  
  
 def main():
