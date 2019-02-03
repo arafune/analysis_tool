@@ -1,12 +1,13 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 import serial    # pyserial
 import datetime
  
  
 def to_hex(input_str):
-    outpur_str = " ".join("{:02x}".format(ord(c)) for c in input_str)
+    output_str = ' '.join(['{:02x}'.format(c) for c in inputstr])
+#    outpur_str = " ".join("{:02x}".format(ord(c)) for c in input_str)
     # 4b 41 20 30 20 46 46 0d
-    return outpur_str
+    return output_str
  
  
 def main():
