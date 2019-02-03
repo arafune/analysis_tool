@@ -3,16 +3,17 @@
 '''
 import serial
 
-PORT = '/dev/ttyUSB0'
 
 class Qmass():
     '''Qmass measurement system class'''
-    def __init__(self):
-        '''Init Microvision'''
-        self.ser = serial.Serial(port=PORT, baudrate=9600,
+    def __init__(self, port='/dev/ttfUSB0'):
+        '''Init Microvision plus'''
+        self.ser = serial.Serial(port=port, baudrate=9600,
                 parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE)
         data_to_read = ser.in_waiting  # よけいなリードバッファがあった時用
         self.read(data_to_read)
+        #
+        self.fil = 0  # 0: 0ff, 1: Fil #1, 2: Fil #2
         #
         self.write(b'$$$$$$$$$$')
         self.write(bytes.fromhex('7b 30 30 30 44 2c 31 30 3a 31 46 42 36'))
@@ -40,6 +41,10 @@ class Qmass():
         print(ret3)
         print(ret4)
 
+    def close(self):
+        '''Close Microvision plus'''
+        pass
+
     def set_accuracy(self, accuracy=0):
         '''set accuracy
 
@@ -63,5 +68,46 @@ class Qmass():
         else:
             raise ValueError("accuracy must be 0 - 5 and integer")
 
+    def set_range(self, range=0):
+        '''Set range
+        '''
+        pass
 
+    def set_start_mass(self, start_mass=4):
+        '''Set start mass
+        
+        Parameters
+        -----------
+        start_mass: int
+            start mass
+        '''
+        pass
 
+    def set_mass_range(self, mass_range=0):
+        '''Set mass range
+
+        Parameters
+        -----------
+        mass_range: int
+            mass range: 0: 4, 1:  , 2:  , 3:  4:...
+
+        '''
+        pass
+
+    def fil_on(self, fil_no=1):
+        '''Filament on
+        '''
+        pass
+
+    def fil_off(self):
+        '''Filament off
+        '''
+        pass
+   
+    def multiplier_on(self):
+        '''multiplier on'''
+        pass
+
+    def multiplier_off(self):
+        '''multiplier off'''
+        pass
