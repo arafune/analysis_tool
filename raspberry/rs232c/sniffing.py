@@ -12,7 +12,10 @@ READ_TIMEOUT = 0.1          # Read timeout to avoid waiting while
 WRITE_TIMEOUT = None         # Write timeout to avoid waiting in case of
                             # write error on the serial port
 
-LOG = open('log.txt', 'a+')     # Open our log file, to put read data
+today = time.localtime(time.time())
+logfile = "log_{:04}{:02}{:02}.txt".format(today.tm_year, today.tm_mon, today.tm_mday) 
+
+LOG = open(logfile, 'a+')     # Open our log file, to put read data
 
 From_PC_To_Device = True    # this variable is used to specify
                              # which port we're gonna read from
@@ -57,3 +60,4 @@ while 1:
         listener.write(serial_out)
     else:
         From_PC_To_Device = True
+
