@@ -1,44 +1,59 @@
 #!/usr/bin/env python3
-import serial
+'''RS2323C monitoring/sniffing tool
+'''
 import time
+import serial
 
-baud_rate = 9600  # whatever baudrate you are listening to
-com_port1 = '/dev/ttyUSB0'  # replace with your first com port path
-com_port2 = '/dev/ttyUSB1'  # replace with your second com port path
+BAUD_RATE = 9600  # whatever baudrate you are listening to
+PORT1 = '/dev/ttyUSB0'  # replace with your first com port path
+PORT2 = '/dev/ttyUSB1'  # replace with your second com port path
+READ_TIMEOUT = 0.1          # Read timeout to avoid waiting while
+                            # there is no data on the buffer
+WRITE_TIMEOUT = None         # Write timeout to avoid waiting in case of
+                            # write error on the serial port
 
-ComRead_timeout = 0.1   # Read timeout to avoid waiting while there is no data on the buffer
-ComWr_timeout = 0.1     # Write timeout to avoid waiting in case of write error on the serial port
+LOG = open('log.txt', 'a+')     # Open our log file, to put read data
 
-log = open('log.txt', 'a+')     # Open our log file, to put read data
-log2 = open('log2.txt', 'a+')     # Open our log file, to put read data
+From_PC_To_Device = True    # this variable is used to specify
+                             # which port we're gonna read from
+listener = serial.Serial(port=PORT1,
+                         baudrate=BAUD_RATE, timeout=READ_TIMEOUT,
+                         write_timeout=WRITE_TIMEOUT)
+forwarder = serial.Serial(port=PORT2,
+                          baudrate=BAUD_RATE, timeout=READ_TIMEOUT,
+                          write_timeout=WRITE_TIMEOUT)
 
-From_PC_To_Device = True    # this variable is used to specify which port we're gonna read from
 
-listener = serial.Serial(port=com_port1, baudrate=baud_rate, timeout=ComRead_timeout,
-                                 write_timeout=ComWr_timeout)
+def to_hex(input_str):
+    return ' '.join(['{:02x}'.format(c) for c in input_str])
 
-forwarder = serial.Serial(port=com_port2, baudrate=baud_rate, timeout=ComRead_timeout,
-                                  write_timeout=ComWr_timeout)
+
+def readable(input_str):
+    try:
+        return ' ( ' + input_str.decode('utf-8') + ' )'
+    except UnicodeDecodeError:
+        return ''
+
 
 while 1:
-        while (listener.inWaiting()) and From_PC_To_Device:
-            serial_out = listener.readline()
-            localtime = time.asctime(time.localtime(time.time()))
-            Msg = "PC " + localtime + " " + serial_out
-            Msg += "\n"
-            log.write(Msg)
-            log2.write(Msg)
-            print(serial_out)  # or write it to a file
-            forwarder.write(serial_out)
-        else:
-            From_PC_To_Device = False
-        while (forwarder.inWaiting()) and not From_PC_To_Device:
-            serial_out = forwarder.readline()
-            localtime = time.asctime(time.localtime(time.time()))
-            Msg = "DEVICE " + localtime + " " + serial_out + "\n"
-            log.write(Msg)
-            log2.write(Msg)
-            print(serial_out)  # or write it to a file
-            listener.write(serial_out)
-        else:
-            From_PC_To_Device = True
+    while (listener.inWaiting()) and From_PC_To_Device:
+        serial_out = listener.readline()
+        localtime = time.asctime(time.localtime(time.time()))
+        msg = "PC:[" + localtime + '] ' + to_hex(serial_out)
+        # msg += readable(serial_out)
+        LOG.write(msg + '\n')
+        print(msg)
+        forwarder.write(serial_out)
+    else:
+        From_PC_To_Device = False
+    while (forwarder.inWaiting()) and not From_PC_To_Device:
+        serial_out = forwarder.readline()
+        localtime = time.asctime(time.localtime(time.time()))
+        msg = "DEVICE:[" + localtime +'] '
+        msg += to_hex(serial_out)
+        # msg += readable(serial_out)
+        LOG.write(msg + '\n')
+        print(msg)
+        listener.write(serial_out)
+    else:
+        From_PC_To_Device = True
