@@ -38,26 +38,36 @@ def readable(input_str):
     except UnicodeDecodeError:
         return ''
 
+try:
+    while 1:
+        while (listener.inWaiting()) and From_PC_To_Device:
+            serial_out = listener.readline()
+            localtime = time.asctime(time.localtime(time.time()))
+            msg = "PC:[" + localtime + '] ' + to_hex(serial_out)
+            # msg += readable(serial_out)
+            LOG.write(msg + '\n')
+            print(msg)
+            forwarder.write(serial_out)
+        else:
+            From_PC_To_Device = False
+        while (forwarder.inWaiting()) and not From_PC_To_Device:
+            serial_out = forwarder.readline()
+            localtime = time.asctime(time.localtime(time.time()))
+            msg = "DEVICE:[" + localtime + '] '
+            msg += to_hex(serial_out)
+            # msg += readable(serial_out)
+            LOG.write(msg + '\n')
+            print(msg)
+            listener.write(serial_out)
+        else:
+            From_PC_To_Device = True
+except KeyboardInterrupt:
+    LOG.close()
+    data_to_read = forwarder.in_waiting
+    if data_to_read != 0:
+        forwarder.read(data_to_read)
+    data_to_read = listener.in_waiting
+    if data_to_read != 0:
+        listener.read(data_to_read)
 
-while 1:
-    while (listener.inWaiting()) and From_PC_To_Device:
-        serial_out = listener.readline()
-        localtime = time.asctime(time.localtime(time.time()))
-        msg = "PC:[" + localtime + '] ' + to_hex(serial_out)
-        # msg += readable(serial_out)
-        LOG.write(msg + '\n')
-        print(msg)
-        forwarder.write(serial_out)
-    else:
-        From_PC_To_Device = False
-    while (forwarder.inWaiting()) and not From_PC_To_Device:
-        serial_out = forwarder.readline()
-        localtime = time.asctime(time.localtime(time.time()))
-        msg = "DEVICE:[" + localtime + '] '
-        msg += to_hex(serial_out)
-        # msg += readable(serial_out)
-        LOG.write(msg + '\n')
-        print(msg)
-        listener.write(serial_out)
-    else:
-        From_PC_To_Device = True
+    
