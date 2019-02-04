@@ -9,16 +9,17 @@ PORT1 = '/dev/ttyUSB0'  # replace with your first com port path
 PORT2 = '/dev/ttyUSB1'  # replace with your second com port path
 READ_TIMEOUT = 0.1          # Read timeout to avoid waiting while
                             # there is no data on the buffer
-WRITE_TIMEOUT = None         # Write timeout to avoid waiting in case of
+WRITE_TIMEOUT = None        # Write timeout to avoid waiting in case of
                             # write error on the serial port
 
 today = time.localtime(time.time())
-logfile = "log_{:04}{:02}{:02}.txt".format(today.tm_year, today.tm_mon, today.tm_mday) 
+logfile = "log_{:04}{:02}{:02}.txt".format(today.tm_year,
+                                           today.tm_mon,
+                                           today.tm_mday)
 
-LOG = open(logfile, 'a+')     # Open our log file, to put read data
-
+LOG = open(logfile, 'a+')   # Open our log file, to put read data
 From_PC_To_Device = True    # this variable is used to specify
-                             # which port we're gonna read from
+                            # which port we're gonna read from
 listener = serial.Serial(port=PORT1,
                          baudrate=BAUD_RATE, timeout=READ_TIMEOUT,
                          write_timeout=WRITE_TIMEOUT)
@@ -52,7 +53,7 @@ while 1:
     while (forwarder.inWaiting()) and not From_PC_To_Device:
         serial_out = forwarder.readline()
         localtime = time.asctime(time.localtime(time.time()))
-        msg = "DEVICE:[" + localtime +'] '
+        msg = "DEVICE:[" + localtime + '] '
         msg += to_hex(serial_out)
         # msg += readable(serial_out)
         LOG.write(msg + '\n')
@@ -60,4 +61,3 @@ while 1:
         listener.write(serial_out)
     else:
         From_PC_To_Device = True
-
