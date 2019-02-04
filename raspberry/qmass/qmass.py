@@ -1,7 +1,17 @@
 #!/usr/bin/env python3
 '''Q-mass control by python
 '''
+from logging import getLogger, StreamHandler, DEBUG
 import serial
+
+# logger
+logger = getLogger(__name__)
+handler = StreamHandler()
+handler.setLevel(DEBUG)
+logger.setLevel(DEBUG)
+logger.addHandler(handler)
+logger.propagate = False
+#  logger.debug(bytes.fromhex('7e 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 2c 30 30 31 61 2c 32 3a 30 65 64 31'))
 
 
 class Qmass():
@@ -14,74 +24,89 @@ class Qmass():
         data_to_read = self.ser.in_waiting  # よけいなリードバッファがあった時用
         self.ser.read(data_to_read)
         #
-        self.fil = 0  # 0: 0ff, 1: Fil #1, 2: Fil #2
+        self.fil = 0  # 0: off, 1: Fil #1, 2: Fil #2
+        self.multiplier = 0 # 0:off, 1:on
         #
         self.ser.write(b'$$$$$$$$$$')
-        self.ser.write(bytes.fromhex('7b 30 30 30 44 2c 31 30 3a 31 46 42 36'))
+        self.ser.write(b'{000D,10:1FB6')
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
             data_to_read = self.ser.in_waiting
-        ret1 = self.ser.read(data_to_read)
-        self.ser.write(bytes.fromhex('7d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 2c 30 30 31 41 2c 35 3a 31 36 36 30'))
+        logger.info(self.ser.read(data_to_read))
+        # b'~LM76-00499001,001a,2:0ed1'
+        self.ser.write(b'}LM76-00499001,001A,5:1660')
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
             data_to_read = self.ser.in_waiting
-        ret2 = self.ser.read(data_to_read)
-        self.ser.write(bytes.fromhex('7b 30 30 31 31 2c 35 35 2c 31 2c 30 3a 34 30 32 41'))
+        logger.info(self.ser.read(data_to_read))
+        # b'~LM76-00499001,0025,3,1,V1.51a,0:262a'
+        self.ser.write(b'{0011,55,1,0:402A')
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
             data_to_read = self.ser.in_waiting
-        ret3 = self.ser.read(data_to_read)
-        self.ser.write(bytes.fromhex('7d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 2c 30 30 31 42 2c 31 35 3a 41 37 43 32'))
+        logger.info(self.ser.read(data_to_read))
+        # b'~LM76-00499001,001a,2:0ed1'
+        self.ser.write(b'}LM76-00499001,001B,15:A7C2')
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
             data_to_read = self.ser.in_waiting
-        ret4 = self.ser.read(data_to_read)
-        print(ret1)
-        print(ret2)
-        print(ret3)
-        print(ret4)
+        logger.info(self.ser.read(data_to_read))
+        # b'~LM76-00499001,001c,6,0:daad'
         self.ser.write(bytes.fromhex('af'))
         self.ser.write(bytes.fromhex('aa'))
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
             data_to_read = self.ser.in_waiting
-        ret5 = self.ser.read(data_to_read)  # aa d2
+        logger.info(self.ser.read(data_to_read))  # aa d2
         self.ser.write(bytes.fromhex('ba 03 a6'))
-        '''
-        PC:[Mon Feb  4 14:36:20 2019] 24 24 24 24 24 24 24 24 24 24
-        PC:[Mon Feb  4 14:36:20 2019] 7b 30 30 30 44 2c 31 30 3a 31 46 42 36
-        DEVICE:[Mon Feb  4 14:36:21 2019] 7e 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 2c 30 30 31 61 2c 32 3a 30 65 64 31
-        PC:[Mon Feb  4 14:36:21 2019] 7d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 2c 30 30 31 41 2c 35 3a 31 36 36 30
-        DEVICE:[Mon Feb  4 14:36:21 2019] 7e 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 2c 30 30 32 35 2c 33 2c 31 2c 56 31 2e 35 31 61 2c 30 3a 32 36 32 61
-        PC:[Mon Feb  4 14:36:21 2019] 7b 30 30 31 31 2c 35 35 2c 31 2c 30 3a 34 30 32 41
-        DEVICE:[Mon Feb  4 14:36:22 2019] 7e 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 2c 30 30 31 61 2c 32 3a 30 65 64 31
-        PC:[Mon Feb  4 14:36:22 2019] 7d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 2c 30 30 31 42 2c 31 35 3a 41 37 43 32
-        DEVICE:[Mon Feb  4 14:36:22 2019] 7e 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 2c 30 30 31 63 2c 36 2c 30 3a 64 61 61 64
-        PC:[Mon Feb  4 14:36:22 2019] af
-        PC:[Mon Feb  4 14:36:26 2019] aa
-        DEVICE:[Mon Feb  4 14:36:26 2019] aa d2
-        PC:[Mon Feb  4 14:36:26 2019] ba 03
-        PC:[Mon Feb  4 14:36:27 2019] a6
-        DEVICE:[Mon Feb  4 14:36:27 2019] 03 56 61 00 25 03 09 44 03 13 3e 02 2f 6a 03 00 00 01 00 4b 00
-        PC:[Mon Feb  4 14:36:27 2019] bb 00 80 80 80 be 0a
-        PC:[Mon Feb  4 14:36:28 2019] 00 ff 00 bf 04
-        DEVICE:[Mon Feb  4 14:36:28 2019] 8f 04 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8e
-        PC:[Mon Feb  4 14:36:28 2019] a7
-        DEVICE:[Mon Feb  4 14:36:28 2019] ff 00
-        PC:[Mon Feb  4 14:36:28 2019] aa 01 03 10 86 00 a1 00 00 bc
-        DEVICE:[Mon Feb  4 14:36:28 2019] c2 52 85 7f
-        PC:[Mon Feb  4 14:36:28 2019] ad 02
-        DEVICE:[Mon Feb  4 14:36:29 2019] 07
-        PC:[Mon Feb  4 14:36:29 2019] ad 03
-        DEVICE:[Mon Feb  4 14:36:29 2019] 1e
-        PC:[Mon Feb  4 14:36:29 2019] e1 00
-        DEVICE:[Mon Feb  4 14:36:29 2019] b2 33 8c bf
-        PC:[Mon Feb  4 14:36:29 2019] bf 05
-        DEVICE:[Mon Feb  4 14:36:29 2019] 8f 05 21 0d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 00 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff 8e
-        PC:[Mon Feb  4 14:36:29 2019] e6 80
-        PC:[Mon Feb  4 14:36:30 2019] 00
-'''
+        data_to_read = self.ser.in_waiting
+        while data_to_read == 0:
+            data_to_read = self.ser.in_waiting
+        logger.debug(self.ser.read(data_to_read))
+        # 03 56 61 00 25 03 09 44 03 13 3e 02 2f 6a 03 00 00 01 00 4b 00
+        self.ser.write(bytes.fromhex('bb 00 80 80 80 be 0a'))
+        self.ser.write(bytes.fromhex('00 ff 00 bf 04'))
+        data_to_read = self.ser.in_waiting
+        while data_to_read == 0:
+            data_to_read = self.ser.in_waiting
+        logger.debug(self.ser.read(data_to_read))
+        # 8f 04 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8e
+        self.ser.write(bytes.fromhex('a7'))
+        data_to_read = self.ser.in_waiting
+        while data_to_read == 0:
+            data_to_read = self.ser.in_waiting
+        logger.info(self.ser.read(data_to_read))  # ff 00
+        self.ser.write(bytes.fromhex('aa 01 03 10 86 00 a1 00 00 bc'))
+        data_to_read = self.ser.in_waiting
+        while data_to_read == 0:
+            data_to_read = self.ser.in_waiting
+        logger.debug(self.ser.read(data_to_read))
+        # c2 52 85 7f
+        self.ser.write(bytes.fromhex('ad 02'))
+        data_to_read = self.ser.in_waiting
+        while data_to_read == 0:
+            data_to_read = self.ser.in_waiting
+        logger.debug(self.ser.read(data_to_read))
+        # 07
+        self.ser.write(bytes.fromhex('ad 03'))
+        data_to_read = self.ser.in_waiting
+        while data_to_read == 0:
+            data_to_read = self.ser.in_waiting
+        logger.debug(self.ser.read(data_to_read))
+        # 1e
+        self.ser.write(bytes.fromhex('e1 00'))
+        data_to_read = self.ser.in_waiting
+        while data_to_read == 0:
+            data_to_read = self.ser.in_waiting
+        logger.debug(self.ser.read(data_to_read))
+        # b2 33 8c bf
+        self.ser.write(bytes.fromhex('bf 05'))
+        data_to_read = self.ser.in_waiting
+        while data_to_read == 0:
+            data_to_read = self.ser.in_waiting
+        logger.debug(self.ser.read(data_to_read))
+        # 8f 05 21 0d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 00 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff 8e
+        self.ser.write(bytes.fromhex('e6 80 00'))
 
     def exit(self):
         '''Close Microvision plus'''
