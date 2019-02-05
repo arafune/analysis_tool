@@ -12,7 +12,6 @@ handler.setLevel(DEBUG)
 logger.setLevel(DEBUG)
 logger.addHandler(handler)
 logger.propagate = False
-#  logger.debug(bytes.fromhex('7e 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 2c 30 30 31 61 2c 32 3a 30 65 64 31'))
 
 
 class Qmass():
@@ -31,7 +30,6 @@ class Qmass():
         self.multiplier = False
         self.boot(port)
 
-
     def boot(self, port='/dev/ttyUSB0'):
         '''Boot Microvision plus'''
         self.ser = serial.Serial(port=port, baudrate=9600, xonxoff=True,
@@ -39,9 +37,6 @@ class Qmass():
                                  stopbits=serial.STOPBITS_ONE)
         data_to_read = self.ser.in_waiting  # よけいなリードバッファがあった時用
         self.ser.read(data_to_read)
-        #
-        self.fil = 0  # 0: off, 1: Fil #1, 2: Fil #2
-        self.multiplier = 0 # 0:off, 1:on
         #
         self.ser.write(b'$$$$$$$$$$')
         self.ser.write(b'{000D,10:1FB6')
@@ -74,9 +69,7 @@ class Qmass():
         # b'~LM76-00499001,001c,6,0:daad'
         self.ser.write(bytes.fromhex('af'))
         self.ser.write(bytes.fromhex('aa'))
-        #data_to_read = self.ser.in_waiting
         self.ser.timeout = 0.2
-        # logger.debug('in_wating {}'.format(self.ser.in_waiting))
         tmp = self.ser.readline()
         logger.debug('should be "aa d2" {}'.format(tmp))
         # aa d2
@@ -127,8 +120,8 @@ class Qmass():
     def exit(self):
         '''Close Microvision plus'''
         self.ser.write(b'\x00\xaf')
-        end = self.ser.read(1)  #  0x86
-        logger.debug('end')
+        end = self.ser.read(1)  # 0x86
+        logger.debug('End: should be 0x86 {}'.format(end))
         self.ser.write(b'\xe2')
 
     def set_accuracy(self, accuracy=0):
@@ -161,7 +154,7 @@ class Qmass():
 
     def set_start_mass(self, start_mass=4):
         '''Set start mass
-        
+
         Parameters
         -----------
         start_mass: int
@@ -183,24 +176,42 @@ class Qmass():
     def fil_on(self, fil_no=1):
         '''Filament on
         '''
-        pass
+        if not self.filament:
+            if fil_no == 1:
+                self.ser.write(b'\xe3\x48')
+                self.filament = 1
+            elif fil_no == 2:
+                self.ser.write(b'\xe3\x50')   # << check!!
+                self.filament = 2
+        elif self.filament == 1 and fil_no == 2:
+            self.fil_off()
+            self.ser.write(b'\xe3\x50')
+            self.filament = 2
+        elif self.filament == 2 and fil_no == 1:
+            self.fil_off()
+            self.ser.write(b'\xe3\x48')
+            self.filament = 1
+        else:
+            raise ValueError
 
     def fil_off(self):
         '''Filament off
         '''
-        pass
-   
+        self.ser.write(b'\xe3\x40')
+        self.filament = False
+
     def multiplier_on(self):
         '''multiplier on'''
-        pass
+        self.ser.write(b'\x20\x02\x00')
+        self.multiplier = True
 
     def multiplier_off(self):
         '''multiplier off'''
-        pass
+        self.ser.write(b'\x20\x00\x00')
+        self.multiplier = False
 
 
 if __name__ == '__main__':
-    q = Qmass('/dev/ttyUSB1')
+    q_mass = Qmass('/dev/ttyUSB1')
     time.sleep(1)
-    q.exit()
-
+    q_mass.exit()
