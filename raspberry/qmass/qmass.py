@@ -16,10 +16,25 @@ logger.propagate = False
 
 
 class Qmass():
-    '''Qmass measurement system class'''
+    '''Qmass measurement system class
+
+    Attributes
+    ----------
+    filament: int
+        Acitive filament # (None for no-active filament)
+
+    multiplier: Boolean
+        True if multiplier is active
+    '''
     def __init__(self, port='/dev/ttyUSB0'):
-        '''Init Microvision plus'''
-        self.ser = serial.Serial(port=port, baudrate=9600,
+        self.filament = None
+        self.multiplier = False
+        self.boot(port)
+
+
+    def boot(self, port='/dev/ttyUSB0'):
+        '''Boot Microvision plus'''
+        self.ser = serial.Serial(port=port, baudrate=9600, xonxoff=True,
                                  parity=serial.PARITY_NONE,
                                  stopbits=serial.STOPBITS_ONE)
         data_to_read = self.ser.in_waiting  # よけいなリードバッファがあった時用
@@ -59,14 +74,16 @@ class Qmass():
         # b'~LM76-00499001,001c,6,0:daad'
         self.ser.write(bytes.fromhex('af'))
         self.ser.write(bytes.fromhex('aa'))
-        data_to_read = self.ser.in_waiting
-        while data_to_read == 0:
-            data_to_read = self.ser.in_waiting
-        logger.debug(self.ser.read(data_to_read))  # aa d2
+        #data_to_read = self.ser.in_waiting
+        self.ser.timeout = 0.2
+        # logger.debug('in_wating {}'.format(self.ser.in_waiting))
+        tmp = self.ser.readline()
+        logger.debug('should be "aa d2" {}'.format(tmp))
+        # aa d2
         self.ser.write(bytes.fromhex('ba 03'))
         self.ser.write(bytes.fromhex('a6'))
-        self.ser.timeout = 0.2
-        logger.debug(self.ser.readline())
+        tmp = self.ser.readline()
+        logger.debug(tmp)
         # 03 56 61 00 25 03 09 44 03 13 3e 02 2f 6a 03 00 00 01 00 4b 00
         self.ser.write(bytes.fromhex('bb 00 80 80 80 be 0a'))
         self.ser.write(bytes.fromhex('00 ff 00 bf 04'))
@@ -74,10 +91,7 @@ class Qmass():
         # 8f 04 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8e
         self.ser.write(bytes.fromhex('a7'))
         data_to_read = self.ser.in_waiting
-        while data_to_read == 0:
-            time.sleep(1)
-            data_to_read = self.ser.in_waiting
-        logger.info(self.ser.read(data_to_read))  # ff 00
+        logger.info('should be "ff 00"  {}"'.format(self.ser.read(2)))  # ff 00
         self.ser.write(bytes.fromhex('aa 01 03 10 86 00 a1 00 00 bc'))
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
@@ -183,3 +197,10 @@ class Qmass():
     def multiplier_off(self):
         '''multiplier off'''
         pass
+
+
+if __name__ == '__main__':
+    q = Qmass('/dev/ttyUSB1')
+    time.sleep(1)
+    q.exit()
+
