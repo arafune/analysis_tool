@@ -221,7 +221,8 @@ class Qmass():
             if data_bytes[0] == b'\x7f':
                 pressure = 0
             else:
-                pressure = data_bytes[1] * 1.22 + (data_bytes[2] - 64) * 0.019 logger.debug('Pressure is {:4f}'.format(pressure))
+                pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
+                logger.debug('Pressure is {:4f}'.format(pressure))
             if data_bytes == b'\x0f0 \xf0 \xf4':
                 self.ser.write(scan_start)
                 logger.debug('Backto start mass')
