@@ -245,7 +245,9 @@ class Qmass():
                 pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
             logger.debug('byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'.format(data_bytes[0], data_bytes[1], data_bytes[2], pressure, mass))
             mass += mass_step
-            if data_bytes == b'\xf0\xf0\xf4':
+            if b'\xf0' or b'\xf4' in data_bytes:
+                time.sleep(0.1)
+                self.ser.reset_output_buffer()
                 self.ser.write(scan_start)
                 if mode == 0:
                     mass = start_mass - (
