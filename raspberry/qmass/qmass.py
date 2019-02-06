@@ -24,10 +24,20 @@ class Qmass():
 
     multiplier: Boolean
         True if multiplier is active
+
+    start_mass: int
+    mass_span: int
+    accuracy:int
+    pressure_range:int
     '''
+
     def __init__(self, port='/dev/ttyUSB0'):
         self.filament = None
         self.multiplier = False
+        self.pressure_range = 0
+        self.accuracy = 0
+        self.start_mass = 0
+        self.mass_span = 0
         self.boot(port)
 
     def boot(self, port='/dev/ttyUSB0'):
@@ -149,8 +159,59 @@ class Qmass():
 
     def set_range(self, pressure_range=0):
         '''Set pressure range
+
+        Parameters
+        -----------
+        pressure_range: int
+            pressure range
+            0: E-7
+            1: E-8
+            2: E-9
+            3: E-10
+            4: E-11
+            5: E-12
+            6: E-13
         '''
-        pass
+        if not self.multiplier:
+            if pressure_range < 7:
+                raise ValueError('=< E-11 when multiplier is off')
+            pressure_range += 2
+            command = '20 00 {:02} 00'.format(pressure_range)
+        else:
+            command = '20 02 {:02} 00'.format(pressure_range)
+        self.ser.write(bytes.fromhex(command))
+
+    def analog_mode(self, start_mass=4, mass_span=2,
+                    accuracy=5, pressure_range=4):
+        '''Run analog Mode
+
+        Parameters
+        -----------
+        star_mass: int
+            default:4
+        mass_span: int
+            default: 2 (0:8, 1:16, 2:32, 3:64)
+        accuracy: int
+            default: 5
+        pressure_range: int
+            default 4: (E-11)
+        '''
+        self.pressure_range = pressure_range
+        self.accuracy = accuracy
+        self.start_mass = start_mass
+        self.mass_span = mass_span
+        command0 = '00 e4 00 00 02 01 '
+        if self.multiplier:
+            command_pressure = '02 {:02}'.format(pressure_range)
+        else:
+            command_pressure = '00 {:02}'.format(pressure_range-1)
+        command_accuracy = '00 {:02} '.format(accuracy)
+        command_mass_span = '{:02} '.format(mass_span)
+        command_start_mass = '00 {:02} 00 '.format(start_mass-1)
+        command = command0 + command_pressure + command_accuracy
+        command += command_mass_span + command_start_mass
+        command += 'b6'
+        self.ser.write(bytes.fromhex(command))
 
     def set_start_mass(self, start_mass=4):
         '''Set start mass
