@@ -119,8 +119,7 @@ class Qmass():
         logger.debug(self.ser.read(data_to_read))
         # b2 33 8c bf
         self.ser.write(bytes.fromhex('bf 05'))
-        data_to_read = self.ser.in_waiting
-        logger.debug('data_to_read : {}'.format(data_to_read))
+        time.sleep(1)
         logger.debug(self.ser.readline())
         # 8f 05 21 0d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 00 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff 8e
         self.ser.write(bytes.fromhex('e6 80 00'))
@@ -202,14 +201,15 @@ class Qmass():
         self.mass_span = mass_span
         command0 = '00 e4 00 00 02 01 '
         if self.multiplier:
-            command_pressure = '02 {:02}'.format(pressure_range)
+            command_pressure = '02 {:02} '.format(pressure_range)
         else:
-            command_pressure = '00 {:02}'.format(pressure_range-1)
+            command_pressure = '00 {:02} '.format(pressure_range-1)
         command_accuracy = '00 {:02} '.format(accuracy)
         command_mass_span = '{:02} '.format(mass_span)
         command_start_mass = '00 {:02} 00 '.format(start_mass-1)
         command = command0 + command_pressure + command_accuracy
         command += command_mass_span + command_start_mass
+        logger.debug('command: {}'.format(command))
         self.ser.write(bytes.fromhex(command))
 
     def measure(self):
@@ -218,12 +218,12 @@ class Qmass():
         self.ser.write(scan_start)
         while True:
             data_bytes = self.ser.read(3)
-            if data_bytes[0] == b'\x7f':
+            if data_bytes[0] >= 0x7f:
                 pressure = 0
             else:
                 pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
-                logger.debug('Pressure is {:4f}'.format(pressure))
-            if data_bytes == b'\x0f0 \xf0 \xf4':
+                logger.debug('byte code is {} {} {}, Pressure is {:4f}'.format(data_bytes[0], data_bytes[1], data_bytes[2], pressure))
+            if data_bytes == b'\xf0f0f4':
                 self.ser.write(scan_start)
                 logger.debug('Backto start mass')
 
@@ -257,17 +257,21 @@ class Qmass():
             if fil_no == 1:
                 self.ser.write(b'\xe3\x48')
                 self.filament = 1
+                logger.debug('Filament #1 on')
             elif fil_no == 2:
                 self.ser.write(b'\xe3\x50')   # << check!!
                 self.filament = 2
+                logger.debug('Filament #2 on')
         elif self.filament == 1 and fil_no == 2:
             self.fil_off()
             self.ser.write(b'\xe3\x50')
             self.filament = 2
+            logger.debug('Filament #2 on')
         elif self.filament == 2 and fil_no == 1:
             self.fil_off()
             self.ser.write(b'\xe3\x48')
             self.filament = 1
+            logger.debug('Filament #1 on')
         else:
             raise ValueError
 
@@ -275,11 +279,13 @@ class Qmass():
         '''Filament off
         '''
         self.ser.write(b'\xe3\x40')
+        logger.debug('Filament off')
         self.filament = False
 
     def multiplier_on(self):
         '''multiplier on'''
         self.ser.write(b'\x20\x02\x00')
+        logger.debug('Multiplier ON')
         self.multiplier = True
 
     def multiplier_off(self):
