@@ -297,6 +297,8 @@ if __name__ == '__main__':
     try:
        q_mass.measure()
     except KeyboardInterrupt:
+        q_mass.ser.write(bytes.fromhex('00 00'))
+        time.sleep(1)
         q_mass.multiplier_off()
         q_mass.fil_off()
         q_mass.exit()
