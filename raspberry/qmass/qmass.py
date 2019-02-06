@@ -129,6 +129,10 @@ class Qmass():
 
     def exit(self):
         '''Close Microvision plus'''
+        if self.multiplier:
+            self.multiplier_off()
+        if self.filment is not None:
+            self.fil_off()
         self.ser.write(b'\x00\xaf')
         end = self.ser.read(1)  # 0x86
         logger.debug('End: should be 0x86 {}'.format(end))
@@ -242,7 +246,9 @@ class Qmass():
                 pressure = 0
             else:
                 pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
-            if data_bytes == b'\xf0\xf0\xf4':
+            if b'\xf0' or b'\xf4' in data_bytes:
+                time.sleep(0.1)
+                self.ser.reset_output_buffer()
                 self.ser.write(scan_start)
                 if mode == 0:
                     mass = start_mass - (
