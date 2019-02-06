@@ -240,7 +240,6 @@ class Qmass():
                 pressure = 0
             else:
                 pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
-            logger.debug('byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'.format(data_bytes[0], data_bytes[1], data_bytes[2], pressure, mass))
             mass += mass_step
             if data_bytes == b'\xf0\xf0\xf4':
                 self.ser.write(scan_start)
@@ -250,6 +249,8 @@ class Qmass():
                 else:
                     mass = start_mass
                 logger.debug('Backto start mass')
+            else:
+                logger.debug('byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'.format(data_bytes[0], data_bytes[1], data_bytes[2], pressure, mass))
 
     def set_start_mass(self, start_mass=4):
         '''Set start mass
@@ -319,14 +320,20 @@ class Qmass():
 
 
 if __name__ == '__main__':
+    start_mass = 4
+    mass_span = 3
+    accuracy = 5
+    pressure_range = 5
     q_mass = Qmass(port='/dev/ttyUSB1')
     q_mass.boot()
     time.sleep(1)
     q_mass.fil_on(1)
     q_mass.multiplier_on()
-    q_mass.analog_mode(start_mass=4, mass_span=2, accuracy=5, pressure_range=5)
+    q_mass.analog_mode(start_mass=start_mass, mass_span=mass_span,
+                       accuracy=accuracy, pressure_range=pressure_range)
     try:
-        q_mass.measure()
+        q_mass.measure(mode=0, start_mass=start_mass, mass_span=mass_span,
+                       accuracy=accuracy, pressure_range=pressure_range)
     except KeyboardInterrupt:
         q_mass.ser.write(bytes.fromhex('00 00'))
         time.sleep(1)
