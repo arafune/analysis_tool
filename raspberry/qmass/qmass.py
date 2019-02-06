@@ -129,13 +129,16 @@ class Qmass():
 
     def exit(self):
         '''Close Microvision plus'''
+        if self.multiplier:
+            self.multiplier_off()
+        if self.filment is not None:
+            self.fil_off()
         self.ser.write(b'\x00\xaf')
         end = self.ser.read(1)  # 0x86
         logger.debug('End: should be 0x86 {}'.format(end))
         self.ser.write(b'\xe2')
 
-    def set_accuracy(self, accuracy=0):
-        '''set accuracy
+    def set_accuracy(self, accuracy=0): '''set accuracy
 
         Parameters
         ----------
