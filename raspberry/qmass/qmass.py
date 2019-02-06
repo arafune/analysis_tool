@@ -79,47 +79,52 @@ class Qmass():
         logger.info(self.ser.read(data_to_read))
         # b'~LM76-00499001,001c,6,0:daad'
         self.ser.write(bytes.fromhex('af'))
+        time.sleep(3)
         self.ser.write(bytes.fromhex('aa'))
-        self.ser.timeout = 0.3
+        self.ser.timeout = 0.1
         tmp = self.ser.readline()
         logger.debug('should be "aa d2" {}'.format(tmp))
         # aa d2
+        time.sleep(1)
         self.ser.write(bytes.fromhex('ba 03'))
+        time.sleep(1.2)
         self.ser.write(bytes.fromhex('a6'))
         tmp = self.ser.readline()
-        logger.debug(tmp)
+        logger.debug('should long... {}'.format(tmp.hex()))
         # 03 56 61 00 25 03 09 44 03 13 3e 02 2f 6a 03 00 00 01 00 4b 00
+        time.sleep(.1)
         self.ser.write(bytes.fromhex('bb 00 80 80 80 be 0a'))
+        time.sleep(.2)
         self.ser.write(bytes.fromhex('00 ff 00 bf 04'))
-        logger.debug(self.ser.readline())
+        data_to_read = self.ser.in_waiting
+        logger.debug('data_to_read: {}'.format(data_to_read))
+        tmp = self.ser.readline()
+        logger.debug('should long line... {}'.format(tmp))
         # 8f 04 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8e
+        time.sleep(.15)
         self.ser.write(bytes.fromhex('a7'))
-        data_to_read = self.ser.in_waiting
-        logger.info('should be "ff 00"  {}"'.format(self.ser.read(2)))  # ff 00
+        time.sleep(.15)
+        tmp = self.ser.readline()
+        logger.info('should be "ff 00"  {}"'.format(tmp))  # ff 00
+        time.sleep(.3)
         self.ser.write(bytes.fromhex('aa 01 03 10 86 00 a1 00 00 bc'))
-        data_to_read = self.ser.in_waiting
-        while data_to_read == 0:
-            data_to_read = self.ser.in_waiting
-        logger.debug(self.ser.read(data_to_read))
+        time.sleep(.5)
+        tmp = self.ser.readline()
+        logger.debug(tmp)
         # c2 52 85 7f
         time.sleep(1)
         self.ser.write(bytes.fromhex('ad 02'))
         logger.debug(self.ser.readline())
         # 07
         self.ser.write(bytes.fromhex('ad 03'))
-        data_to_read = self.ser.in_waiting
-        while data_to_read == 0:
-            data_to_read = self.ser.in_waiting
-        logger.debug(self.ser.read(data_to_read))
+        logger.debug(self.ser.readline())
         # 1e
         time.sleep(1)
         self.ser.write(bytes.fromhex('e1 00'))
-        data_to_read = self.ser.in_waiting
-        while data_to_read == 0:
-            data_to_read = self.ser.in_waiting
-        logger.debug(self.ser.read(data_to_read))
+        tmp = self.ser.readline()
+        logger.debug(tmp)
         # b2 33 8c bf
-        time.sleep(1)
+        time.sleep(.1)
         self.ser.write(bytes.fromhex('bf 05'))
         logger.debug(self.ser.readline())
         # 8f 05 21 0d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 00 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff 8e
@@ -240,7 +245,9 @@ class Qmass():
         else:
             mass_step = 1
             mass = start_mass
+        time.sleep(1)
         while True:
+            #self.ser.timeout = 0.1
             data_bytes = self.ser.read(3)
             if data_bytes[0] == 0x7f:
                 pressure = 0
@@ -290,7 +297,8 @@ class Qmass():
             if fil_no == 1:
                 self.ser.write(b'\xe3\x48')
                 self.filament = 1
-                logger.debug('Filament #1 on')
+                ret = self.ser.read(1)
+                logger.debug('Filament #1 on: {}'.format(ret))
             elif fil_no == 2:
                 self.ser.write(b'\xe3\x50')   # << check!!
                 self.filament = 2
@@ -330,20 +338,22 @@ class Qmass():
 
 if __name__ == '__main__':
     start_mass = 4
-    mass_span = 3
+    mass_span = 2 
     accuracy = 5
-    pressure_range = 5
+    pressure_range = 3
     port = '/dev/ttyUSB1'
     q_mass = Qmass(port=port)
     q_mass.boot()
     time.sleep(1)
     q_mass.fil_on(1)
     q_mass.multiplier_on()
-    q_mass.analog_mode(start_mass=start_mass, mass_span=mass_span,
-                       accuracy=accuracy, pressure_range=pressure_range)
+    #q_mass.analog_mode(start_mass=start_mass, mass_span=mass_span,
+    #l                   accuracy=accuracy, pressure_range=pressure_range)
+    q_mass.analog_mode()
     try:
-        q_mass.measure(mode=0, start_mass=start_mass, mass_span=mass_span,
-                       accuracy=accuracy, pressure_range=pressure_range)
+        #q_mass.measure(mode=0, start_mass=start_mass, mass_span=mass_span,
+        #               accuracy=accuracy, pressure_range=pressure_range)
+        q_mass.measure()
     except KeyboardInterrupt:
         q_mass.ser.write(bytes.fromhex('00 00'))
         time.sleep(1)
