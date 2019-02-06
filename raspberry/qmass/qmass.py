@@ -51,24 +51,28 @@ class Qmass():
         #
         self.ser.write(b'$$$$$$$$$$')
         self.ser.write(b'{000D,10:1FB6')
+        time.sleep(0.2)
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
             data_to_read = self.ser.in_waiting
         logger.info(self.ser.read(data_to_read))
         # b'~LM76-00499001,001a,2:0ed1'
         self.ser.write(b'}LM76-00499001,001A,5:1660')
+        time.sleep(.2)
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
             data_to_read = self.ser.in_waiting
         logger.info(self.ser.read(data_to_read))
         # b'~LM76-00499001,0025,3,1,V1.51a,0:262a'
         self.ser.write(b'{0011,55,1,0:402A')
+        time.sleep(.2)
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
             data_to_read = self.ser.in_waiting
         logger.info(self.ser.read(data_to_read))
         # b'~LM76-00499001,001a,2:0ed1'
         self.ser.write(b'}LM76-00499001,001B,15:A7C2')
+        time.sleep(.2)
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
             data_to_read = self.ser.in_waiting
@@ -76,7 +80,7 @@ class Qmass():
         # b'~LM76-00499001,001c,6,0:daad'
         self.ser.write(bytes.fromhex('af'))
         self.ser.write(bytes.fromhex('aa'))
-        self.ser.timeout = 0.2
+        self.ser.timeout = 0.3
         tmp = self.ser.readline()
         logger.debug('should be "aa d2" {}'.format(tmp))
         # aa d2
@@ -129,6 +133,7 @@ class Qmass():
         end = self.ser.read(1)  # 0x86
         logger.debug('End: should be 0x86 {}'.format(end))
         self.ser.write(b'\xe2')
+        self.ser.close()
 
     def set_accuracy(self, accuracy=0):
         '''set accuracy
@@ -231,7 +236,7 @@ class Qmass():
             mass = start_mass
         while True:
             data_bytes = self.ser.read(3)
-            if data_bytes[0] >= 0x7f:
+            if data_bytes[0] == 0x7f:
                 pressure = 0
             else:
                 pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
@@ -314,12 +319,12 @@ class Qmass():
 
 
 if __name__ == '__main__':
-    q_mass = Qmass(port='dev/ttyUSB1')
+    q_mass = Qmass(port='/dev/ttyUSB1')
     q_mass.boot()
     time.sleep(1)
     q_mass.fil_on(1)
     q_mass.multiplier_on()
-    q_mass.analog_mode(start_mass=4, mass_span=2, accuracy=5, pressure_range=4)
+    q_mass.analog_mode(start_mass=4, mass_span=2, accuracy=5, pressure_range=5)
     try:
         q_mass.measure()
     except KeyboardInterrupt:
