@@ -131,7 +131,7 @@ class Qmass():
         '''Close Microvision plus'''
         if self.multiplier:
             self.multiplier_off()
-        if self.filment is not None:
+        if self.filament is not None:
             self.fil_off()
         self.ser.write(b'\x00\xaf')
         end = self.ser.read(1)  # 0x86
@@ -218,7 +218,7 @@ class Qmass():
         logger.debug('command: {}'.format(command))
         self.ser.write(bytes.fromhex(command))
 
-    def measure(self, mode=0, start_mass=4, 
+    def measure(self, mode=0, start_mass=4,
                 mass_span=2, accuracy=5, pressure_range=4):
         '''measurement
 
