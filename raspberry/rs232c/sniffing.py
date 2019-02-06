@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''RS2323C monitoring/sniffing tool
 '''
-import time
+import datetime
 import serial
 
 BAUD_RATE = 9600  # whatever baudrate you are listening to
@@ -12,10 +12,8 @@ READ_TIMEOUT = 0.1          # Read timeout to avoid waiting while
 WRITE_TIMEOUT = None        # Write timeout to avoid waiting in case of
                             # write error on the serial port
 
-today = time.localtime(time.time())
-logfile = "log_{:04}{:02}{:02}.txt".format(today.tm_year,
-                                           today.tm_mon,
-                                           today.tm_mday)
+today = datetime.datetime.now()
+logfile = "log_{:04}{:02}{:02}.txt".format(today.year, today.month, today.day)
 
 LOG = open(logfile, 'a+')   # Open our log file, to put read data
 From_PC_To_Device = True    # this variable is used to specify
@@ -42,8 +40,8 @@ try:
     while 1:
         while (listener.inWaiting()) and From_PC_To_Device:
             serial_out = listener.readline()
-            localtime = time.asctime(time.localtime(time.time()))
-            msg = "PC:[" + localtime + '] ' + to_hex(serial_out)
+            now = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S.%f')
+            msg = "PC:[" + now + '] ' + to_hex(serial_out)
             # msg += readable(serial_out)
             LOG.write(msg + '\n')
             print(msg)
@@ -52,8 +50,8 @@ try:
             From_PC_To_Device = False
         while (forwarder.inWaiting()) and not From_PC_To_Device:
             serial_out = forwarder.readline()
-            localtime = time.asctime(time.localtime(time.time()))
-            msg = "DEVICE:[" + localtime + '] '
+            now = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S.%f')
+            msg = "DEVICE:[" + now + '] '
             msg += to_hex(serial_out)
             # msg += readable(serial_out)
             LOG.write(msg + '\n')
