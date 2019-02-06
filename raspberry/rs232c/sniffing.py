@@ -41,7 +41,7 @@ try:
         while (listener.inWaiting()) and From_PC_To_Device:
             serial_out = listener.readline()
             now = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S.%f')
-            msg = "PC:[" + now + '] ' + to_hex(serial_out)
+            msg = "PC:    [" + now + '] ' + to_hex(serial_out)
             # msg += readable(serial_out)
             LOG.write(msg + '\n')
             print(msg)
@@ -60,6 +60,7 @@ try:
         else:
             From_PC_To_Device = True
 except KeyboardInterrupt:
+    LOG.write('---------------------------------------------------------------------------' +'\n')
     LOG.close()
     data_to_read = forwarder.in_waiting
     if data_to_read != 0:
