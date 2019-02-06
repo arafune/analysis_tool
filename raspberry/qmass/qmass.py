@@ -210,8 +210,21 @@ class Qmass():
         command_start_mass = '00 {:02} 00 '.format(start_mass-1)
         command = command0 + command_pressure + command_accuracy
         command += command_mass_span + command_start_mass
-        command += 'b6'
         self.ser.write(bytes.fromhex(command))
+
+    def measure(self):
+        '''measurement'''
+        scan_start = bytes.fromhex('b6')
+        self.ser.write(scan_start)
+        while True:
+            data_bytes = self.ser.read(3)
+            if data_bytes[0] == b'\x7f':
+                pressure = 0
+            else:
+                pressure = data_bytes[1] * 1.22 + (data_bytes[2] - 64) * 0.019 logger.debug('Pressure is {:4f}'.format(pressure))
+            if data_bytes == b'\x0f0 \xf0 \xf4':
+                self.ser.write(scan_start)
+                logger.debug('Backto start mass')
 
     def set_start_mass(self, start_mass=4):
         '''Set start mass
@@ -222,8 +235,10 @@ class Qmass():
             start mass
         '''
         pass
+        command = '23 {:02} 00'.format(start_mass-1)
+        self.ser.write(bytes.fromhex(command))
 
-    def set_mass_range(self, mass_range=0):
+    def set_mass_span(self, mass_span=0):
         '''Set mass range
 
         Parameters
@@ -275,4 +290,14 @@ class Qmass():
 if __name__ == '__main__':
     q_mass = Qmass('/dev/ttyUSB1')
     time.sleep(1)
-    q_mass.exit()
+    q_mass.fil_on(1)
+    q_mass.multiplier_on()
+    q_mass.analog_mode(start_mass=4, mass_span=2, accuracy=5, pressure_range=4)
+    try:
+       q_mass.measure()
+    except KeyboardInterrupt:
+        q_mass.multiplier_off()
+        q_mass.fil_off()
+        q_mass.exit()
+
+
