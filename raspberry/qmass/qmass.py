@@ -214,7 +214,8 @@ class Qmass():
         logger.debug('command: {}'.format(command))
         self.ser.write(bytes.fromhex(command))
 
-    def measure(self, mode=0, start_mass=4, mass_span=2, accuracy=5, pressure_range=4):
+    def measure(self, mode=0, start_mass=4, 
+                mass_span=2, accuracy=5, pressure_range=4):
         '''measurement
 
         Parameters
@@ -231,6 +232,7 @@ class Qmass():
         if mode == 0:
             mass_step = 1/(256/Qmass.mass_span_analog[mass_span])
             mass = start_mass - ((256/Qmass.mass_span_analog[mass_span])/2 -1) * mass_step
+            logger.debug('mass:{} mass_step: {}'.format(mass, mass_step ))
         else:
             mass_step = 1
             mass = start_mass
@@ -240,7 +242,6 @@ class Qmass():
                 pressure = 0
             else:
                 pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
-            mass += mass_step
             if data_bytes == b'\xf0\xf0\xf4':
                 self.ser.write(scan_start)
                 if mode == 0:
@@ -251,6 +252,7 @@ class Qmass():
                 logger.debug('Backto start mass')
             else:
                 logger.debug('byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'.format(data_bytes[0], data_bytes[1], data_bytes[2], pressure, mass))
+            mass += mass_step
 
     def set_start_mass(self, start_mass=4):
         '''Set start mass
@@ -304,7 +306,8 @@ class Qmass():
         '''Filament off
         '''
         self.ser.write(b'\xe3\x40')
-        logger.debug('Filament off')
+        tmp = self.ser.read(1)
+        logger.debug('Filament off: {}'.format(tmp))
         self.filament = False
 
     def multiplier_on(self):
@@ -324,7 +327,8 @@ if __name__ == '__main__':
     mass_span = 3
     accuracy = 5
     pressure_range = 5
-    q_mass = Qmass(port='/dev/ttyUSB1')
+    port = '/dev/ttyUSB1'
+    q_mass = Qmass(port=port)
     q_mass.boot()
     time.sleep(1)
     q_mass.fil_on(1)
