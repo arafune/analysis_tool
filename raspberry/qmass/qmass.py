@@ -31,6 +31,8 @@ class Qmass():
     pressure_range:int
     '''
 
+    mass_span_analog = {0: 4, 1: 8, 2: 32, 3:64}
+
     def __init__(self, port='/dev/ttyUSB0'):
         self.filament = None
         self.multiplier = False
@@ -38,48 +40,47 @@ class Qmass():
         self.accuracy = 0
         self.start_mass = 0
         self.mass_span = 0
-        self.boot(port)
-
-    def boot(self, port='/dev/ttyUSB0'):
-        '''Boot Microvision plus'''
         self.ser = serial.Serial(port=port, baudrate=9600, xonxoff=True,
                                  parity=serial.PARITY_NONE,
                                  stopbits=serial.STOPBITS_ONE)
+
+    def boot(self):
+        '''Boot Microvision plus'''
         data_to_read = self.ser.in_waiting  # よけいなリードバッファがあった時用
         self.ser.read(data_to_read)
         #
         self.ser.write(b'$$$$$$$$$$')
         self.ser.write(b'{000D,10:1FB6')
+        time.sleep(0.2)
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
-            time.sleep(0.1)
             data_to_read = self.ser.in_waiting
         logger.info(self.ser.read(data_to_read))
         # b'~LM76-00499001,001a,2:0ed1'
         self.ser.write(b'}LM76-00499001,001A,5:1660')
+        time.sleep(.2)
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
-            time.sleep(0.1)
             data_to_read = self.ser.in_waiting
         logger.info(self.ser.read(data_to_read))
         # b'~LM76-00499001,0025,3,1,V1.51a,0:262a'
         self.ser.write(b'{0011,55,1,0:402A')
+        time.sleep(.2)
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
-            time.sleep(0.1)
             data_to_read = self.ser.in_waiting
         logger.info(self.ser.read(data_to_read))
         # b'~LM76-00499001,001a,2:0ed1'
         self.ser.write(b'}LM76-00499001,001B,15:A7C2')
+        time.sleep(.2)
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
-            time.sleep(0.1)
             data_to_read = self.ser.in_waiting
         logger.info(self.ser.read(data_to_read))
         # b'~LM76-00499001,001c,6,0:daad'
         self.ser.write(bytes.fromhex('af'))
         self.ser.write(bytes.fromhex('aa'))
-        self.ser.timeout = 0.2
+        self.ser.timeout = 0.3
         tmp = self.ser.readline()
         logger.debug('should be "aa d2" {}'.format(tmp))
         # aa d2
@@ -101,26 +102,25 @@ class Qmass():
             data_to_read = self.ser.in_waiting
         logger.debug(self.ser.read(data_to_read))
         # c2 52 85 7f
+        time.sleep(1)
         self.ser.write(bytes.fromhex('ad 02'))
         logger.debug(self.ser.readline())
         # 07
         self.ser.write(bytes.fromhex('ad 03'))
-        time.sleep(1)
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
             data_to_read = self.ser.in_waiting
         logger.debug(self.ser.read(data_to_read))
         # 1e
-        self.ser.write(bytes.fromhex('e1 00'))
         time.sleep(1)
+        self.ser.write(bytes.fromhex('e1 00'))
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
             data_to_read = self.ser.in_waiting
         logger.debug(self.ser.read(data_to_read))
         # b2 33 8c bf
+        time.sleep(1)
         self.ser.write(bytes.fromhex('bf 05'))
-        data_to_read = self.ser.in_waiting
-        logger.debug('data_to_read : {}'.format(data_to_read))
         logger.debug(self.ser.readline())
         # 8f 05 21 0d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 00 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff 8e
         self.ser.write(bytes.fromhex('e6 80 00'))
@@ -137,6 +137,7 @@ class Qmass():
         end = self.ser.read(1)  # 0x86
         logger.debug('End: should be 0x86 {}'.format(end))
         self.ser.write(b'\xe2')
+        self.ser.close()
 
     def set_accuracy(self, accuracy=0): '''set accuracy
 
@@ -146,17 +147,17 @@ class Qmass():
             default:0 ( 0 to 5)
         '''
         if accuracy == 0:
-            self.ser.write(b'\x22\00')
+            self.ser.write(b'\x22\x00')
         elif accuracy == 1:
-            self.ser.write(b'\x22\01')
+            self.ser.write(b'\x22\x01')
         elif accuracy == 2:
-            self.ser.write(b'\x22\02')
+            self.ser.write(b'\x22\x02')
         elif accuracy == 3:
-            self.ser.write(b'\x22\03')
+            self.ser.write(b'\x22\x03')
         elif accuracy == 4:
-            self.ser.write(b'\x22\04')
+            self.ser.write(b'\x22\x04')
         elif accuracy == 5:
-            self.ser.write(b'\x22\05')
+            self.ser.write(b'\x22\x05')
         else:
             raise ValueError("accuracy must be 0 - 5 and integer")
 
@@ -205,28 +206,52 @@ class Qmass():
         self.mass_span = mass_span
         command0 = '00 e4 00 00 02 01 '
         if self.multiplier:
-            command_pressure = '02 {:02}'.format(pressure_range)
+            command_pressure = '02 {:02} '.format(pressure_range)
         else:
-            command_pressure = '00 {:02}'.format(pressure_range-1)
+            command_pressure = '00 {:02} '.format(pressure_range-1)
         command_accuracy = '00 {:02} '.format(accuracy)
         command_mass_span = '{:02} '.format(mass_span)
         command_start_mass = '00 {:02} 00 '.format(start_mass-1)
         command = command0 + command_pressure + command_accuracy
         command += command_mass_span + command_start_mass
+        logger.debug('command: {}'.format(command))
         self.ser.write(bytes.fromhex(command))
 
-    def measure(self):
-        '''measurement'''
+    def measure(self, mode=0, start_mass=4, mass_span=2, accuracy=5, pressure_range=4):
+        '''measurement
+
+        Parameters
+        ----------
+
+        mode: int
+            mode type
+            0: Analog mode
+            1: Digital mode
+            2: Leak check mode
+        '''
         scan_start = bytes.fromhex('b6')
         self.ser.write(scan_start)
+        if mode == 0:
+            mass_step = 1/(256/Qmass.mass_span_analog[mass_span])
+            mass = start_mass - ((256/Qmass.mass_span_analog[mass_span])/2 -1) * mass_step
+        else:
+            mass_step = 1
+            mass = start_mass
         while True:
             data_bytes = self.ser.read(3)
-            if data_bytes[0] == b'\x7f':
+            if data_bytes[0] == 0x7f:
                 pressure = 0
             else:
-                pressure = data_bytes[1] * 1.22 + (data_bytes[2] - 64) * 0.019 logger.debug('Pressure is {:4f}'.format(pressure))
-            if data_bytes == b'\x0f0 \xf0 \xf4':
+                pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
+            logger.debug('byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'.format(data_bytes[0], data_bytes[1], data_bytes[2], pressure, mass))
+            mass += mass_step
+            if data_bytes == b'\xf0\xf0\xf4':
                 self.ser.write(scan_start)
+                if mode == 0:
+                    mass = start_mass - (
+                        (256 / Qmass.mass_span_analog[mass_span])/2 - 1) * mass_step
+                else:
+                    mass = start_mass
                 logger.debug('Backto start mass')
 
     def set_start_mass(self, start_mass=4):
@@ -259,17 +284,21 @@ class Qmass():
             if fil_no == 1:
                 self.ser.write(b'\xe3\x48')
                 self.filament = 1
+                logger.debug('Filament #1 on')
             elif fil_no == 2:
                 self.ser.write(b'\xe3\x50')   # << check!!
                 self.filament = 2
+                logger.debug('Filament #2 on')
         elif self.filament == 1 and fil_no == 2:
             self.fil_off()
             self.ser.write(b'\xe3\x50')
             self.filament = 2
+            logger.debug('Filament #2 on')
         elif self.filament == 2 and fil_no == 1:
             self.fil_off()
             self.ser.write(b'\xe3\x48')
             self.filament = 1
+            logger.debug('Filament #1 on')
         else:
             raise ValueError
 
@@ -277,11 +306,13 @@ class Qmass():
         '''Filament off
         '''
         self.ser.write(b'\xe3\x40')
+        logger.debug('Filament off')
         self.filament = False
 
     def multiplier_on(self):
         '''multiplier on'''
         self.ser.write(b'\x20\x02\x00')
+        logger.debug('Multiplier ON')
         self.multiplier = True
 
     def multiplier_off(self):
@@ -291,16 +322,17 @@ class Qmass():
 
 
 if __name__ == '__main__':
-    q_mass = Qmass('/dev/ttyUSB1')
+    q_mass = Qmass(port='/dev/ttyUSB1')
+    q_mass.boot()
     time.sleep(1)
     q_mass.fil_on(1)
     q_mass.multiplier_on()
-    q_mass.analog_mode(start_mass=4, mass_span=2, accuracy=5, pressure_range=4)
+    q_mass.analog_mode(start_mass=4, mass_span=2, accuracy=5, pressure_range=5)
     try:
-       q_mass.measure()
+        q_mass.measure()
     except KeyboardInterrupt:
+        q_mass.ser.write(bytes.fromhex('00 00'))
+        time.sleep(1)
         q_mass.multiplier_off()
         q_mass.fil_off()
         q_mass.exit()
-
-
