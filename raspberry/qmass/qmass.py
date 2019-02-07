@@ -268,6 +268,7 @@ class Qmass():
         pressure_range: int
             default 4: (E-11)
         '''
+
         self.pressure_range = pressure_range
         self.accuracy = accuracy
         self.start_mass = start_mass
@@ -281,10 +282,14 @@ class Qmass():
         command_start_mass = '00 {:02x} '.format(start_mass - 1)
         end_mass = start_mass + Qmass.mass_span_digital[mass_span] - 1
         command_end_mass = '{:04x} '.format(end_mass)
-        command_mass_span = '{:02x} ff'.format(mass_span)  # << end with 'ff' or '00'?
+        command_mass_span = '{:02x} 00'.format(mass_span)  # << end with 'ff' or '00'?
         command = command0 + command_pressure + command_accuracy
-        command += command_mass_span + command_start_mass
+        command += command_start_mass + command_end_mass
         command += command_mass_span
+        logger.debug('mass_span: {}'.format(mass_span))
+        logger.debug('start_mass: {}'.format(start_mass))
+        logger.debug('end_mass: {}'.format(end_mass))
+        logger.debug('accuracy: {}'.format(accuracy))
         logger.debug('command: {}'.format(command))
         self.com.write(bytes.fromhex(command))
         return 1
@@ -445,10 +450,10 @@ class Qmass():
 
 
 if __name__ == '__main__':
-    mode_select = 0
+    mode_select = 1
     start_mass = 4
-    mass_span = 2
-    accuracy = 5
+    mass_span = 1
+    accuracy =4 
     pressure_range = 6
     port = '/dev/ttyUSB1'
     q_mass = Qmass(port=port)
