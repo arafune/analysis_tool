@@ -235,6 +235,7 @@ class Qmass():
         command += command_mass_span + command_start_mass
         logger.debug('command: {}'.format(command))
         self.com.write(bytes.fromhex(command))
+        return 0
 
 
     def digital_mode(self, start_mass=4, mass_span=2,
@@ -271,6 +272,25 @@ class Qmass():
         command += command_mass_span
         logger.debug('command: {}'.format(command))
         self.com.write(bytes.fromhex(command))
+        return 1
+
+    def leak_check(self, mass=4, accuracy=5, pressure_range=4):
+        '''Set Leak check mode
+
+        Mass offset canbe set. But not supported yet.
+
+        Parameters
+        -----------
+        mass: int
+            default:4
+        accuracy: int
+            default: 5
+        pressure_range: int
+            default 4: (E-11)
+        '''
+        return 2
+
+
 
     def measure(self, mode=0, start_mass=4,
                 mass_span=2, accuracy=5, pressure_range=4):
