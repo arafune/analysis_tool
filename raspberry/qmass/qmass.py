@@ -17,6 +17,19 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
 
+def pressure_indicator(pressure, pressure_pange):
+    range_table = {0: 1E-7, 1: 1E-8, 2: 1E-9, 3:1E-10, 4:1E-11, 5: 1E-12, 6:1E-13}
+    if isinstance(pressure_range, int):
+        pressure_range = range_table[pressure_range]
+    level = pressure/prassure_range
+    if level > 1:
+        level = 1
+    level = int(level * 100)
+    output = ''
+    output = '.' * level
+    output += '*'
+    output += '.' * (100-level)
+    return output
 
 class Qmass():
     '''Qmass measurement system class
@@ -344,14 +357,18 @@ class Qmass():
                         mass = start_mass
                     logger.debug('Rescan')
                 else:
-                    fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'
-                    logger.debug(fmt.format(data_bytes[0], data_bytes[1], data_bytes[2],
-                                            pressure, mass))
                     if mode < 2:
+                        fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'
+                        logger.debug(fmt.format(data_bytes[0], data_bytes[1], data_bytes[2],
+                                                pressure, mass))
                         mass += mass_step
+                    else:
+                        print('Pressure:{:4f}: {}'.format(pressure,
+                                                          pressure_indicator(pressure, pressure_range)))
         except KeyboardInterrupt:
             self.com.write(bytes.fromhex('00 00'))
             time.sleep(1)
+
 
     def set_start_mass(self, start_mass=4):
         '''Set start mass
@@ -435,7 +452,7 @@ if __name__ == '__main__':
     q_mass.analog_mode(start_mass=start_mass, mass_span=mass_span,
                        accuracy=accuracy, pressure_range=pressure_range)
     q_mass.measure(mode=0, start_mass=start_mass, mass_span=mass_span,
-                       accuracy=accuracy, pressure_range=pressure_range)
+                   accuracy=accuracy, pressure_range=pressure_range)
     q_mass.multiplier_off()
     q_mass.fil_off()
     q_mass.exit()
