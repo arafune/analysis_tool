@@ -84,7 +84,9 @@ class Qmass():
         # b'~LM76-00499001,001c,6,0:daad'
         time.sleep(.1)   # << OK?
         self.com.write(bytes.fromhex('af'))
-        # time.sleep(2)   # <<  this time enables to load aad d2 but cannot measure
+        # By commenting out the following line, "aa d2" can be read.
+        # *But* cannot measure!!
+        # time.sleep(2)   
         self.com.write(bytes.fromhex('aa'))
         self.com.timeout = 0.3
         tmp = self.com.readline()
@@ -93,7 +95,7 @@ class Qmass():
 #        logger.debug('Return reset_input_buffer'.format(x))
 # ---------------------------------------------
         # aa d2
-        #time.sleep(1.5)   # << OK?
+        # time.sleep(1.5)   # << OK?
         self.com.write(bytes.fromhex('ba 03'))
         time.sleep(1.5)   # << OK?
         self.com.write(bytes.fromhex('a6'))
