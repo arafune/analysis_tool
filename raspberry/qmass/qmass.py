@@ -17,8 +17,10 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
 
+
 def pressure_indicator(pressure, pressure_range):
-    range_table = {0: 1E-7, 1: 1E-8, 2: 1E-9, 3:1E-10, 4:1E-11, 5: 1E-12, 6:1E-13}
+    range_table = {0: 1E-7, 1: 1E-8, 2: 1E-9, 3: 1E-10,
+                   4: 1E-11, 5: 1E-12, 6: 1E-13}
     if isinstance(pressure_range, int):
         pressure_range = range_table[pressure_range]
     level = pressure/(pressure_range * 10)
@@ -26,10 +28,11 @@ def pressure_indicator(pressure, pressure_range):
         level = 1
     level = int(level * 100)
     output = ''
-    output = '.' * level
-    output += '*'
-    output += '.' * (100-level)
+    # output = '.' * level
+    output += '*' * level
+    output += '.' * (100 - level)
     return output
+
 
 class Qmass():
     '''Qmass measurement system class
@@ -49,9 +52,10 @@ class Qmass():
     '''
 
     mass_span_analog = {0: 4, 1: 8, 2: 32, 3: 64}
-    mass_span_digital = {0: 10, 1: 20, 2: 50, 3: 100, 4: 150, 5:200, 6:300}
+    mass_span_digital = {0: 10, 1: 20, 2: 50, 3: 100, 4: 150, 5: 200, 6: 300}
 # below is when multiplier is on
-    range_table = {0: 1E-7, 1: 1E-8, 2: 1E-9, 3:1E-10, 4:1E-11, 5: 1E-12, 6:1E-13}
+    range_table = {0: 1E-7, 1: 1E-8, 2: 1E-9, 3: 1E-10,
+                   4: 1E-11, 5: 1E-12, 6: 1E-13}
 
     def __init__(self, port='/dev/ttyUSB0'):
         self.filament = None
@@ -109,7 +113,7 @@ class Qmass():
         logger.debug('should be "aa d2": {}'.format(tmp.hex()))
         tmp = self.com.reset_input_buffer()
         logger.debug('Return of reset_input_buffer: {}'.format(tmp))
-        #time.sleep(1.5)   # << OK?
+        # time.sleep(1.5)   # << OK?
         self.com.write(bytes.fromhex('ba 03'))
         time.sleep(1.5)   # << OK?
         self.com.write(bytes.fromhex('a6'))
@@ -145,7 +149,8 @@ class Qmass():
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
         tmp = self.com.read(data_to_read)
-        logger.debug('data_to_read is: {} & should be "1e": {}'.format(data_to_read, tmp))
+        tmpfmt = 'data_to_read is: {} & should be "1e": {}'
+        logger.debug(tmpfmt.format(data_to_read, tmp))
         # 1e
         time.sleep(1)
         self.com.write(bytes.fromhex('e1 00'))
@@ -249,6 +254,14 @@ class Qmass():
         command_start_mass = '00 {:02} 00 '.format(start_mass-1)
         command = command0 + command_pressure + command_accuracy
         command += command_mass_span + command_start_mass
+        logger.debug('start_mass: {}'.format(start_mass))
+
+    # mass_span_analog = {0: 4, 1: 8, 2: 32, 3: 64}
+        logger.debug('mass_span: {} ({})'.format(
+            mass_span, Qmass.mass_span_analog[mass_span]))
+        logger.debug('accuracy: {}'.format(accuracy))
+        logger.debug('Pressure_range: {} ({:.0e})'.format(
+            pressure_range, Qmass.range_table[pressure_range]))
         logger.debug('command: {}'.format(command))
         self.com.write(bytes.fromhex(command))
         return 0
@@ -282,14 +295,17 @@ class Qmass():
         command_start_mass = '00 {:02x} '.format(start_mass - 1)
         end_mass = start_mass + Qmass.mass_span_digital[mass_span] - 1
         command_end_mass = '{:04x} '.format(end_mass)
-        command_mass_span = '{:02x} 00'.format(mass_span)  # << end with 'ff' or '00'?
+        command_mass_span = '{:02x} 00'.format(mass_span)  # << end with 'ff'?
         command = command0 + command_pressure + command_accuracy
         command += command_start_mass + command_end_mass
         command += command_mass_span
-        logger.debug('mass_span: {}'.format(mass_span))
         logger.debug('start_mass: {}'.format(start_mass))
+        logger.debug('mass_span: {} ({})'.format(
+            mass_span, Qmass.mass_span_digital[mass_span]))
         logger.debug('end_mass: {}'.format(end_mass))
         logger.debug('accuracy: {}'.format(accuracy))
+        logger.debug('Pressure_range: {} ({:.0e})'.format(
+            pressure_range, Qmass.range_table[pressure_range]))
         logger.debug('command: {}'.format(command))
         self.com.write(bytes.fromhex(command))
         return 1
@@ -314,9 +330,13 @@ class Qmass():
         else:
             command_pressure = '00 {:02x} '.format(pressure_range - 1)
         command_accuracy = '{:02x}'.format(accuracy)
-        command_mass = '{:04x} 10 01'.format(mass) 
+        command_mass = '{:04x} 10 01'.format(mass)
         command = command0 + command_pressure + command_accuracy
         command += command_mass
+        logger.debug('mass: {}'.format(mass))
+        logger.debug('accuracy: {}'.format(accuracy))
+        logger.debug('Pressure_range: {} ({:.0e})'.format(
+            pressure_range, Qmass.range_table[pressure_range]))
         logger.debug('command: {}'.format(command))
         self.com.write(bytes.fromhex(command))
         return 2
@@ -334,13 +354,14 @@ class Qmass():
             1: Digital mode
             2: Leak check mode
         '''
+        fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:.4e} / {:5.2f} {}'
         scan_start = bytes.fromhex('b6')
         self.com.write(scan_start)
         if mode == 0:
-           mass_step = 1/(256/Qmass.mass_span_analog[mass_span])
-           mass = start_mass - (
+            mass_step = 1/(256/Qmass.mass_span_analog[mass_span])
+            mass = start_mass - (
                (256/Qmass.mass_span_analog[mass_span])/2 - 1) * mass_step
-           logger.debug('mass:{} mass_step: {}'.format(mass, mass_step))
+            logger.debug('mass:{} mass_step: {}'.format(mass, mass_step))
         else:
             mass_step = 1
             mass = start_mass
@@ -350,8 +371,12 @@ class Qmass():
                 if data_bytes[0] == 0x7f:
                     pressure = 0.0
                 else:
-                    pressure = (data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019) * 1E-12
-                if b'\xf0' in data_bytes:   # 0xf0 0xf0 0xf4 (analog), 0xf0 0xf0 0xf1 (digital)
+                    pressure = (data_bytes[1]
+                                * 1.216 + (data_bytes[2] - 64) * 0.019) * 1E-12
+                # single scan ends when
+                # 0xf0 0xf0 0xf4 (analog), 0xf0 0xf0 0xf1 (digital)
+                # is received
+                if b'\xf0' in data_bytes:
                     logger.debug('data_bytes is: {}'.format(data_bytes))
                     time.sleep(0.5)
                     self.com.reset_input_buffer()
@@ -365,18 +390,18 @@ class Qmass():
                     logger.debug('Rescan')
                 else:
                     if mode < 2:
-                        fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:.4e} / {:5.2f} {}'
-                        logger.debug(fmt.format(data_bytes[0], data_bytes[1], data_bytes[2],
-                                                pressure, mass,
-                                                pressure_indicator(pressure, pressure_range)))
+                        logger.debug(
+                            fmt.format(data_bytes[0], data_bytes[1],
+                                       data_bytes[2], pressure, mass,
+                                       pressure_indicator(pressure,
+                                                          pressure_range)))
                         mass += mass_step
                     else:
                         print('Pressure:{:.3e}: {}'.format(pressure,
-                                                          pressure_indicator(pressure, pressure_range)))
+                              pressure_indicator(pressure, pressure_range)))
         except KeyboardInterrupt:
             self.com.write(bytes.fromhex('00 00'))
             time.sleep(1)
-
 
     def set_start_mass(self, start_mass=4):
         '''Set start mass
@@ -453,7 +478,7 @@ if __name__ == '__main__':
     mode_select = 1
     start_mass = 4
     mass_span = 1
-    accuracy =4 
+    accuracy = 4
     pressure_range = 6
     port = '/dev/ttyUSB1'
     q_mass = Qmass(port=port)
@@ -462,13 +487,16 @@ if __name__ == '__main__':
     q_mass.multiplier_on()
     if mode_select == 0:
         mode = q_mass.analog_mode(start_mass=start_mass, mass_span=mass_span,
-                       accuracy=accuracy, pressure_range=pressure_range)
+                                  accuracy=accuracy,
+                                  pressure_range=pressure_range)
     elif mode_select == 1:
         mode = q_mass.digital_mode(start_mass=start_mass, mass_span=mass_span,
-                       accuracy=accuracy, pressure_range=pressure_range)
-    else: 
-        mode = q_mass.leak_check(mass=start_mass, 
-                       accuracy=accuracy, pressure_range=pressure_range)
+                                   accuracy=accuracy,
+                                   pressure_range=pressure_range)
+    else:
+        mode = q_mass.leak_check(mass=start_mass,
+                                 accuracy=accuracy,
+                                 pressure_range=pressure_range)
     q_mass.measure(mode=mode, start_mass=start_mass, mass_span=mass_span,
                    accuracy=accuracy, pressure_range=pressure_range)
     q_mass.multiplier_off()
