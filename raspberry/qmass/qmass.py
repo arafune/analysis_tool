@@ -342,7 +342,8 @@ class Qmass():
         return 2
 
     def measure(self, mode=0, start_mass=4,
-                mass_span=2, accuracy=5, pressure_range=4):
+                mass_span=2, accuracy=5, pressure_range=4,
+                savefile=None):
         '''measurement
 
         Parameters
@@ -353,8 +354,13 @@ class Qmass():
             0: Analog mode
             1: Digital mode
             2: Leak check mode
+
+        filesave: str
+            file name for save
         '''
         fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:.4e} / {:5.2f} {}'
+        save_fmt = '{:f5.3}\t{:.5e}\n'
+        data = []
         scan_start = bytes.fromhex('b6')
         self.com.write(scan_start)
         if mode == 0:
@@ -365,6 +371,21 @@ class Qmass():
         else:
             mass_step = 1
             mass = start_mass
+        if savefile:
+            f_save = open(savefile, mode='w')
+            # ここにヘッダ除法を書き込む
+            # mode, range, date, start_mass, accuracy
+            if mode == 0:
+                header = '#Analog_mode. Date:'
+            elif mode == 1:
+                header = '#Digital_mode. Date:'
+            else:  # Leak check
+                header = '#Leak check mode. mass:{}. Date:'.format(mass)
+            header += datetime.datetime.strftime(
+                          datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
+            header += '. Pressure_range: {} ({:.0e}).'.format(
+                pressure_range, Qmass.range_table[pressure_range])
+            header += 'Accuracy:{}\n'.format(accuracy)
         try:
             while True:
                 data_bytes = self.com.read(3)
@@ -373,21 +394,30 @@ class Qmass():
                 else:
                     pressure = (data_bytes[1]
                                 * 1.216 + (data_bytes[2] - 64) * 0.019) * 1E-12
+                data.append(save_fmt.format(mass, pressure))
                 # single scan ends when
                 # 0xf0 0xf0 0xf4 (analog), 0xf0 0xf0 0xf1 (digital)
                 # is received
                 if b'\xf0' in data_bytes:
                     logger.debug('data_bytes is: {}'.format(data_bytes))
                     time.sleep(0.5)
-                    self.com.reset_input_buffer()
-                    self.com.write(scan_start)
+                    # ここで データを書き込む　（清浄に終わっていなければ無視
                     if mode == 0:
                         mass = start_mass - (
                             (256 / Qmass.mass_span_analog[mass_span])
                             / 2 - 1) * mass_step
-                    else:
+                        if savefile and b'\xf4' in data_bytes:
+                            f_save.writelines(data)
+                    elif mode == 1:
                         mass = start_mass
+                        if savefile and b'\xf1' in data_bytes[2]:
+                            f_save.writelines(data)
+                    else:
+                        pass
+                    self.com.reset_input_buffer()
+                    self.com.write(scan_start)
                     logger.debug('Rescan')
+                    data = []
                 else:
                     if mode < 2:
                         logger.debug(
@@ -399,6 +429,12 @@ class Qmass():
                     else:
                         print('Pressure:{:.3e}: {}'.format(pressure,
                               pressure_indicator(pressure, pressure_range)))
+                        if savefile:
+                            now = datetime.datetime.strftime(
+                                  datetime.datetime.now(),
+                                  '%Y-%m-%d %H:%M:%S.%f')
+                            a_data = '{}\t{:.3e}\n'.format(now, pressure)
+                            f_save.write(a_data)
         except KeyboardInterrupt:
             self.com.write(bytes.fromhex('00 00'))
             time.sleep(1)
