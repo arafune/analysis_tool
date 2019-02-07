@@ -434,8 +434,10 @@ class Qmass():
     def multiplier_off(self):
         '''multiplier off'''
         self.com.write(b'\x20\x00\x00')
-        tmp = self.com.read(1)
-        logger.debug('Multiplier off: {}'.format(tmp))
+        time.sleep(.5)
+        data_to_read = self.com.in_waiting
+        tmp = self.com.read(data_to_read)
+        logger.debug('Multiplier off'.format(tmp))
         self.multiplier = False
 
 
