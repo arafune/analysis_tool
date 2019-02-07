@@ -36,6 +36,7 @@ class Qmass():
     '''
 
     mass_span_analog = {0: 4, 1: 8, 2: 32, 3: 64}
+    mass_span_digital = {0: 10, 1: 20, 2: 50, 3: 100, 4: 150, 5:200, 6:300}
 
     def __init__(self, port='/dev/ttyUSB0'):
         self.filament = None
@@ -86,66 +87,63 @@ class Qmass():
         self.com.write(bytes.fromhex('af'))
         # By commenting out the following line, "aa d2" can be read.
         # *But* cannot measure!!
-        # time.sleep(2)   
+        # time.sleep(2)
         self.com.write(bytes.fromhex('aa'))
         self.com.timeout = 0.3
         tmp = self.com.readline()
-        logger.debug('should be "aa d2" {}'.format(tmp.hex()))
-#        x=self.com.reset_input_buffer()
-#        logger.debug('Return reset_input_buffer'.format(x))
-# ---------------------------------------------
-        # aa d2
-        # time.sleep(1.5)   # << OK?
+        logger.debug('should be "aa d2": {}'.format(tmp.hex()))
+        tmp = self.com.reset_input_buffer()
+        logger.debug('Return of reset_input_buffer: {}'.format(tmp))
+        #time.sleep(1.5)   # << OK?
         self.com.write(bytes.fromhex('ba 03'))
         time.sleep(1.5)   # << OK?
         self.com.write(bytes.fromhex('a6'))
-        tmp = self.com.readline()
         data_to_read = self.com.in_waiting
-        logger.debug('data_to_read {}'.format(data_to_read))
-        while data_to_read != 0:
-            logger.debug('should be 03566100...'.format(tmp.hex()))
-            data_to_read = self.com.in_waiting
-            logger.debug('data_to_read {}'.format(data_to_read))
-            self.com.write(bytes.fromhex('ba 03'))
-            time.sleep(1.5)   # << OK?
-            self.com.write(bytes.fromhex('a6'))
-            tmp = self.com.readline()
+        logger.debug('data_to_read: {}'.format(data_to_read))
+        tmp = self.com.readline()
+        logger.debug('035661...004b00: {}'.format(tmp))
         # 03 56 61 00 25 03 09 44 03 13 3e 02 2f 6a 03 00 00 01 00 4b 00
         self.com.write(bytes.fromhex('bb 00 80 80 80 be 0a'))
         self.com.write(bytes.fromhex('00 ff 00 bf 04'))
-        logger.debug(self.com.readline())
+        tmp = self.com.readline()
+        logger.debug('"8f041900...00008e": {}'.format(tmp.hex()))
         # 8f 04 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8e
         self.com.write(bytes.fromhex('a7'))
         data_to_read = self.com.in_waiting
-        tmp = self.com.read(2)
-        logger.info('should be "ff 00"  {}"'.format(tmp))
+        logger.debug('data_to_read: {}'.format(data_to_read))
+        tmp = self.com.readline()
+        logger.debug('should be "ff 00": {}"'.format(tmp))
         self.com.write(bytes.fromhex('aa 01 03 10 86 00 a1 00 00 bc'))
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
         tmp = self.com.read(data_to_read)
-        logger.debug('"#c2 52 85 7f"'.format(tmp))
+        logger.debug('"#c2 52 85 7f": {}'.format(tmp))
         # c2 52 85 7f
         time.sleep(1)
         self.com.write(bytes.fromhex('ad 02'))
-        logger.debug(self.com.readline())
+        tmp = self.com.readline()
+        logger.debug('0x07: {}'.format(tmp))
         # 07
         self.com.write(bytes.fromhex('ad 03'))
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
-        logger.debug(self.com.read(data_to_read))
+        tmp = self.com.read(data_to_read)
+        logger.debug('data_to_read is: {} & should be "1e": {}'.format(data_to_read, tmp))
         # 1e
         time.sleep(1)
         self.com.write(bytes.fromhex('e1 00'))
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
-        logger.debug(self.com.read(data_to_read))
+        tmp = self.com.read(data_to_read)
+        logger.debug('"b2 33 8c bf": {}'.format(tmp))
         # b2 33 8c bf
         time.sleep(1)
         self.com.write(bytes.fromhex('bf 05'))
-        logger.debug(self.com.readline())
+        tmp = self.com.readline()
+        logger.debug('"8f 05 21 0d ... ff ff ff 8e": {}'.format(tmp))
         # 8f 05 21 0d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 00 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff 8e
         self.com.write(bytes.fromhex('e6 80 00'))
         self.com.timeout = None
@@ -155,7 +153,7 @@ class Qmass():
         '''Close Microvision plus'''
         self.com.write(b'\x00\xaf')
         end = self.com.read(1)  # 0x86
-        logger.debug('End: should be 0x86 {}'.format(end))
+        logger.debug('End: should be 0x86 :{}'.format(end))
         self.com.write(b'\xe2')
         self.com.close()
 
@@ -208,7 +206,7 @@ class Qmass():
 
     def analog_mode(self, start_mass=4, mass_span=2,
                     accuracy=5, pressure_range=4):
-        '''Run analog Mode
+        '''Set analog Mode
 
         Parameters
         -----------
@@ -229,12 +227,48 @@ class Qmass():
         if self.multiplier:
             command_pressure = '02 {:02} '.format(pressure_range)
         else:
-            command_pressure = '00 {:02} '.format(pressure_range-1)
+            command_pressure = '00 {:02} '.format(pressure_range-2)
         command_accuracy = '00 {:02} '.format(accuracy)
         command_mass_span = '{:02} '.format(mass_span)
         command_start_mass = '00 {:02} 00 '.format(start_mass-1)
         command = command0 + command_pressure + command_accuracy
         command += command_mass_span + command_start_mass
+        logger.debug('command: {}'.format(command))
+        self.com.write(bytes.fromhex(command))
+
+
+    def digital_mode(self, start_mass=4, mass_span=2,
+                     accuracy=5, pressure_range=4):
+        '''Set Digital mode
+
+        Parameters
+        -----------
+        star_mass: int
+            default:4
+        mass_span: int
+            default: 2 (0:8, 1:16, 2:32, 3:64)
+        accuracy: int
+            default: 5
+        pressure_range: int
+            default 4: (E-11)
+        '''
+        self.pressure_range = pressure_range
+        self.accuracy = accuracy
+        self.start_mass = start_mass
+        self.mass_span = mass_span
+        command0 = '00 e4 00 00 02 02 '
+        if self.multiplier:
+            command_pressure = '02 {:02} '.format(pressure_range)
+        else:
+            command_pressure = '00 {:02} '.format(pressure_range - 1)
+        command_accuracy = '00 {:02} '.format(accuracy)
+        command_start_mass = '00 {:02} '.format(start_mass - 1)
+        end_mass = start_mass + Qmass.mass_span_digital[mass_span] - 1
+        command_end_mass = '{:04x} '.format(end_mass)
+        command_mass_span = '{:02} ff'.format(mass_span)  # << end with 'ff' or '00'?
+        command = command0 + command_pressure + command_accuracy
+        command += command_mass_span + command_start_mass
+        command += command_mass_span
         logger.debug('command: {}'.format(command))
         self.com.write(bytes.fromhex(command))
 
@@ -254,20 +288,21 @@ class Qmass():
         scan_start = bytes.fromhex('b6')
         self.com.write(scan_start)
         if mode == 0:
-            mass_step = 1/(256/Qmass.mass_span_analog[mass_span])
-            mass = start_mass - (
-                (256/Qmass.mass_span_analog[mass_span])/2 - 1) * mass_step
-            logger.debug('mass:{} mass_step: {}'.format(mass, mass_step))
+           mass_step = 1/(256/Qmass.mass_span_analog[mass_span])
+           mass = start_mass - (
+               (256/Qmass.mass_span_analog[mass_span])/2 - 1) * mass_step
+           logger.debug('mass:{} mass_step: {}'.format(mass, mass_step))
         else:
             mass_step = 1
             mass = start_mass
         while True:
             data_bytes = self.com.read(3)
             if data_bytes[0] == 0x7f:
-                pressure = 0
+                pressure = 0.0
             else:
                 pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
-            if b'\xf0' or b'\xf4' in data_bytes:
+            if b'\xf0' in data_bytes:   # 0xf0 0xf0 0xf4 (analog), 0xf0 0xf0 0xf1 (digital)
+                logger.debug('data_bytes is: {}'.format(data_bytes))
                 time.sleep(0.5)
                 self.com.reset_input_buffer()
                 self.com.write(scan_start)
@@ -282,7 +317,8 @@ class Qmass():
                 fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'
                 logger.debug(fmt.format(data_bytes[0], data_bytes[1], data_bytes[2],
                                         pressure, mass))
-            mass += mass_step
+                if mode < 2:
+                    mass += mass_step
 
     def set_start_mass(self, start_mass=4):
         '''Set start mass
@@ -292,7 +328,6 @@ class Qmass():
         start_mass: int
             start mass
         '''
-        pass
         command = '23 {:02} 00'.format(start_mass-1)
         self.com.write(bytes.fromhex(command))
 
@@ -349,6 +384,8 @@ class Qmass():
     def multiplier_off(self):
         '''multiplier off'''
         self.com.write(b'\x20\x00\x00')
+        tmp = self.com.read(1)
+        logger.debug('Multiplier off: {}'.format(tmp))
         self.multiplier = False
 
 
