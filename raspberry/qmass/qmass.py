@@ -259,14 +259,14 @@ class Qmass():
         self.mass_span = mass_span
         command0 = '00 e4 00 00 02 02 '
         if self.multiplier:
-            command_pressure = '02 {:02} '.format(pressure_range)
+            command_pressure = '02 {:02x} '.format(pressure_range)
         else:
-            command_pressure = '00 {:02} '.format(pressure_range - 1)
-        command_accuracy = '00 {:02} '.format(accuracy)
-        command_start_mass = '00 {:02} '.format(start_mass - 1)
+            command_pressure = '00 {:02x} '.format(pressure_range - 1)
+        command_accuracy = '00 {:02x} '.format(accuracy)
+        command_start_mass = '00 {:02x} '.format(start_mass - 1)
         end_mass = start_mass + Qmass.mass_span_digital[mass_span] - 1
         command_end_mass = '{:04x} '.format(end_mass)
-        command_mass_span = '{:02} ff'.format(mass_span)  # << end with 'ff' or '00'?
+        command_mass_span = '{:02x} ff'.format(mass_span)  # << end with 'ff' or '00'?
         command = command0 + command_pressure + command_accuracy
         command += command_mass_span + command_start_mass
         command += command_mass_span
@@ -288,9 +288,18 @@ class Qmass():
         pressure_range: int
             default 4: (E-11)
         '''
+        command0 = '00 e4 00 00 02 04 '
+        if self.multiplier:
+            command_pressure = '02 {:02x} '.format(pressure_range)
+        else:
+            command_pressure = '00 {:02x} '.format(pressure_range - 1)
+        command_accuracy = '{:02x}'.format(accuracy)
+        command_mass = '{:04x} 10 01'.format(mass) 
+        command = command0 + command_pressure + command_accuracy
+        command += command_mass
+        logger.debug('command: {}'.format(command))
+        self.com.write(bytes.fromhex(command))
         return 2
-
-
 
     def measure(self, mode=0, start_mass=4,
                 mass_span=2, accuracy=5, pressure_range=4):
