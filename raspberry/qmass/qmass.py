@@ -114,7 +114,7 @@ class Qmass():
         logger.debug(self.ser.readline())
         # 8f 04 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8e
         self.ser.write(bytes.fromhex('a7'))
-        data_to_read = self.ser.
+        data_to_read = self.ser.in_waiting
         tmp = self.ser.read(2)
         logger.info('should be "ff 00"  {}"'.format(tmp))
         self.ser.write(bytes.fromhex('aa 01 03 10 86 00 a1 00 00 bc'))
@@ -265,7 +265,9 @@ class Qmass():
                 pressure = 0
             else:
                 pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
-            if data_bytes == b'\xf0\xf0\xf4':
+            if b'\xf0' or b'\xf4' in data_bytes:
+                time.sleep(0.5)
+                self.ser.reset_input_buffer()
                 self.ser.write(scan_start)
                 if mode == 0:
                     mass = start_mass - (
@@ -273,9 +275,11 @@ class Qmass():
                         / 2 - 1) * mass_step
                 else:
                     mass = start_mass
-                logger.debug('Backto start mass')
+                logger.debug('Rescan')
             else:
-                logger.debug('byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'.format(data_bytes[0], data_bytes[1], data_bytes[2], pressure, mass))
+                fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'
+                logger.debug(fmt.format(data_bytes[0], data_bytes[1], data_bytes[2],
+                                        pressure, mass))
             mass += mass_step
 
     def set_start_mass(self, start_mass=4):
