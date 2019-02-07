@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 '''Q-mass control by python
 '''
+import datetime
 import time
-from logging import getLogger, StreamHandler, DEBUG
+from logging import getLogger, StreamHandler, DEBUG, Formatter
 import serial
 
 # logger
 logger = getLogger(__name__)
+fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
+formatter = Formatter(fmt)
 handler = StreamHandler()
 handler.setLevel(DEBUG)
 logger.setLevel(DEBUG)
+handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
 
@@ -31,7 +35,7 @@ class Qmass():
     pressure_range:int
     '''
 
-    mass_span_analog = {0: 4, 1: 8, 2: 32, 3:64}
+    mass_span_analog = {0: 4, 1: 8, 2: 32, 3: 64}
 
     def __init__(self, port='/dev/ttyUSB0'):
         self.filament = None
@@ -80,7 +84,7 @@ class Qmass():
         # b'~LM76-00499001,001c,6,0:daad'
         time.sleep(.1)   # << OK?
         self.ser.write(bytes.fromhex('af'))
-#        time.sleep(2)   # <<  this time enables to load aad d2 but cannot measure
+        # time.sleep(2)   # <<  this time enables to load aad d2 but cannot measure
         self.ser.write(bytes.fromhex('aa'))
         self.ser.timeout = 0.3
         tmp = self.ser.readline()
@@ -230,7 +234,7 @@ class Qmass():
         logger.debug('command: {}'.format(command))
         self.ser.write(bytes.fromhex(command))
 
-    def measure(self, mode=0, start_mass=4, 
+    def measure(self, mode=0, start_mass=4,
                 mass_span=2, accuracy=5, pressure_range=4):
         '''measurement
 
@@ -247,8 +251,9 @@ class Qmass():
         self.ser.write(scan_start)
         if mode == 0:
             mass_step = 1/(256/Qmass.mass_span_analog[mass_span])
-            mass = start_mass - ((256/Qmass.mass_span_analog[mass_span])/2 -1) * mass_step
-            logger.debug('mass:{} mass_step: {}'.format(mass, mass_step ))
+            mass = start_mass - (
+                (256/Qmass.mass_span_analog[mass_span])/2 - 1) * mass_step
+            logger.debug('mass:{} mass_step: {}'.format(mass, mass_step))
         else:
             mass_step = 1
             mass = start_mass
@@ -262,7 +267,8 @@ class Qmass():
                 self.ser.write(scan_start)
                 if mode == 0:
                     mass = start_mass - (
-                        (256 / Qmass.mass_span_analog[mass_span])/2 - 1) * mass_step
+                        (256 / Qmass.mass_span_analog[mass_span])
+                        / 2 - 1) * mass_step
                 else:
                     mass = start_mass
                 logger.debug('Backto start mass')
