@@ -3,6 +3,7 @@
 '''
 import datetime
 import time
+import argparse
 from logging import getLogger, StreamHandler, DEBUG, Formatter
 import serial
 
@@ -366,7 +367,7 @@ class Qmass():
         if mode == 0:
             mass_step = 1/(256/Qmass.mass_span_analog[mass_span])
             mass = start_mass - (
-               (256/Qmass.mass_span_analog[mass_span])/2 - 1) * mass_step
+                (256/Qmass.mass_span_analog[mass_span])/2 - 1) * mass_step
             logger.debug('mass:{} mass_step: {}'.format(mass, mass_step))
         else:
             mass_step = 1
@@ -382,9 +383,9 @@ class Qmass():
             else:  # Leak check
                 header = '#Leak check mode. mass:{}. Date:'.format(mass)
             header += datetime.datetime.strftime(
-                          datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
+              datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
             header += '. Pressure_range: {} ({:.0e}).'.format(
-                pressure_range, Qmass.range_table[pressure_range])
+              pressure_range, Qmass.range_table[pressure_range])
             header += 'Accuracy:{}\n'.format(accuracy)
         try:
             while True:
@@ -431,8 +432,8 @@ class Qmass():
                               pressure_indicator(pressure, pressure_range)))
                         if savefile:
                             now = datetime.datetime.strftime(
-                                  datetime.datetime.now(),
-                                  '%Y-%m-%d %H:%M:%S.%f')
+                                    datetime.datetime.now(),
+                                    '%Y-%m-%d %H:%M:%S.%f')
                             a_data = '{}\t{:.3e}\n'.format(now, pressure)
                             f_save.write(a_data)
         except KeyboardInterrupt:
@@ -511,11 +512,61 @@ class Qmass():
 
 
 if __name__ == '__main__':
-    mode_select = 2
-    start_mass = 4
-    mass_span = 2
-    accuracy = 5
-    pressure_range = 6
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog="""
+NOTE: あとでちゃんと書く。""")
+    description_mode = 'Mode\n\t0: Analog\n\t1: Digital\n\t2: Leak check'
+    description_mass_span = '''Mass span
+    Analog mode
+    0: 8
+    1: 16
+    2: 32
+    3: 64
+    Digital mode
+    0: 10
+    1: 20
+    2: 50
+    3: 100
+    4: 150
+    5: 200
+    6: 300
+    '''
+    description_pressure_range = '''Pressure range
+    0: 1E-7 (mbar)
+    1: 1E-8
+    2: 1E-9
+    3: 1E-10
+    4: 1E-11
+    5: 1E-12
+    6: 1E-13
+    '''
+    parser.add_argument('--output', '-o',
+                        type=str, default=None,
+                        help='''Output filename''')
+    parser.add_argument('--mode', '-m',
+                        type=int, default=0,
+                        help=description_mode)
+    parser.add_argument('--init', '-i',
+                        type=int, default=4,
+                        help='Start mass (mass for Leak checkmode )')
+    parser.add_argument('--span', '-s',
+                        type=int, default=2,
+                        help=description_mass_span)
+    parser.add_argument('--accuracy', '-a',
+                        type=int, default=4,
+                        help='''Accuracy (0-5)''')
+    parser.add_argument('--range', '-r',
+                        type=int, default=4,
+                        help=description_pressure_range)
+    args = parser.parse_args()
+    #
+    mode_select = args.mode
+    start_mass = args.ini
+    mass_span = args.span
+    accuracy = args.accuracy
+    pressure_range = args.range
+    savefile = args.output
     port = '/dev/ttyUSB1'
     q_mass = Qmass(port=port)
     q_mass.boot()
@@ -534,7 +585,8 @@ if __name__ == '__main__':
                                  accuracy=accuracy,
                                  pressure_range=pressure_range)
     q_mass.measure(mode=mode, start_mass=start_mass, mass_span=mass_span,
-                   accuracy=accuracy, pressure_range=pressure_range)
+                   accuracy=accuracy, pressure_range=pressure_range,
+                   savefile=savefile)
     q_mass.multiplier_off()
     q_mass.fil_off()
     q_mass.exit()
