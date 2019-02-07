@@ -475,10 +475,10 @@ class Qmass():
 
 
 if __name__ == '__main__':
-    mode_select = 1
+    mode_select = 2
     start_mass = 4
-    mass_span = 1
-    accuracy = 4
+    mass_span = 2
+    accuracy = 5
     pressure_range = 6
     port = '/dev/ttyUSB1'
     q_mass = Qmass(port=port)
