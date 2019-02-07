@@ -148,6 +148,7 @@ class Qmass():
         self.com.write(bytes.fromhex('e6 80 00'))
         self.com.timeout = None
         logger.debug('Microvision initialized')
+        time.sleep(1)
 
     def exit(self):
         '''Close Microvision plus'''
@@ -237,7 +238,6 @@ class Qmass():
         self.com.write(bytes.fromhex(command))
         return 0
 
-
     def digital_mode(self, start_mass=4, mass_span=2,
                      accuracy=5, pressure_range=4):
         '''Set Digital mode
@@ -324,30 +324,34 @@ class Qmass():
         else:
             mass_step = 1
             mass = start_mass
-        while True:
-            data_bytes = self.com.read(3)
-            if data_bytes[0] == 0x7f:
-                pressure = 0.0
-            else:
-                pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
-            if b'\xf0' in data_bytes:   # 0xf0 0xf0 0xf4 (analog), 0xf0 0xf0 0xf1 (digital)
-                logger.debug('data_bytes is: {}'.format(data_bytes))
-                time.sleep(0.5)
-                self.com.reset_input_buffer()
-                self.com.write(scan_start)
-                if mode == 0:
-                    mass = start_mass - (
-                        (256 / Qmass.mass_span_analog[mass_span])
-                        / 2 - 1) * mass_step
+        try:
+            while True:
+                data_bytes = self.com.read(3)
+                if data_bytes[0] == 0x7f:
+                    pressure = 0.0
                 else:
-                    mass = start_mass
-                logger.debug('Rescan')
-            else:
-                fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'
-                logger.debug(fmt.format(data_bytes[0], data_bytes[1], data_bytes[2],
-                                        pressure, mass))
-                if mode < 2:
-                    mass += mass_step
+                    pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
+                if b'\xf0' in data_bytes:   # 0xf0 0xf0 0xf4 (analog), 0xf0 0xf0 0xf1 (digital)
+                    logger.debug('data_bytes is: {}'.format(data_bytes))
+                    time.sleep(0.5)
+                    self.com.reset_input_buffer()
+                    self.com.write(scan_start)
+                    if mode == 0:
+                        mass = start_mass - (
+                            (256 / Qmass.mass_span_analog[mass_span])
+                            / 2 - 1) * mass_step
+                    else:
+                        mass = start_mass
+                    logger.debug('Rescan')
+                else:
+                    fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'
+                    logger.debug(fmt.format(data_bytes[0], data_bytes[1], data_bytes[2],
+                                            pressure, mass))
+                    if mode < 2:
+                        mass += mass_step
+        except KeyboardInterrupt:
+            self.com.write(bytes.fromhex('00 00'))
+            time.sleep(1)
 
     def set_start_mass(self, start_mass=4):
         '''Set start mass
@@ -426,17 +430,12 @@ if __name__ == '__main__':
     port = '/dev/ttyUSB1'
     q_mass = Qmass(port=port)
     q_mass.boot()
-    time.sleep(1)
     q_mass.fil_on(1)
     q_mass.multiplier_on()
     q_mass.analog_mode(start_mass=start_mass, mass_span=mass_span,
                        accuracy=accuracy, pressure_range=pressure_range)
-    try:
-        q_mass.measure(mode=0, start_mass=start_mass, mass_span=mass_span,
+    q_mass.measure(mode=0, start_mass=start_mass, mass_span=mass_span,
                        accuracy=accuracy, pressure_range=pressure_range)
-    except KeyboardInterrupt:
-        q_mass.com.write(bytes.fromhex('00 00'))
-        time.sleep(1)
-        q_mass.multiplier_off()
-        q_mass.fil_off()
-        q_mass.exit()
+    q_mass.multiplier_off()
+    q_mass.fil_off()
+    q_mass.exit()
