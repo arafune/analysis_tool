@@ -89,10 +89,8 @@ class Qmass():
         self.com.timeout = 0.3
         tmp = self.com.readline()
         logger.debug('should be "aa d2" {}'.format(tmp.hex()))
-#        x=self.com.reset_input_buffer()
-#        logger.debug('Return reset_input_buffer'.format(x))
-# ---------------------------------------------
-        # aa d2
+        x=self.com.reset_input_buffer()
+        logger.debug('Return of reset_input_buffer'.format(x))
         #time.sleep(1.5)   # << OK?
         self.com.write(bytes.fromhex('ba 03'))
         time.sleep(1.5)   # << OK?
@@ -100,17 +98,18 @@ class Qmass():
         data_to_read = self.com.in_waiting
         logger.debug('data_to_read {}'.format(data_to_read))
         tmp = self.com.readline()
-        logger.debug('035661... {}'.format(tmp))
+        logger.debug('035661... : {}'.format(tmp))
         # 03 56 61 00 25 03 09 44 03 13 3e 02 2f 6a 03 00 00 01 00 4b 00
         self.com.write(bytes.fromhex('bb 00 80 80 80 be 0a'))
         self.com.write(bytes.fromhex('00 ff 00 bf 04'))
         tmp = self.com.readline()
-        logger.debug('8f041900... {}'.format(tmp.hex()))
+        logger.debug('8f041900...: {}'.format(tmp.hex()))
         # 8f 04 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8e
         self.com.write(bytes.fromhex('a7'))
         data_to_read = self.com.in_waiting
-        tmp = self.com.read(2)
-        logger.info('should be "ff 00" ::{}"'.format(tmp))
+        logger.debug('data_to_read : {}'.format(data_to_read))
+        tmp = self.com.readline()
+        logger.debug('should be "ff 00" :{}"'.format(tmp))
         self.com.write(bytes.fromhex('aa 01 03 10 86 00 a1 00 00 bc'))
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
@@ -147,7 +146,7 @@ class Qmass():
         '''Close Microvision plus'''
         self.com.write(b'\x00\xaf')
         end = self.com.read(1)  # 0x86
-        logger.debug('End: should be 0x86 {}'.format(end))
+        logger.debug('End: should be 0x86 :{}'.format(end))
         self.com.write(b'\xe2')
         self.com.close()
 
@@ -256,7 +255,7 @@ class Qmass():
         while True:
             data_bytes = self.com.read(3)
             if data_bytes[0] == 0x7f:
-                pressure = 0
+                pressure = 0.0
             else:
                 pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
             if (b'\xf0' or b'\xf4') in data_bytes:
@@ -275,7 +274,7 @@ class Qmass():
                 fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'
                 logger.debug(fmt.format(data_bytes[0], data_bytes[1], data_bytes[2],
                                         pressure, mass))
-            mass += mass_step
+                mass += mass_step
 
     def set_start_mass(self, start_mass=4):
         '''Set start mass
