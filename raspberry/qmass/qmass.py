@@ -114,13 +114,15 @@ class Qmass():
         logger.debug(self.ser.readline())
         # 8f 04 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8e
         self.ser.write(bytes.fromhex('a7'))
-        data_to_read = self.ser.in_waiting
-        logger.info('should be "ff 00"  {}"'.format(self.ser.read(2)))  # ff 00
+        data_to_read = self.ser.
+        tmp = self.ser.read(2)
+        logger.info('should be "ff 00"  {}"'.format(tmp))
         self.ser.write(bytes.fromhex('aa 01 03 10 86 00 a1 00 00 bc'))
         data_to_read = self.ser.in_waiting
         while data_to_read == 0:
             data_to_read = self.ser.in_waiting
-        logger.debug(self.ser.read(data_to_read))
+        tmp = self.ser.read(data_to_read)
+        logger.debug('"#c2 52 85 7f"'.format(tmp))
         # c2 52 85 7f
         time.sleep(1)
         self.ser.write(bytes.fromhex('ad 02'))
