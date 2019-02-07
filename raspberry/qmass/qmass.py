@@ -17,11 +17,11 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
 
-def pressure_indicator(pressure, pressure_pange):
+def pressure_indicator(pressure, pressure_range):
     range_table = {0: 1E-7, 1: 1E-8, 2: 1E-9, 3:1E-10, 4:1E-11, 5: 1E-12, 6:1E-13}
     if isinstance(pressure_range, int):
         pressure_range = range_table[pressure_range]
-    level = pressure/prassure_range
+    level = pressure/(pressure_range * 10)
     if level > 1:
         level = 1
     level = int(level * 100)
@@ -50,6 +50,8 @@ class Qmass():
 
     mass_span_analog = {0: 4, 1: 8, 2: 32, 3: 64}
     mass_span_digital = {0: 10, 1: 20, 2: 50, 3: 100, 4: 150, 5:200, 6:300}
+# below is when multiplier is on
+    range_table = {0: 1E-7, 1: 1E-8, 2: 1E-9, 3:1E-10, 4:1E-11, 5: 1E-12, 6:1E-13}
 
     def __init__(self, port='/dev/ttyUSB0'):
         self.filament = None
@@ -343,7 +345,7 @@ class Qmass():
                 if data_bytes[0] == 0x7f:
                     pressure = 0.0
                 else:
-                    pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
+                    pressure = (data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019) * 1E-12
                 if b'\xf0' in data_bytes:   # 0xf0 0xf0 0xf4 (analog), 0xf0 0xf0 0xf1 (digital)
                     logger.debug('data_bytes is: {}'.format(data_bytes))
                     time.sleep(0.5)
@@ -358,12 +360,13 @@ class Qmass():
                     logger.debug('Rescan')
                 else:
                     if mode < 2:
-                        fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:4f} / {}'
+                        fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:.4e} / {:5.2f} {}'
                         logger.debug(fmt.format(data_bytes[0], data_bytes[1], data_bytes[2],
-                                                pressure, mass))
+                                                pressure, mass,
+                                                pressure_indicator(pressure, pressure_range)))
                         mass += mass_step
                     else:
-                        print('Pressure:{:4f}: {}'.format(pressure,
+                        print('Pressure:{:.3e}: {}'.format(pressure,
                                                           pressure_indicator(pressure, pressure_range)))
         except KeyboardInterrupt:
             self.com.write(bytes.fromhex('00 00'))
@@ -442,18 +445,26 @@ class Qmass():
 
 
 if __name__ == '__main__':
+    mode_select = 0
     start_mass = 4
-    mass_span = 3
+    mass_span = 2
     accuracy = 5
-    pressure_range = 5
+    pressure_range = 6
     port = '/dev/ttyUSB1'
     q_mass = Qmass(port=port)
     q_mass.boot()
     q_mass.fil_on(1)
     q_mass.multiplier_on()
-    q_mass.analog_mode(start_mass=start_mass, mass_span=mass_span,
+    if mode_select == 0:
+        mode = q_mass.analog_mode(start_mass=start_mass, mass_span=mass_span,
                        accuracy=accuracy, pressure_range=pressure_range)
-    q_mass.measure(mode=0, start_mass=start_mass, mass_span=mass_span,
+    elif mode_select == 1:
+        mode = q_mass.digital_mode(start_mass=start_mass, mass_span=mass_span,
+                       accuracy=accuracy, pressure_range=pressure_range)
+    else: 
+        mode = q_mass.leak_check(mass=start_mass, 
+                       accuracy=accuracy, pressure_range=pressure_range)
+    q_mass.measure(mode=mode, start_mass=start_mass, mass_span=mass_span,
                    accuracy=accuracy, pressure_range=pressure_range)
     q_mass.multiplier_off()
     q_mass.fil_off()
