@@ -88,55 +88,59 @@ class Qmass():
         self.com.write(bytes.fromhex('aa'))
         self.com.timeout = 0.3
         tmp = self.com.readline()
-        logger.debug('should be "aa d2" {}'.format(tmp.hex()))
+        logger.debug('should be "aa d2": {}'.format(tmp.hex()))
         x=self.com.reset_input_buffer()
-        logger.debug('Return of reset_input_buffer'.format(x))
+        logger.debug('Return of reset_input_buffer: {}'.format(x))
         #time.sleep(1.5)   # << OK?
         self.com.write(bytes.fromhex('ba 03'))
         time.sleep(1.5)   # << OK?
         self.com.write(bytes.fromhex('a6'))
         data_to_read = self.com.in_waiting
-        logger.debug('data_to_read {}'.format(data_to_read))
+        logger.debug('data_to_read: {}'.format(data_to_read))
         tmp = self.com.readline()
-        logger.debug('035661... : {}'.format(tmp))
+        logger.debug('035661...004b00: {}'.format(tmp))
         # 03 56 61 00 25 03 09 44 03 13 3e 02 2f 6a 03 00 00 01 00 4b 00
         self.com.write(bytes.fromhex('bb 00 80 80 80 be 0a'))
         self.com.write(bytes.fromhex('00 ff 00 bf 04'))
         tmp = self.com.readline()
-        logger.debug('8f041900...: {}'.format(tmp.hex()))
+        logger.debug('"8f041900...00008e": {}'.format(tmp.hex()))
         # 8f 04 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8e
         self.com.write(bytes.fromhex('a7'))
         data_to_read = self.com.in_waiting
-        logger.debug('data_to_read : {}'.format(data_to_read))
+        logger.debug('data_to_read: {}'.format(data_to_read))
         tmp = self.com.readline()
-        logger.debug('should be "ff 00" :{}"'.format(tmp))
+        logger.debug('should be "ff 00": {}"'.format(tmp))
         self.com.write(bytes.fromhex('aa 01 03 10 86 00 a1 00 00 bc'))
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
         tmp = self.com.read(data_to_read)
-        logger.debug('"#c2 52 85 7f" :: {}'.format(tmp))
+        logger.debug('"#c2 52 85 7f": {}'.format(tmp))
         # c2 52 85 7f
         time.sleep(1)
         self.com.write(bytes.fromhex('ad 02'))
-        logger.debug('07 ::{}'.format(self.com.readline()))
+        tmp = self.com.readline()
+        logger.debug('0x07: {}'.format(tmp))
         # 07
         self.com.write(bytes.fromhex('ad 03'))
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
-        logger.debug('1e {}::'.format(self.com.read(data_to_read)))
+        tmp = self.com.read(data_to_read)
+        logger.debug('data_to_read is: {} & should be "1e": {}'.format(data_to_read, tmp))
         # 1e
         time.sleep(1)
         self.com.write(bytes.fromhex('e1 00'))
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
-        logger.debug('b2 33 8c bf ::{}'.format(self.com.read(data_to_read)))
+        tmp = self.com.read(data_to_read)
+        logger.debug('"b2 33 8c bf": {}'.format(tmp))
         # b2 33 8c bf
         time.sleep(1)
         self.com.write(bytes.fromhex('bf 05'))
-        logger.debug(self.com.readline())
+        tmp = self.com.readline()
+        logger.debug('"8f 05 21 0d ... ff ff ff 8e": {}'.format(tmp))
         # 8f 05 21 0d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 00 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff 8e
         self.com.write(bytes.fromhex('e6 80 00'))
         self.com.timeout = None
