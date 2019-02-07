@@ -44,118 +44,118 @@ class Qmass():
         self.accuracy = 0
         self.start_mass = 0
         self.mass_span = 0
-        self.ser = serial.Serial(port=port, baudrate=9600, xonxoff=True,
+        self.com = serial.Serial(port=port, baudrate=9600, xonxoff=True,
                                  parity=serial.PARITY_NONE,
                                  stopbits=serial.STOPBITS_ONE)
 
     def boot(self):
         '''Boot Microvision plus'''
-        data_to_read = self.ser.in_waiting  # よけいなリードバッファがあった時用
-        self.ser.read(data_to_read)
+        data_to_read = self.com.in_waiting  # よけいなリードバッファがあった時用
+        self.com.read(data_to_read)
         #
-        self.ser.write(b'$$$$$$$$$$')
-        self.ser.write(b'{000D,10:1FB6')
+        self.com.write(b'$$$$$$$$$$')
+        self.com.write(b'{000D,10:1FB6')
         time.sleep(0.2)
-        data_to_read = self.ser.in_waiting
+        data_to_read = self.com.in_waiting
         while data_to_read == 0:
-            data_to_read = self.ser.in_waiting
-        logger.info(self.ser.read(data_to_read))
+            data_to_read = self.com.in_waiting
+        logger.info(self.com.read(data_to_read))
         # b'~LM76-00499001,001a,2:0ed1'
-        self.ser.write(b'}LM76-00499001,001A,5:1660')
+        self.com.write(b'}LM76-00499001,001A,5:1660')
         time.sleep(.2)
-        data_to_read = self.ser.in_waiting
+        data_to_read = self.com.in_waiting
         while data_to_read == 0:
-            data_to_read = self.ser.in_waiting
-        logger.info(self.ser.read(data_to_read))
+            data_to_read = self.com.in_waiting
+        logger.info(self.com.read(data_to_read))
         # b'~LM76-00499001,0025,3,1,V1.51a,0:262a'
-        self.ser.write(b'{0011,55,1,0:402A')
+        self.com.write(b'{0011,55,1,0:402A')
         time.sleep(.2)
-        data_to_read = self.ser.in_waiting
+        data_to_read = self.com.in_waiting
         while data_to_read == 0:
-            data_to_read = self.ser.in_waiting
-        logger.info(self.ser.read(data_to_read))
+            data_to_read = self.com.in_waiting
+        logger.info(self.com.read(data_to_read))
         # b'~LM76-00499001,001a,2:0ed1'
-        self.ser.write(b'}LM76-00499001,001B,15:A7C2')
+        self.com.write(b'}LM76-00499001,001B,15:A7C2')
         time.sleep(.2)
-        data_to_read = self.ser.in_waiting
+        data_to_read = self.com.in_waiting
         while data_to_read == 0:
-            data_to_read = self.ser.in_waiting
-        logger.info(self.ser.read(data_to_read))
+            data_to_read = self.com.in_waiting
+        logger.info(self.com.read(data_to_read))
         # b'~LM76-00499001,001c,6,0:daad'
         time.sleep(.1)   # << OK?
-        self.ser.write(bytes.fromhex('af'))
+        self.com.write(bytes.fromhex('af'))
         # time.sleep(2)   # <<  this time enables to load aad d2 but cannot measure
-        self.ser.write(bytes.fromhex('aa'))
-        self.ser.timeout = 0.3
-        tmp = self.ser.readline()
+        self.com.write(bytes.fromhex('aa'))
+        self.com.timeout = 0.3
+        tmp = self.com.readline()
         logger.debug('should be "aa d2" {}'.format(tmp.hex()))
-#        x=self.ser.reset_input_buffer()
+#        x=self.com.reset_input_buffer()
 #        logger.debug('Return reset_input_buffer'.format(x))
 # ---------------------------------------------
         # aa d2
         #time.sleep(1.5)   # << OK?
-        self.ser.write(bytes.fromhex('ba 03'))
+        self.com.write(bytes.fromhex('ba 03'))
         time.sleep(1.5)   # << OK?
-        self.ser.write(bytes.fromhex('a6'))
-        tmp = self.ser.readline()
-        data_to_read = self.ser.in_waiting
+        self.com.write(bytes.fromhex('a6'))
+        tmp = self.com.readline()
+        data_to_read = self.com.in_waiting
         logger.debug('data_to_read {}'.format(data_to_read))
         while data_to_read != 0:
             logger.debug('should be 03566100...'.format(tmp.hex()))
-            data_to_read = self.ser.in_waiting
+            data_to_read = self.com.in_waiting
             logger.debug('data_to_read {}'.format(data_to_read))
-            self.ser.write(bytes.fromhex('ba 03'))
+            self.com.write(bytes.fromhex('ba 03'))
             time.sleep(1.5)   # << OK?
-            self.ser.write(bytes.fromhex('a6'))
-            tmp = self.ser.readline()
+            self.com.write(bytes.fromhex('a6'))
+            tmp = self.com.readline()
         # 03 56 61 00 25 03 09 44 03 13 3e 02 2f 6a 03 00 00 01 00 4b 00
-        self.ser.write(bytes.fromhex('bb 00 80 80 80 be 0a'))
-        self.ser.write(bytes.fromhex('00 ff 00 bf 04'))
-        logger.debug(self.ser.readline())
+        self.com.write(bytes.fromhex('bb 00 80 80 80 be 0a'))
+        self.com.write(bytes.fromhex('00 ff 00 bf 04'))
+        logger.debug(self.com.readline())
         # 8f 04 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8e
-        self.ser.write(bytes.fromhex('a7'))
-        data_to_read = self.ser.in_waiting
-        tmp = self.ser.read(2)
+        self.com.write(bytes.fromhex('a7'))
+        data_to_read = self.com.in_waiting
+        tmp = self.com.read(2)
         logger.info('should be "ff 00"  {}"'.format(tmp))
-        self.ser.write(bytes.fromhex('aa 01 03 10 86 00 a1 00 00 bc'))
-        data_to_read = self.ser.in_waiting
+        self.com.write(bytes.fromhex('aa 01 03 10 86 00 a1 00 00 bc'))
+        data_to_read = self.com.in_waiting
         while data_to_read == 0:
-            data_to_read = self.ser.in_waiting
-        tmp = self.ser.read(data_to_read)
+            data_to_read = self.com.in_waiting
+        tmp = self.com.read(data_to_read)
         logger.debug('"#c2 52 85 7f"'.format(tmp))
         # c2 52 85 7f
         time.sleep(1)
-        self.ser.write(bytes.fromhex('ad 02'))
-        logger.debug(self.ser.readline())
+        self.com.write(bytes.fromhex('ad 02'))
+        logger.debug(self.com.readline())
         # 07
-        self.ser.write(bytes.fromhex('ad 03'))
-        data_to_read = self.ser.in_waiting
+        self.com.write(bytes.fromhex('ad 03'))
+        data_to_read = self.com.in_waiting
         while data_to_read == 0:
-            data_to_read = self.ser.in_waiting
-        logger.debug(self.ser.read(data_to_read))
+            data_to_read = self.com.in_waiting
+        logger.debug(self.com.read(data_to_read))
         # 1e
         time.sleep(1)
-        self.ser.write(bytes.fromhex('e1 00'))
-        data_to_read = self.ser.in_waiting
+        self.com.write(bytes.fromhex('e1 00'))
+        data_to_read = self.com.in_waiting
         while data_to_read == 0:
-            data_to_read = self.ser.in_waiting
-        logger.debug(self.ser.read(data_to_read))
+            data_to_read = self.com.in_waiting
+        logger.debug(self.com.read(data_to_read))
         # b2 33 8c bf
         time.sleep(1)
-        self.ser.write(bytes.fromhex('bf 05'))
-        logger.debug(self.ser.readline())
+        self.com.write(bytes.fromhex('bf 05'))
+        logger.debug(self.com.readline())
         # 8f 05 21 0d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 00 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff 8e
-        self.ser.write(bytes.fromhex('e6 80 00'))
-        self.ser.timeout = None
+        self.com.write(bytes.fromhex('e6 80 00'))
+        self.com.timeout = None
         logger.debug('Microvision initialized')
 
     def exit(self):
         '''Close Microvision plus'''
-        self.ser.write(b'\x00\xaf')
-        end = self.ser.read(1)  # 0x86
+        self.com.write(b'\x00\xaf')
+        end = self.com.read(1)  # 0x86
         logger.debug('End: should be 0x86 {}'.format(end))
-        self.ser.write(b'\xe2')
-        self.ser.close()
+        self.com.write(b'\xe2')
+        self.com.close()
 
     def set_accuracy(self, accuracy=0):
         '''set accuracy
@@ -166,17 +166,17 @@ class Qmass():
             default:0 ( 0 to 5)
         '''
         if accuracy == 0:
-            self.ser.write(b'\x22\x00')
+            self.com.write(b'\x22\x00')
         elif accuracy == 1:
-            self.ser.write(b'\x22\x01')
+            self.com.write(b'\x22\x01')
         elif accuracy == 2:
-            self.ser.write(b'\x22\x02')
+            self.com.write(b'\x22\x02')
         elif accuracy == 3:
-            self.ser.write(b'\x22\x03')
+            self.com.write(b'\x22\x03')
         elif accuracy == 4:
-            self.ser.write(b'\x22\x04')
+            self.com.write(b'\x22\x04')
         elif accuracy == 5:
-            self.ser.write(b'\x22\x05')
+            self.com.write(b'\x22\x05')
         else:
             raise ValueError("accuracy must be 0 - 5 and integer")
 
@@ -202,7 +202,7 @@ class Qmass():
             command = '20 00 {:02} 00'.format(pressure_range)
         else:
             command = '20 02 {:02} 00'.format(pressure_range)
-        self.ser.write(bytes.fromhex(command))
+        self.com.write(bytes.fromhex(command))
 
     def analog_mode(self, start_mass=4, mass_span=2,
                     accuracy=5, pressure_range=4):
@@ -234,7 +234,7 @@ class Qmass():
         command = command0 + command_pressure + command_accuracy
         command += command_mass_span + command_start_mass
         logger.debug('command: {}'.format(command))
-        self.ser.write(bytes.fromhex(command))
+        self.com.write(bytes.fromhex(command))
 
     def measure(self, mode=0, start_mass=4,
                 mass_span=2, accuracy=5, pressure_range=4):
@@ -250,7 +250,7 @@ class Qmass():
             2: Leak check mode
         '''
         scan_start = bytes.fromhex('b6')
-        self.ser.write(scan_start)
+        self.com.write(scan_start)
         if mode == 0:
             mass_step = 1/(256/Qmass.mass_span_analog[mass_span])
             mass = start_mass - (
@@ -260,15 +260,15 @@ class Qmass():
             mass_step = 1
             mass = start_mass
         while True:
-            data_bytes = self.ser.read(3)
+            data_bytes = self.com.read(3)
             if data_bytes[0] == 0x7f:
                 pressure = 0
             else:
                 pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
             if b'\xf0' or b'\xf4' in data_bytes:
                 time.sleep(0.5)
-                self.ser.reset_input_buffer()
-                self.ser.write(scan_start)
+                self.com.reset_input_buffer()
+                self.com.write(scan_start)
                 if mode == 0:
                     mass = start_mass - (
                         (256 / Qmass.mass_span_analog[mass_span])
@@ -292,7 +292,7 @@ class Qmass():
         '''
         pass
         command = '23 {:02} 00'.format(start_mass-1)
-        self.ser.write(bytes.fromhex(command))
+        self.com.write(bytes.fromhex(command))
 
     def set_mass_span(self, mass_span=0):
         '''Set mass range
@@ -310,21 +310,21 @@ class Qmass():
         '''
         if not self.filament:
             if fil_no == 1:
-                self.ser.write(b'\xe3\x48')
+                self.com.write(b'\xe3\x48')
                 self.filament = 1
                 logger.debug('Filament #1 on')
             elif fil_no == 2:
-                self.ser.write(b'\xe3\x50')   # << check!!
+                self.com.write(b'\xe3\x50')   # << check!!
                 self.filament = 2
                 logger.debug('Filament #2 on')
         elif self.filament == 1 and fil_no == 2:
             self.fil_off()
-            self.ser.write(b'\xe3\x50')
+            self.com.write(b'\xe3\x50')
             self.filament = 2
             logger.debug('Filament #2 on')
         elif self.filament == 2 and fil_no == 1:
             self.fil_off()
-            self.ser.write(b'\xe3\x48')
+            self.com.write(b'\xe3\x48')
             self.filament = 1
             logger.debug('Filament #1 on')
         else:
@@ -333,20 +333,20 @@ class Qmass():
     def fil_off(self):
         '''Filament off
         '''
-        self.ser.write(b'\xe3\x40')
-        tmp = self.ser.read(1)
+        self.com.write(b'\xe3\x40')
+        tmp = self.com.read(1)
         logger.debug('Filament off: {}'.format(tmp))
         self.filament = False
 
     def multiplier_on(self):
         '''multiplier on'''
-        self.ser.write(b'\x20\x02\x00')
+        self.com.write(b'\x20\x02\x00')
         logger.debug('Multiplier ON')
         self.multiplier = True
 
     def multiplier_off(self):
         '''multiplier off'''
-        self.ser.write(b'\x20\x00\x00')
+        self.com.write(b'\x20\x00\x00')
         self.multiplier = False
 
 
@@ -367,7 +367,7 @@ if __name__ == '__main__':
         q_mass.measure(mode=0, start_mass=start_mass, mass_span=mass_span,
                        accuracy=accuracy, pressure_range=pressure_range)
     except KeyboardInterrupt:
-        q_mass.ser.write(bytes.fromhex('00 00'))
+        q_mass.com.write(bytes.fromhex('00 00'))
         time.sleep(1)
         q_mass.multiplier_off()
         q_mass.fil_off()
