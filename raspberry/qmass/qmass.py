@@ -97,49 +97,43 @@ class Qmass():
         self.com.write(bytes.fromhex('ba 03'))
         time.sleep(1.5)   # << OK?
         self.com.write(bytes.fromhex('a6'))
-        tmp = self.com.readline()
         data_to_read = self.com.in_waiting
         logger.debug('data_to_read {}'.format(data_to_read))
-        while data_to_read != 0:
-            logger.debug('should be 03566100...'.format(tmp.hex()))
-            data_to_read = self.com.in_waiting
-            logger.debug('data_to_read {}'.format(data_to_read))
-            self.com.write(bytes.fromhex('ba 03'))
-            time.sleep(1.5)   # << OK?
-            self.com.write(bytes.fromhex('a6'))
-            tmp = self.com.readline()
+        tmp = self.com.readline()
+        logger.debug('035661... {}'.format(tmp))
         # 03 56 61 00 25 03 09 44 03 13 3e 02 2f 6a 03 00 00 01 00 4b 00
         self.com.write(bytes.fromhex('bb 00 80 80 80 be 0a'))
         self.com.write(bytes.fromhex('00 ff 00 bf 04'))
-        logger.debug(self.com.readline())
+        tmp = self.com.readline()
+        logger.debug('8f041900... {}'.format(tmp.hex()))
         # 8f 04 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8e
         self.com.write(bytes.fromhex('a7'))
         data_to_read = self.com.in_waiting
         tmp = self.com.read(2)
-        logger.info('should be "ff 00"  {}"'.format(tmp))
+        logger.info('should be "ff 00" ::{}"'.format(tmp))
         self.com.write(bytes.fromhex('aa 01 03 10 86 00 a1 00 00 bc'))
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
         tmp = self.com.read(data_to_read)
-        logger.debug('"#c2 52 85 7f"'.format(tmp))
+        logger.debug('"#c2 52 85 7f" :: {}'.format(tmp))
         # c2 52 85 7f
         time.sleep(1)
         self.com.write(bytes.fromhex('ad 02'))
-        logger.debug(self.com.readline())
+        logger.debug('07 ::{}'.format(self.com.readline()))
         # 07
         self.com.write(bytes.fromhex('ad 03'))
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
-        logger.debug(self.com.read(data_to_read))
+        logger.debug('1e {}::'.format(self.com.read(data_to_read)))
         # 1e
         time.sleep(1)
         self.com.write(bytes.fromhex('e1 00'))
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
-        logger.debug(self.com.read(data_to_read))
+        logger.debug('b2 33 8c bf ::{}'.format(self.com.read(data_to_read)))
         # b2 33 8c bf
         time.sleep(1)
         self.com.write(bytes.fromhex('bf 05'))
@@ -265,7 +259,8 @@ class Qmass():
                 pressure = 0
             else:
                 pressure = data_bytes[1] * 1.216 + (data_bytes[2] - 64) * 0.019
-            if b'\xf0' or b'\xf4' in data_bytes:
+            if (b'\xf0' or b'\xf4') in data_bytes:
+                logger.debug('data_bytes is: {}'.format(data_bytes))
                 time.sleep(0.5)
                 self.com.reset_input_buffer()
                 self.com.write(scan_start)
