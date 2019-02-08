@@ -368,7 +368,6 @@ class Qmass():
             if savefile:
                 self.write_header()
 
-
     def write_header(self):
         self.f_save = open(savefile, mode='w')
         # ここにヘッダ除法を書き込む
@@ -386,19 +385,44 @@ class Qmass():
         header += 'Accuracy:{}\n'.format(self.accuracy)
         self.f_save.write(header)
 
+    def comvert_mbar(self, data):
+        '''Convert pressure (mbar) from byte data
+
+        Parameter
+        ---------
+        data: bytes object
+            data from Microvision
+
+        Return
+        ------
+        float
+            Pressure data
+        '''
+        if len(data) != 3:
+            self.com.write(b'\x00 \x00')
+            self.fil_off()
+            raise ValueError('Data should be 3 bytes')
+        if data[0] == 0x7f:
+            return 0.0
+        else:
+            return (data[1] * 1.216 + (data[2] - 64) * 0.019) * 1E-12
+
     def single_scan(self):
         '''Single scan.  In analog and digital modes, measure the mass spectrum,
         In leak check mode, single scan means 128 times measurement.
+
+        Return
+        ------
+        data: list
         '''
-        fmt = '{:02x} {:02x} {:02x} Pres.: {:.2e} {:5.2f} {}'
+        log_fmt = '{:02x} {:02x} {:02x} Pres.: {:.2e} {:5.2f} {}'
         save_fmt = '{:5.3f}\t{:.5e}\n'
         logger.debug('Sanning starts...')
         data = []
         #
         if self.mode == 0:
             mass_step = 1/(256/Qmass.mass_span_analog[self.mass_span])
-            mass = self.start_mass - (
-                (256/Qmass.mass_span_analog[self.mass_span])/2 - 1) * mass_step
+            mass = self.start_mass - ((1 / mass_step) / 2 - 1 ) * mass_step
             logger.debug('mass:{} mass_step: {}'.format(mass, mass_step))
         else:
             mass_step = 1
@@ -410,34 +434,29 @@ class Qmass():
         self.com.write(scan_start_command)
         while: (b'\xf0' not in data_bytes) or i> 127:
             data_bytes = self.com.read(3)
-            if data_bytes[0] == 0x7f:
-                pressure = 0.0
-            else:
-                pressure = (data_bytes[1] * 1.216 + (data_bytes[2] - 64)
-                            * 0.019) * 1E-12
-            if self.mode < 2:
+            pressure = self.convert(data_bytes)
+            if self.mode < 2:  # analog or digital mode
                 logger.debug(
-                    fmt.format(data_bytes[0], data_bytes[1],
-                               data_bytes[2], pressure, mass,
-                               pressure_indicator(pressure,
-                                                  pressure_range)))
+                    log_fmt.format(data_bytes[0], data_bytes[1],
+                                   data_bytes[2], pressure, mass,
+                                   pressure_indicator(pressure,
+                                                      pressure_range)))
                 data.append(save_fmt.format(mass, pressure))
                 mass += mass_step
-            else:
+            else:  # Leak check mode
                 print('Pressure:{:.3e}: {}'.format(pressure,
                       pressure_indicator(pressure, pressure_range)))
                 now = datetime.datetime.strftime(datetime.datetime.now(),
                                                  '%Y-%m-%d %H:%M:%S.%f')
                 a_data = '{}\t{:.3e}\n'.format(now, pressure)
-                data.append(a_data
+                data.append(a_data)
                 i += 1
         logger.debug('data_bytes is: {}'.format(data_bytes))
         if b'\xf0\xf0\xf4' == data_bytes:
             return data
         return False
 
-    def record(self):
-        time.sleep(0.5)
+    def record(self, data):
         if self.f_save:
             self.f_save.writelines(data)
             if self.mode < 2:
@@ -498,6 +517,8 @@ class Qmass():
     def fil_off(self):
         '''Filament off
         '''
+        if self.multiplier:
+            self.multiplier_off()
         self.com.write(b'\xe3\x40')
         tmp = self.com.read(1)
         logger.debug('Filament off: {}'.format(tmp))
@@ -589,8 +610,8 @@ NOTE: あとでちゃんと書く。""")
     q_mass.fil_on(1)
     q_mass.multiplier_on()
     q_mass.set_mode()
-    q_mass.single_scan()
-    q_mass.record()
+    data = q_mass.single_scan()
+    q_mass.record(data)
     q_mass.terminate_scan()
     q_mass.multiplier_off()
     q_mass.fil_off()
