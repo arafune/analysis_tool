@@ -280,8 +280,8 @@ class Qmass():
         logger.debug('accuracy: {}'.format(self.accuracy))
         logger.debug('Pressure_range: {} ({:.0e})'.format(
             pressure_range, Qmass.range_table[self.pressure_range]))
-        logger.debug('command: {}'.format(self.command))
-        self.com.write(bytes.fromhex(self.command))
+        logger.debug('command: {}'.format(command))
+        self.com.write(bytes.fromhex(command))
         return 0
 
     def digital_mode(self):
@@ -354,13 +354,20 @@ class Qmass():
         self.com.write(bytes.fromhex(command))
         return 2
 
-    def mode_set(self):
+    def set_mode(self):
         if self.mode == 0:
             self.analog_mode()
+            if savefile:
+                self.write_header()
         elif self.mode == 1:
             self.digital_mode()
+            if savefile:
+                self.write_header()
         else:
             self.leak_check()
+            if savefile:
+                self.write_header()
+
 
     def write_header(self):
         self.f_save = open(savefile, mode='w')
@@ -373,22 +380,21 @@ class Qmass():
         else:  # Leak check
             header = '#Leak check mode. mass:{}. Date:'.format(self.start_mass)
         header += datetime.datetime.strftime(
-          datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
+            datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
         header += '. Pressure_range: {} ({:.0e}).'.format(
-          self.pressure_range, Qmass.range_table[self.pressure_range])
+            self.pressure_range, Qmass.range_table[self.pressure_range])
         header += 'Accuracy:{}\n'.format(self.accuracy)
         self.f_save.write(header)
 
-    def measure(self):
-        '''measurement
-
-
+    def single_scan(self):
+        '''Single scan.  In analog and digital modes, measure the mass spectrum,
+        In leak check mode, single scan means 128 times measurement.
         '''
         fmt = '{:02x} {:02x} {:02x} Pres.: {:.2e} {:5.2f} {}'
         save_fmt = '{:5.3f}\t{:.5e}\n'
+        logger.debug('Sanning starts...')
         data = []
-        scan_start = bytes.fromhex('b6')
-        self.com.write(scan_start)
+        #
         if self.mode == 0:
             mass_step = 1/(256/Qmass.mass_span_analog[self.mass_span])
             mass = self.start_mass - (
@@ -397,68 +403,49 @@ class Qmass():
         else:
             mass_step = 1
             mass = start_mass
-        if savefile:
-            write_header()
-        try:
-            while True:
-                data_bytes = self.com.read(3)
-                if data_bytes[0] == 0x7f:
-                    pressure = 0.0
-                else:
-                    pressure = (data_bytes[1]
-                                * 1.216 + (data_bytes[2] - 64) * 0.019) * 1E-12
+        scan_start_command = bytes.fromhex('b6')
+        data_bytes = ""
+        i = 0
+        #
+        self.com.write(scan_start_command)
+        while: (b'\xf0' not in data_bytes) or i> 127:
+            data_bytes = self.com.read(3)
+            if data_bytes[0] == 0x7f:
+                pressure = 0.0
+            else:
+                pressure = (data_bytes[1] * 1.216 + (data_bytes[2] - 64)
+                            * 0.019) * 1E-12
+            if self.mode < 2:
+                logger.debug(
+                    fmt.format(data_bytes[0], data_bytes[1],
+                               data_bytes[2], pressure, mass,
+                               pressure_indicator(pressure,
+                                                  pressure_range)))
                 data.append(save_fmt.format(mass, pressure))
-                # single scan ends when
-                # 0xf0 0xf0 0xf4 (analog), 0xf0 0xf0 0xf1 (digital)
-                # is received
-                if b'\xf0' in data_bytes:
-                    logger.debug('data_bytes is: {}'.format(data_bytes))
-                    time.sleep(0.5)
-                    # ここで データを書き込む　（清浄に終わっていなければ無視
-                    if mode == 0:
-                        mass = self.start_mass - (
-                            (256 / Qmass.mass_span_analog[self.mass_span])
-                            / 2 - 1) * mass_step
-                        if b'\xf4' not in data_bytes:
-                            # fail scan
-                            self.com.reset_input_buffer()
-                        elif savefile:
-                            self.f_save.writelines(data)
-                            self.f_save.write('\n')
-                    elif mode == 1:
-                        mass = start_mass
-                        if b'\xf4' not in data_bytes:
-                            # fail scan
-                            self.com.reset_input_buffer()
-                        elif savefile:
-                            self.f_save.writelines(data)
-                            self.f_save.write('\n')
-                    else:
-                        pass
-                    self.com.reset_input_buffer()
-                    self.com.write(scan_start)
-                    logger.debug('Rescan')
-                    data = []
-                else:
-                    if self.mode < 2:
-                        logger.debug(
-                            fmt.format(data_bytes[0], data_bytes[1],
-                                       data_bytes[2], pressure, mass,
-                                       pressure_indicator(pressure,
-                                                          pressure_range)))
-                        mass += mass_step
-                    else:
-                        print('Pressure:{:.3e}: {}'.format(pressure,
-                              pressure_indicator(pressure, pressure_range)))
-                        if savefile:
-                            now = datetime.datetime.strftime(
-                                    datetime.datetime.now(),
-                                    '%Y-%m-%d %H:%M:%S.%f')
-                            a_data = '{}\t{:.3e}\n'.format(now, pressure)
-                            self.f_save.write(a_data)
-        except KeyboardInterrupt:
-            self.com.write(bytes.fromhex('00 00'))
-            time.sleep(1)
+                mass += mass_step
+            else:
+                print('Pressure:{:.3e}: {}'.format(pressure,
+                      pressure_indicator(pressure, pressure_range)))
+                now = datetime.datetime.strftime(datetime.datetime.now(),
+                                                 '%Y-%m-%d %H:%M:%S.%f')
+                a_data = '{}\t{:.3e}\n'.format(now, pressure)
+                data.append(a_data
+                i += 1
+        logger.debug('data_bytes is: {}'.format(data_bytes))
+        if b'\xf0\xf0\xf4' == data_bytes:
+            return data
+        return False
+
+    def record(self):
+        time.sleep(0.5)
+        if self.f_save:
+            self.f_save.writelines(data)
+            if self.mode < 2:
+                self.f_save.write('\n')
+
+    def terminate_scan(self):
+        self.com.write(bytes.fromhex('00 00'))
+        time.sleep(1)
 
     def set_start_mass(self, start_mass=4):
         '''Set start mass
@@ -469,7 +456,7 @@ class Qmass():
             start mass
         '''
         command = '23 {:02} 00'.format(start_mass-1)
-        self.start_Mass = start_mass
+        self.start_mass = start_mass
         self.com.write(bytes.fromhex(command))
 
     def set_mass_span(self, mass_span=0):
@@ -538,7 +525,7 @@ if __name__ == '__main__':
         epilog="""
 NOTE: あとでちゃんと書く。""")
     description_mode = 'Mode (default: 0)\n0: Analog\n1: Digital\n2: Leak check'
-    description_mass_span = '''Mass span  (default: 2)
+    description_mass_span = '''mass span  (default: 2)
     Analog mode
     0: 8
     1: 16
@@ -596,13 +583,15 @@ NOTE: あとでちゃんと書く。""")
     logger.debug('savefile: {}, args.output: {}'.format(savefile, args.output))
     port = '/dev/ttyUSB1'
     q_mass = Qmass(port=port, mode=mode_select, init=start_mass,
-                   range=pressure_range, accuracy=accuracy, span=amss_span,
+                   range=pressure_range, accuracy=accuracy, span=mass_span,
                    output=savefile)
     q_mass.boot()
     q_mass.fil_on(1)
     q_mass.multiplier_on()
     q_mass.set_mode()
-    q_mass.measure()
+    q_mass.single_scan()
+    q_mass.record()
+    q_mass.terminate_scan()
     q_mass.multiplier_off()
     q_mass.fil_off()
     q_mass.exit()
