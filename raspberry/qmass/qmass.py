@@ -516,8 +516,8 @@ if __name__ == '__main__':
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="""
 NOTE: あとでちゃんと書く。""")
-    description_mode = 'Mode\n\t0: Analog\n\t1: Digital\n\t2: Leak check'
-    description_mass_span = '''Mass span
+    description_mode = 'Mode (default: 0)\n0: Analog\n1: Digital\n2: Leak check'
+    description_mass_span = '''Mass span  (default: 2)
     Analog mode
     0: 8
     1: 16
@@ -532,7 +532,7 @@ NOTE: あとでちゃんと書く。""")
     5: 200
     6: 300
     '''
-    description_pressure_range = '''Pressure range
+    description_pressure_range = '''Pressure range  (default: 4)
     0: 1E-7 (mbar)
     1: 1E-8
     2: 1E-9
@@ -549,13 +549,13 @@ NOTE: あとでちゃんと書く。""")
                         help=description_mode)
     parser.add_argument('--init', '-i',
                         type=int, default=4,
-                        help='Start mass (mass for Leak checkmode )')
+                        help='Start mass (mass for Leak checkmode ) (default: 4)')
     parser.add_argument('--span', '-s',
                         type=int, default=2,
                         help=description_mass_span)
     parser.add_argument('--accuracy', '-a',
                         type=int, default=4,
-                        help='''Accuracy (0-5)''')
+                        help='''Accuracy (0-5) (default: 4)''')
     parser.add_argument('--range', '-r',
                         type=int, default=4,
                         help=description_pressure_range)
