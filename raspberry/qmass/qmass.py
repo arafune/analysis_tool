@@ -360,7 +360,7 @@ class Qmass():
             file name for save
         '''
         fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:.4e} / {:5.2f} {}'
-        save_fmt = '{:f5.3}\t{:.5e}\n'
+        save_fmt = '{:5.3f}\t{:.5e}\n'
         data = []
         scan_start = bytes.fromhex('b6')
         self.com.write(scan_start)
@@ -562,7 +562,7 @@ NOTE: あとでちゃんと書く。""")
     args = parser.parse_args()
     #
     mode_select = args.mode
-    start_mass = args.ini
+    start_mass = args.init
     mass_span = args.span
     accuracy = args.accuracy
     pressure_range = args.range
