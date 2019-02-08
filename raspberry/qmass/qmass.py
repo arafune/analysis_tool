@@ -356,11 +356,11 @@ class Qmass():
             1: Digital mode
             2: Leak check mode
 
-        filesave: str
+        savefile: str
             file name for save
         '''
-        fmt = 'byte code: {:02x} {:02x} {:02x}, Pressure: {:.4e} / {:5.2f} {}'
-        save_fmt = '{:f5.3}\t{:.5e}\n'
+        fmt = '{:02x} {:02x} {:02x} Pres.: {:.2e} {:5.2f} {}'
+        save_fmt = '{:5.3f}\t{:.5e}\n'
         data = []
         scan_start = bytes.fromhex('b6')
         self.com.write(scan_start)
@@ -387,6 +387,7 @@ class Qmass():
             header += '. Pressure_range: {} ({:.0e}).'.format(
               pressure_range, Qmass.range_table[pressure_range])
             header += 'Accuracy:{}\n'.format(accuracy)
+            f_save.write(header)
         try:
             while True:
                 data_bytes = self.com.read(3)
@@ -407,12 +408,20 @@ class Qmass():
                         mass = start_mass - (
                             (256 / Qmass.mass_span_analog[mass_span])
                             / 2 - 1) * mass_step
-                        if savefile and b'\xf4' in data_bytes:
+                        if b'\xf4' not in data_bytes:
+                            # fail scan
+                            self.com.reset_input_buffer()
+                        elif savefile:
                             f_save.writelines(data)
+                            f_save.write('\n')
                     elif mode == 1:
                         mass = start_mass
-                        if savefile and b'\xf1' in data_bytes[2]:
+                        if b'\xf4' not in data_bytes:
+                            # fail scan
+                            self.com.reset_input_buffer()
+                        elif savefile:
                             f_save.writelines(data)
+                            f_save.write('\n')
                     else:
                         pass
                     self.com.reset_input_buffer()
@@ -562,11 +571,17 @@ NOTE: あとでちゃんと書く。""")
     args = parser.parse_args()
     #
     mode_select = args.mode
-    start_mass = args.ini
+    start_mass = args.init
     mass_span = args.span
     accuracy = args.accuracy
     pressure_range = args.range
     savefile = args.output
+    logger.debug('mode_select: {}, args.mode: {}'.format(mode_select, args.mode))
+    logger.debug('start_mass: {}, args.init: {}'.format(start_mass, args.init))
+    logger.debug('mass_span: {}, args.span: {}'.format(mass_span, args.span))
+    logger.debug('accuracy: {}, args.accuracy: {}'.format(accuracy, args.accuracy))
+    logger.debug('pressure_range: {}, args.range: {}'.format(pressure_range, args.range))
+    logger.debug('savefile: {}, args.output: {}'.format(savefile, args.output))
     port = '/dev/ttyUSB1'
     q_mass = Qmass(port=port)
     q_mass.boot()
