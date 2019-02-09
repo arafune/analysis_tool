@@ -11,9 +11,10 @@
       }
     </script>
     <script type="text/javascript">
-	$(function(){
-	$("#lastread").load("lastread.html");
-	});
+	setInterval("my_function();", 5000);
+	function my_function(){
+	$("#lastread").load("lastread.html"); 
+	};
     </script>
     <script type="text/javascript" src="js/jquery.periodicalupdater.js"></script>
     <script type="text/javascript">
