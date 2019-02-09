@@ -4,7 +4,6 @@
 from time import sleep
 import datetime
 from logging import getLogger, StreamHandler, DEBUG, Formatter
-import
 import argparse
 from multiprocessing import Process
 #
@@ -85,12 +84,12 @@ def read_and_save():
     logger.debug('Voltage-3:' + voltage_fmt.format(v3))
     logger.debug('Voltage-4:' + voltage_fmt.format(v4))
     logger.debug('Voltage-5:' + voltage_fmt.format(v5))
-    now = datetime.datetime.strftime(now)
+    now = datetime.datetime.now()
     logfile.write(save_fmt.format(now.strftime('%Y-%m-%d %H:%M:%S'),
                                   temperatures[0][0], temperatures[1][0],
                                   temperatures[2][0], temperatures[3][0],
                                   ana_pres, prep_pres, v3, v4, v5))
-    with open('lastread.dat') as lastread:
+    with open('lastread.dat', mode='w') as lastread:
         lastread.write(save_fmt.format(now.strftime('%Y-%m-%d %H:%M:%S'),
                                   temperatures[0][0], temperatures[1][0],
                                   temperatures[2][0], temperatures[3][0],
@@ -102,14 +101,24 @@ def read_and_save():
 
 def draw_graphs(data):
     """1st column が datetime オブジェクトの2Dデータを読み込んでグラフにする。"""
-    fig = plt.figure(figsize=(30, 20))
+    logger.debug('len(data[0]) is {}'.format(data[0]))
+    logger.debug('len(data[1]) is {}'.format(data[1]))
+    logger.debug('len(data[2]) is {}'.format(data[2]))
+    logger.debug('len(data[3]) is {}'.format(data[3]))
+    logger.debug('len(data[4]) is {}'.format(data[4]))
+    logger.debug('len(data[5]) is {}'.format(data[5]))
+    logger.debug('len(data[6]) is {}'.format(data[6]))
+    logger.debug('len(data[7]) is {}'.format(data[7]))
+    logger.debug('len(data[8]) is {}'.format(data[8]))
+    logger.debug('len(data[9]) is {}'.format(data[9]))
+    fig = plt.figure(figsize=(15, 10))
     #
     ax1 = fig.add_subplot(221)
     ax1.plot_date(data[0], data[1], fmt='-', label='T_Phoibos')
     ax1.plot_date(data[0], data[2], fmt='-', label='T_Analyis')
     ax1.plot_date(data[0], data[3], fmt='-', label='T_Prep.')
     ax1.plot_date(data[0], data[4], fmt='-', label='T_AUX')
-    ax1.set_yscale('log')
+    
     ax1.legend(loc=2)
     ax1.set_ylabel('Temperature  (C)')
     #
@@ -120,6 +129,7 @@ def draw_graphs(data):
                   fmt='-', label='Preparation Pressure')
     ax2.set_ylabel('Pressure  (mbar)')
     ax2.legend(loc=2)
+    ax2.set_yscale('log')
     #
     ax3 = fig.add_subplot(223)
     ax3.plot_date(data[0], data[7],
@@ -130,8 +140,8 @@ def draw_graphs(data):
                   fmt='-', label='V5')
     ax3.set_ylabel('Voltage  (V)')
     ax3.legend(loc=2)
-
-
+    #
+    #
     plt.subplots_adjust(top=0.98, right=0.98, left=0.05, bottom=0.05,
                         wspace=.1)
     plt.savefig('Logdata.png')
@@ -164,7 +174,7 @@ if args.logfile:
     logfile.write('#date\tT1\tT2\tT3\tT4\t\Pressure(A)\tPressure(P)\t')
     logfile.write('v3\tv4\v5\n')
 else:
-    logfiel = open('log.txt', mode='w+')
+    logfile = open('log.txt', mode='w+')
 
 data = [[],
         [], [], [], [],
@@ -176,10 +186,11 @@ sleepingtime = 1  # seconds
 try:
     while True:
         a_read = read_and_save()
-        [data[i].append(a_read[i]) for i in range(9)]
-        if data[0] > maxdatalength:
-            for i in range(9):
+        [data[i].append(a_read[i]) for i in range(len(a_read))]
+        if len(data[0]) > maxdatalength:
+            for i in range(len(a_read)):
                 del data[i][0]
+        now = datetime.datetime.now()
         if now.second % drawevery == 0:
             p = Process(target = draw_graphs, args = (data,))
             p.start()
