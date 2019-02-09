@@ -1,15 +1,26 @@
 #!/usr/bin/env python3
 # coding:
+import matplotlib
+import argparse
+import datetime
 from multiprocessing import Process
+from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO, WARN
 from time import sleep
 import sys
 import random
 import matplotlib.pyplot as plt
 """LakeShore 330 から温度データを読み込んで、png ファイルフォーマットのグラフを出力する。"""
+# logger
+logger = getLogger(__name__)
+fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
+formatter = Formatter(fmt)
+handler = StreamHandler()
+handler.setLevel(WARN)
+logger.setLevel(WARN)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.propagate = False
 
-import datetime
-import argparse
-import matplotlib
 matplotlib.use('Agg')
 try:
     import Gpib
@@ -165,7 +176,7 @@ if __name__ == '__main__':
                 del data[1][0]
                 del data[2][0]
             nowstr = now.strftime('%Y-%m-%d %H:%M:%S')
-            print(nowstr, tempA, tempB)
+            logger.INFO('{}\t{:.2f}\t{:.2f}\n'.format(now, tempA, tempB))
             with open(lastread, mode='w') as f:
                 str = '{}\n{:.2f}  K(A) \n{:.2f} K(B)\n'.format(
                     nowstr, tempA, tempB)
