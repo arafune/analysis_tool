@@ -4,6 +4,13 @@
 from time import sleep
 import datetime
 from logging import getLogger, StreamHandler, DEBUG, Formatter
+import
+import argparse
+from multiprocessing import Process
+#
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import HPADDA
 from Adafruit_MAX31856 import max31856
 
@@ -18,30 +25,20 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
 
+
+
 def pressure(volt):
     '''Return the pressure (mbar) from the monitor voltage'''
     exponent = int(volt) - 11
     mantissa = ((volt - int(volt)) + .1)/.11
     return mantissa * 10**exponent
 
-adda = HPADDA.Board()
-adda.set_sample_rate(300)
-THERMOCOUPLES = [max31856.MAX31856(software_spi={'clk':25, 'cs':14,
-                                                 'do':8, 'di':7}),
-                 max31856.MAX31856(software_spi={'clk':25, 'cs':15,
-                                                 'do':8, 'di':7}),
-                 max31856.MAX31856(software_spi={'clk':25, 'cs':16,
-                                                 'do':8, 'di':7}),
-                 max31856.MAX31856(software_spi={'clk':25, 'cs':21,
-                                                 'do':8, 'di':7})]
-
-
 def read_temperatures():
     '''Return temperatue data.
 
     '''
-    external = [THERMOCOUPLES[i].read_temp_c() for i in range(4)]
-    internal = [THERMOCOUPLES[i].read_internal_temp_c() for i in range(4)]
+    external = [thermos[i].read_temp_c() for i in range(4)]
+    internal = [thermos[i].read_internal_temp_c() for i in range(4)]
     ret = []
     for i in range(4):
         ret.append((external[i], internal[i]))
@@ -64,9 +61,8 @@ def read_ion_gauge(chamber=0):
     voltage = adda.get_voltage(chamber+1)
     return pressure(voltage)
 
-LOGFILE = open('log.txt', mode='w')
-SAVE_FMT = '{} {:6.3f}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
-SAVE_FMT += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
+save_fmt = '{}\t{:6.3f}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
+save_fmt += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 
 def read_and_save():
     '''Read the values and save them
@@ -89,16 +85,104 @@ def read_and_save():
     logger.debug('Voltage-3:' + voltage_fmt.format(v3))
     logger.debug('Voltage-4:' + voltage_fmt.format(v4))
     logger.debug('Voltage-5:' + voltage_fmt.format(v5))
-    now = datetime.datetime.strftime(datetime.datetime.now(),
-                                     '%Y-%m-%d %H:%M:%S')
-    LOGFILE.write(SAVE_FMT.format(now,
+    now = datetime.datetime.strftime(now)
+    logfile.write(save_fmt.format(now.strftime('%Y-%m-%d %H:%M:%S'),
+                                  temperatures[0][0], temperatures[1][0],
+                                  temperatures[2][0], temperatures[3][0],
+                                  ana_pres, prep_pres, v3, v4, v5))
+    with open('lastread.dat') as lastread:
+        lastread.write(save_fmt.format(now.strftime('%Y-%m-%d %H:%M:%S'),
                                   temperatures[0][0], temperatures[1][0],
                                   temperatures[2][0], temperatures[3][0],
                                   ana_pres, prep_pres, v3, v4, v5))
 
+    return (now, temperatures[0][0], temperatures[1][0],
+            temperatures[2][0], temperatures[3][0],
+            ana_pres, prep_pres, v3, v4, v5)
+
+def draw_graphs(data):
+    """1st column が datetime オブジェクトの2Dデータを読み込んでグラフにする。"""
+    fig = plt.figure(figsize=(30, 20))
+    #
+    ax1 = fig.add_subplot(221)
+    ax1.plot_date(data[0], data[1], fmt='-', label='T_Phoibos')
+    ax1.plot_date(data[0], data[2], fmt='-', label='T_Analyis')
+    ax1.plot_date(data[0], data[3], fmt='-', label='T_Prep.')
+    ax1.plot_date(data[0], data[4], fmt='-', label='T_AUX')
+    ax1.set_yscale('log')
+    ax1.legend(loc=2)
+    ax1.set_ylabel('Temperature  (C)')
+    #
+    ax2 = fig.add_subplot(222)
+    ax2.plot_date(data[0], data[5], color='red',
+                  fmt='-', label='Analysis Pressure')
+    ax2.plot_date(data[0], data[6], color='blue',
+                  fmt='-', label='Preparation Pressure')
+    ax2.set_ylabel('Pressure  (mbar)')
+    ax2.legend(loc=2)
+    #
+    ax3 = fig.add_subplot(223)
+    ax3.plot_date(data[0], data[7],
+                  fmt='-', label='V3')
+    ax3.plot_date(data[0], data[8],
+                  fmt='-', label='V4')
+    ax3.plot_date(data[0], data[9],
+                  fmt='-', label='V5')
+    ax3.set_ylabel('Voltage  (V)')
+    ax3.legend(loc=2)
+
+
+    plt.subplots_adjust(top=0.98, right=0.98, left=0.05, bottom=0.05,
+                        wspace=.1)
+    plt.savefig('Logdata.png')
+    plt.close()
+    return True
+
+
+
+adda = HPADDA.Board()
+adda.set_sample_rate(300)
+thermos = [max31856.MAX31856(software_spi={'clk':25, 'cs':14,
+                                           'do':8, 'di':7}),
+           max31856.MAX31856(software_spi={'clk':25, 'cs':15,
+                                           'do':8, 'di':7}),
+           max31856.MAX31856(software_spi={'clk':25, 'cs':16,
+                                           'do':8, 'di':7}),
+           max31856.MAX31856(software_spi={'clk':25, 'cs':21,
+                                           'do':8, 'di':7})]
+
+parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog="""
+NOTE: あとでちゃんと書く。""")
+parser.add_argument('--logfile',
+                    type=str, default=None,
+                    help='''Log filename''')
+args = parser.parse_args()
+if args.logfile:
+    logfile = open(args.logfile, mode='w')
+    logfile.write('#date\tT1\tT2\tT3\tT4\t\Pressure(A)\tPressure(P)\t')
+    logfile.write('v3\tv4\v5\n')
+else:
+    logfiel = open('log.txt', mode='w+')
+
+data = [[],
+        [], [], [], [],
+        [], [],
+        [], [], []]
+maxdatalength = 300
+drawevery = 5  # seconds
+sleepingtime = 1  # seconds
 try:
     while True:
-        read_and_save()
-        sleep(1)
+        a_read = read_and_save()
+        [data[i].append(a_read[i]) for i in range(9)]
+        if data[0] > maxdatalength:
+            for i in range(9):
+                del data[i][0]
+        if now.second % drawevery == 0:
+            p = Process(target = draw_graphs, args = (data,))
+            p.start()
+        sleep(sleepingtime)
 except KeyboardInterrupt:
-    LOGFILE.close()
+    logfile.close()
