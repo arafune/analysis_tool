@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 from time import sleep
 import datetime
-from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO
+from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO, WARN
 import argparse
 from multiprocessing import Process
 #
@@ -18,8 +18,8 @@ logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
 formatter = Formatter(fmt)
 handler = StreamHandler()
-handler.setLevel(INFO)
-logger.setLevel(INFO)
+handler.setLevel(WARN)
+logger.setLevel(WARN)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
@@ -109,16 +109,8 @@ def read_and_save():
 
 def draw_graphs(data):
     """1st column が datetime オブジェクトの2Dデータを読み込んでグラフにする。"""
-    logger.debug('len(data[0]) is {}'.format(data[0]))
-    logger.debug('len(data[1]) is {}'.format(data[1]))
-    logger.debug('len(data[2]) is {}'.format(data[2]))
-    logger.debug('len(data[3]) is {}'.format(data[3]))
-    logger.debug('len(data[4]) is {}'.format(data[4]))
-    logger.debug('len(data[5]) is {}'.format(data[5]))
-    logger.debug('len(data[6]) is {}'.format(data[6]))
-    logger.debug('len(data[7]) is {}'.format(data[7]))
-    logger.debug('len(data[8]) is {}'.format(data[8]))
-    logger.debug('len(data[9]) is {}'.format(data[9]))
+    for i in range(10):
+        logger.debug('len(data[{}]) is {}'.format(i, data[i]))
     fig = plt.figure(figsize=(15, 10))
     #
     ax1 = fig.add_subplot(221)
@@ -126,7 +118,6 @@ def draw_graphs(data):
     ax1.plot_date(data[0], data[2], fmt='-', label='T_Analyis')
     ax1.plot_date(data[0], data[3], fmt='-', label='T_Prep.')
     ax1.plot_date(data[0], data[4], fmt='-', label='T_AUX')
-
     ax1.legend(loc=2)
     ax1.set_ylabel('Temperature  (C)')
     #
