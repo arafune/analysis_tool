@@ -69,6 +69,7 @@ html_fmt += '{:6.3f} C, {:6.3f} C, {:6.3f} C,{:6.3f} C <br>\n'
 html_fmt += '{:.3e} mbar (A), {:.3e} mbar (Prep)<br>\n'
 html_fmt += '{:6.3f} V, {:6.3f} V, {:6.3f}V\n'
 
+
 def read_and_save():
     '''Read the values and save them
     '''
@@ -83,8 +84,8 @@ def read_and_save():
     voltage_fmt = '{:5.2f} V'
     for i in range(4):
         logger.info(temp_fmt.format(i,
-                                     temperatures[i][0],
-                                     temperatures[i][1]))
+                                    temperatures[i][0],
+                                    temperatures[i][1]))
     logger.info('Analysis: ' + pressure_fmt.format(ana_pres))
     logger.info('Preparation: ' + pressure_fmt.format(prep_pres))
     logger.info('Voltage-3:' + voltage_fmt.format(v3))

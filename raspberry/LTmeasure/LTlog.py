@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # coding:
+from multiprocessing import Process
+from time import sleep
+import sys
+import random
+import matplotlib.pyplot as plt
 """LakeShore 330 から温度データを読み込んで、png ファイルフォーマットのグラフを出力する。"""
 
 import datetime
 import argparse
 import matplotlib
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import random
-import sys
-from time import sleep
-from multiprocessing import Process
 try:
     import Gpib
     import gpib
@@ -133,11 +133,11 @@ if __name__ == '__main__':
                         default=False,
                         help='Use dummy data')
     parser.add_argument('--period', type=float, default=1,
-            help='Measurement period (default:1s)')
+                        help='Measurement period (default:1s)')
     parser.add_argument('--drawperiod', type=int, default=5,
-            help='Plot priod (default: 5s)')
+                        help='Plot priod (default: 5s)')
     parser.add_argument('--max_length', type=int, default=300,
-            help='Number of data for plot (default: 300)')
+                        help='Number of data for plot (default: 300)')
     args = parser.parse_args()
     if args.dummy:
         dummy = True
@@ -167,13 +167,14 @@ if __name__ == '__main__':
             nowstr = now.strftime('%Y-%m-%d %H:%M:%S')
             print(nowstr, tempA, tempB)
             with open(lastread, mode='w') as f:
-                str = '{}\n{:.2f}  K(A) \n{:.2f} K(B)\n'.format(nowstr, tempA, tempB)
+                str = '{}\n{:.2f}  K(A) \n{:.2f} K(B)\n'.format(
+                    nowstr, tempA, tempB)
                 f.write(str)
             with open(logfile, mode='a') as f:
                 str = '{}\t{:.2f}\t{:.2f}\n'.format(nowstr, tempA, tempB)
                 f.write(str)
             if now.second % drawevery == 0:
-                p = Process(target = draw_lakeshore330, args = (data,))
+                p = Process(target=draw_lakeshore330, args=(data,))
                 p.start()
             sleep(sleepingtime)
     except KeyboardInterrupt:
