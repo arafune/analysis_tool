@@ -3,7 +3,7 @@
 
 from time import sleep
 import datetime
-from logging import getLogger, StreamHandler, DEBUG, Formatter
+from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO
 import argparse
 from multiprocessing import Process
 #
@@ -18,8 +18,8 @@ logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
 formatter = Formatter(fmt)
 handler = StreamHandler()
-handler.setLevel(DEBUG)
-logger.setLevel(DEBUG)
+handler.setLevel(INFO)
+logger.setLevel(INFO)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
@@ -76,14 +76,14 @@ def read_and_save():
     pressure_fmt = '{:.3e} mbar'
     voltage_fmt = '{:5.2f} V'
     for i in range(4):
-        logger.debug(temp_fmt.format(i,
+        logger.info(temp_fmt.format(i,
                                      temperatures[i][0],
                                      temperatures[i][1]))
-    logger.debug('Analysis: ' + pressure_fmt.format(ana_pres))
-    logger.debug('Preparation: ' + pressure_fmt.format(prep_pres))
-    logger.debug('Voltage-3:' + voltage_fmt.format(v3))
-    logger.debug('Voltage-4:' + voltage_fmt.format(v4))
-    logger.debug('Voltage-5:' + voltage_fmt.format(v5))
+    logger.info('Analysis: ' + pressure_fmt.format(ana_pres))
+    logger.info('Preparation: ' + pressure_fmt.format(prep_pres))
+    logger.info('Voltage-3:' + voltage_fmt.format(v3))
+    logger.info('Voltage-4:' + voltage_fmt.format(v4))
+    logger.info('Voltage-5:' + voltage_fmt.format(v5))
     now = datetime.datetime.now()
     logfile.write(save_fmt.format(now.strftime('%Y-%m-%d %H:%M:%S'),
                                   temperatures[0][0], temperatures[1][0],
