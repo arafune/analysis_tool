@@ -1,0 +1,60 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>LakeShore330</title>
+    <script type="text/javascript" src="js/jquery-3.3.0.min.js"></script>
+    <script>
+      function reloadimg(e,timer){ 
+      setTimeout( function(){
+      e.src = "Logdata.png?r=" + Math.random(); 
+      },timer); 
+      }
+    </script>
+    <script type="text/javascript">
+	$(function(){
+	$("#lastread").load("lastread.html");
+	});
+    </script>
+    <script type="text/javascript" src="js/jquery.periodicalupdater.js"></script>
+    <script type="text/javascript">
+      $(function(){
+        $.PeriodicalUpdater('./lastread.dat',{
+          method: 'get',
+          minTimeout: 2000,
+          type: 'html'
+        },
+        function(data){
+          $("#Header").load("header.html");
+        });
+      });
+    </script>
+    <style type="text/css">
+      <!--
+	  h1{
+	  padding:10px;
+	  font-size:24px;
+	  }
+	  body{
+	  padding:10px;
+	  font-size:48px;
+	  }
+	#lastread{
+		font-size:12px;
+	}
+	-->
+    </style>
+  </head>
+  <body>
+    <h1>Multi monitor</h1>
+    <div id="lastread"></div>
+    <!-- <div id="lastload" font="15" color="red" >aaa</div> -->
+    <img src="Logdata.png" onload="reloadimg(this,1000)"
+	 onerror="reloadimg(this,5000)" height=80% />
+    <address>
+      <a href="mailto:ryuichi.arafune@gmail.com">荒船 竜一</a>
+    </address>
+  </body>
+</html>
+
+
+
