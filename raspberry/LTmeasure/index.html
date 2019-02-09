@@ -12,16 +12,11 @@
     </script>
     <script type="text/javascript" src="js/jquery.periodicalupdater.js"></script>
     <script type="text/javascript">
-      $(function(){
-        $.PeriodicalUpdater('./lastread.dat',{
-          method: 'get',
-          minTimeout: 2000,
-          type: 'html'
-        },
-        function(data){
-          $("#lastload").text(data);
-        });
-      });
+      setInterval("my_function();", 5000);
+
+        function my_function() {
+		      $("#lastread").load("lastread.html");
+		          };
     </script>
     <style type="text/css">
       <!--
@@ -31,7 +26,10 @@
 	  }
 	  body{
 	  padding:10px;
-	  font-size:48px;
+	  font-size:12px;
+	  }
+	  #lastread{
+		  font-size: 18px;
 	  }
 	-->
     </style>
@@ -39,11 +37,7 @@
   <body>
     <h1>LakeShore330</h1>
     <!-- <div id="lastload" font="15" color="red" >aaa</div> -->
-    <div id="lastload">
-      <font size="5" color="#ff0000">
-	aaa
-      </font>
-    </div>    
+    <div id="lastread"></div>
     <img src="LTdata.png" onload="reloadimg(this,1000)"
 	 onerror="reloadimg(this,5000)" height=80% />
     <address>

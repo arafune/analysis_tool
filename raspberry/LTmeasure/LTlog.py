@@ -132,11 +132,11 @@ if __name__ == '__main__':
                         action='store_true',
                         default=False,
                         help='Use dummy data')
-    parser.add_argument('--period', type=float,
+    parser.add_argument('--period', type=float, default=1,
             help='Measurement period (default:1s)')
-    parser.add_argument('--period', type=int,
+    parser.add_argument('--drawperiod', type=int, default=5,
             help='Plot priod (default: 5s)')
-    parser.add_argument('--max_length', type=int,
+    parser.add_argument('--max_length', type=int, default=300,
             help='Number of data for plot (default: 300)')
     args = parser.parse_args()
     if args.dummy:
@@ -145,10 +145,10 @@ if __name__ == '__main__':
         dummuy = dummy
     #
     logfile = 'LTlog.dat'
-    lastread = 'lastread.dat'
-    maxdatalength = 300
-    drawevery = 5  # seconds
-    sleepingtime = 1  # seconds
+    lastread = 'lastread.html'
+    maxdatalength = args.max_length
+    drawevery = args.drawperiod  # seconds
+    sleepingtime = args.period  # seconds
     #
     if not init_lakeshore330(12):
         dummy = True
@@ -167,7 +167,7 @@ if __name__ == '__main__':
             nowstr = now.strftime('%Y-%m-%d %H:%M:%S')
             print(nowstr, tempA, tempB)
             with open(lastread, mode='w') as f:
-                str = '{}\n{:.2f}\n{:.2f}\n'.format(nowstr, tempA, tempB)
+                str = '{}\n{:.2f}  K(A) \n{:.2f} K(B)\n'.format(nowstr, tempA, tempB)
                 f.write(str)
             with open(logfile, mode='a') as f:
                 str = '{}\t{:.2f}\t{:.2f}\n'.format(nowstr, tempA, tempB)
