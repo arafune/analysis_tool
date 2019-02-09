@@ -17,30 +17,19 @@
 	};
     </script>
     <script type="text/javascript" src="js/jquery.periodicalupdater.js"></script>
-    <script type="text/javascript">
-      $(function(){
-        $.PeriodicalUpdater('./lastread.dat',{
-          method: 'get',
-          minTimeout: 2000,
-          type: 'html'
-        },
-        function(data){
-          $("#Header").load("header.html");
-        });
-      });
-    </script>
     <style type="text/css">
       <!--
 	  h1{
 	  padding:10px;
 	  font-size:24px;
+	  text-align:center
 	  }
 	  body{
 	  padding:10px;
 	  font-size:48px;
 	  }
 	#lastread{
-		font-size:12px;
+		font-size:18px;
 	}
 	-->
     </style>
