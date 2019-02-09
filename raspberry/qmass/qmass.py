@@ -69,12 +69,12 @@ class Qmass():
                    4: 1E-11, 5: 1E-12, 6: 1E-13}
 
     def __init__(self, port='/dev/ttyUSB0',
-                 mode=0, init=4, range=3, accuracy=5, span=2,
+                 mode=0, init=4, p_range=3, accuracy=5, span=2,
                  output=None):
         self.filament = None
         self.multiplier = False
         self.mode = mode
-        self.pressure_range = range
+        self.pressure_range = p_range
         self.accuracy = accuracy
         self.start_mass = init
         self.mass_span = span
@@ -308,7 +308,7 @@ class Qmass():
         command_start_mass = '00 {:02x} '.format(self.start_mass - 1)
         end_mass = self.start_mass + Qmass.mass_span_digital[self.mass_span] - 1
         command_end_mass = '{:04x} '.format(end_mass)
-        command_mass_span = '{:02x} 00'.format(self.mass_span)  # << end with 'ff'?
+        command_mass_span = '{:02x} 00'.format(self.mass_span)  # end with ff?
         command = command0 + command_pressure + command_accuracy
         command += command_start_mass + command_end_mass
         command += command_mass_span
@@ -404,12 +404,12 @@ class Qmass():
             raise ValueError('Data should be 3 bytes')
         if data[0] == 0x7f:
             return 0.0
-        else:
-            return (data[1] * 1.216 + (data[2] - 64) * 0.019) * 1E-12
+        return (data[1] * 1.216 + (data[2] - 64) * 0.019) * 1E-12
 
     def single_scan(self):
-        '''Single scan.  In analog and digital modes, measure the mass spectrum,
-        In leak check mode, single scan means 128 times measurement.
+        '''Single scan.  In analog and digital modes, measure
+        the mass spectrum.  In leak check mode, single scan means
+        128 times measurement.
 
         Return
         ------
@@ -417,12 +417,13 @@ class Qmass():
         '''
         log_fmt = '{:02x} {:02x} {:02x} Pres.: {:.2e} {:5.2f} {}'
         save_fmt = '{:5.3f}\t{:.5e}\n'
+        leak_check_fmt = 'Pressure:{:.3e}: {}'
         logger.debug('Sanning starts...')
         data = []
         #
         if self.mode == 0:
             mass_step = 1/(256/Qmass.mass_span_analog[self.mass_span])
-            mass = self.start_mass - ((1 / mass_step) / 2 - 1 ) * mass_step
+            mass = self.start_mass - ((1 / mass_step) / 2 - 1) * mass_step
             logger.debug('mass:{} mass_step: {}'.format(mass, mass_step))
         else:
             mass_step = 1
@@ -432,7 +433,7 @@ class Qmass():
         i = 0
         #
         self.com.write(scan_start_command)
-        while: (b'\xf0' not in data_bytes) or i> 127:
+        while (b'\xf0' not in data_bytes) or i > 127:
             data_bytes = self.com.read(3)
             pressure = self.convert(data_bytes)
             if self.mode < 2:  # analog or digital mode
@@ -444,8 +445,9 @@ class Qmass():
                 data.append(save_fmt.format(mass, pressure))
                 mass += mass_step
             else:  # Leak check mode
-                print('Pressure:{:.3e}: {}'.format(pressure,
-                      pressure_indicator(pressure, pressure_range)))
+                print(leak_chck_fmt.format(pressure,
+                                           pressure_indicator(pressure,
+                                                              pressure_range)))
                 now = datetime.datetime.strftime(datetime.datetime.now(),
                                                  '%Y-%m-%d %H:%M:%S.%f')
                 a_data = '{}\t{:.3e}\n'.format(now, pressure)
@@ -545,22 +547,24 @@ if __name__ == '__main__':
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="""
 NOTE: あとでちゃんと書く。""")
-    description_mode = 'Mode (default: 0)\n0: Analog\n1: Digital\n2: Leak check'
+    description_mode = '''Mode (default: 0)
+    0: Analog
+    1: Digital
+    2: Leak check'''
     description_mass_span = '''mass span  (default: 2)
     Analog mode
-    0: 8
-    1: 16
-    2: 32
-    3: 64
+        0: 8
+        1: 16
+        2: 32
+        3: 64
     Digital mode
-    0: 10
-    1: 20
-    2: 50
-    3: 100
-    4: 150
-    5: 200
-    6: 300
-    '''
+        0: 10
+        1: 20
+        2: 50
+        3: 100
+        4: 150
+        5: 200
+        6: 300'''
     description_pressure_range = '''Pressure range  (default: 4)
     0: 1E-7 (mbar)
     1: 1E-8
@@ -570,6 +574,8 @@ NOTE: あとでちゃんと書く。""")
     5: 1E-12
     6: 1E-13
     '''
+    description_mass_start = "Start mass (mass for Leak checkmode )"
+    description_mass_start += " (default: 4))"
     parser.add_argument('--output', '-o',
                         type=str, default=None,
                         help='''Output filename''')
@@ -578,7 +584,7 @@ NOTE: あとでちゃんと書く。""")
                         help=description_mode)
     parser.add_argument('--init', '-i',
                         type=int, default=4,
-                        help='Start mass (mass for Leak checkmode ) (default: 4)')
+                        help=description_mass_start)
     parser.add_argument('--span', '-s',
                         type=int, default=2,
                         help=description_mass_span)
@@ -596,15 +602,21 @@ NOTE: あとでちゃんと書く。""")
     accuracy = args.accuracy
     pressure_range = args.range
     savefile = args.output
-    logger.debug('mode_select: {}, args.mode: {}'.format(mode_select, args.mode))
-    logger.debug('start_mass: {}, args.init: {}'.format(start_mass, args.init))
-    logger.debug('mass_span: {}, args.span: {}'.format(mass_span, args.span))
-    logger.debug('accuracy: {}, args.accuracy: {}'.format(accuracy, args.accuracy))
-    logger.debug('pressure_range: {}, args.range: {}'.format(pressure_range, args.range))
-    logger.debug('savefile: {}, args.output: {}'.format(savefile, args.output))
+    logger.debug('mode_select: {}, args.mode: {}'.format(mode_select,
+                                                         args.mode))
+    logger.debug('start_mass: {}, args.init: {}'.format(start_mass,
+                                                        args.init))
+    logger.debug('mass_span: {}, args.span: {}'.format(mass_span,
+                                                       args.span))
+    logger.debug('accuracy: {}, args.accuracy: {}'.format(accuracy,
+                                                          args.accuracy))
+    logger.debug('pressure_range: {}, args.range: {}'.format(pressure_range,
+                                                             args.range))
+    logger.debug('savefile: {}, args.output: {}'.format(savefile,
+                                                        args.output))
     port = '/dev/ttyUSB1'
     q_mass = Qmass(port=port, mode=mode_select, init=start_mass,
-                   range=pressure_range, accuracy=accuracy, span=mass_span,
+                   p_range=pressure_range, accuracy=accuracy, span=mass_span,
                    output=savefile)
     q_mass.boot()
     q_mass.fil_on(1)
