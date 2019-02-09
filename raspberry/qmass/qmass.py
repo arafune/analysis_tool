@@ -273,13 +273,11 @@ class Qmass():
         command = command0 + command_pressure + command_accuracy
         command += command_mass_span + command_start_mass
         logger.debug('start_mass: {}'.format(self.start_mass))
-
-    # mass_span_analog = {0: 4, 1: 8, 2: 32, 3: 64}
         logger.debug('mass_span: {} ({})'.format(
-            mass_span, Qmass.mass_span_analog[self.mass_span]))
+                     mass_span, Qmass.mass_span_analog[self.mass_span]))
         logger.debug('accuracy: {}'.format(self.accuracy))
         logger.debug('Pressure_range: {} ({:.0e})'.format(
-            pressure_range, Qmass.range_table[self.pressure_range]))
+                     pressure_range, Qmass.range_table[self.pressure_range]))
         logger.debug('command: {}'.format(command))
         self.com.write(bytes.fromhex(command))
         return 0
@@ -306,7 +304,8 @@ class Qmass():
             command_pressure = '00 {:02x} '.format(self.pressure_range - 1)
         command_accuracy = '00 {:02x} '.format(self.accuracy)
         command_start_mass = '00 {:02x} '.format(self.start_mass - 1)
-        end_mass = self.start_mass + Qmass.mass_span_digital[self.mass_span] - 1
+        end_mass = self.start_mass + \
+            Qmass.mass_span_digital[self.mass_span] - 1
         command_end_mass = '{:04x} '.format(end_mass)
         command_mass_span = '{:02x} 00'.format(self.mass_span)  # end with ff?
         command = command0 + command_pressure + command_accuracy
@@ -398,10 +397,6 @@ class Qmass():
         float
             Pressure data
         '''
-        if len(data) != 3:
-            self.com.write(b'\x00 \x00')
-            self.fil_off()
-            raise ValueError('Data should be 3 bytes')
         if data[0] == 0x7f:
             return 0.0
         return (data[1] * 1.216 + (data[2] - 64) * 0.019) * 1E-12
@@ -428,10 +423,12 @@ class Qmass():
         else:
             mass_step = 1
             mass = start_mass
+        logger.debug('Sanning starts...')
         scan_start_command = bytes.fromhex('b6')
         data_bytes = ""
         i = 0
         #
+        self.buffer = bytearray[b'\']
         self.com.write(scan_start_command)
         while (b'\xf0' not in data_bytes) or i > 127:
             data_bytes = self.com.read(3)
