@@ -94,28 +94,28 @@ class Qmass():
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
-        logger.info(self.com.read(data_to_read))
+        logger.debug(self.com.read(data_to_read))
         # b'~LM76-00499001,001a,2:0ed1'
         self.com.write(b'}LM76-00499001,001A,5:1660')
         time.sleep(.2)
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
-        logger.info(self.com.read(data_to_read))
+        logger.debug(self.com.read(data_to_read))
         # b'~LM76-00499001,0025,3,1,V1.51a,0:262a'
         self.com.write(b'{0011,55,1,0:402A')
         time.sleep(.2)
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
-        logger.info(self.com.read(data_to_read))
+        logger.debug(self.com.read(data_to_read))
         # b'~LM76-00499001,001a,2:0ed1'
         self.com.write(b'}LM76-00499001,001B,15:A7C2')
         time.sleep(.2)
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
             data_to_read = self.com.in_waiting
-        logger.info(self.com.read(data_to_read))
+        logger.debug(self.com.read(data_to_read))
         # b'~LM76-00499001,001c,6,0:daad'
         time.sleep(.1)   # << OK?
         self.com.write(bytes.fromhex('af'))
@@ -424,10 +424,10 @@ class Qmass():
             mass = start_mass
         logger.debug('Sanning starts...')
         scan_start_command = bytes.fromhex('b6')
-        data_bytes = ""
+        data_bytes = b""
         i = 0
         #
-        self.buffer = bytearray[b'\']
+        self.buffer = bytearray[b'']
         self.com.write(scan_start_command)
         while True:
             data_bytes = self.com.read(3)
@@ -477,7 +477,7 @@ class Qmass():
         i = 0
         buffer3byte = []
         #
-        for _i in range(3):
+        for _ in range(3):
             a_byte = self.buffer.pop(0)
             buf3bytes.append(a_byte)
             pressure = self.convert_mbar(buf3bytes)
