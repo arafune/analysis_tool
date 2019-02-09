@@ -68,7 +68,9 @@ LOGFILE = open('log.txt', mode='w')
 SAVE_FMT = '{} {:6.3f}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 SAVE_FMT += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 
-def scan_and_save():
+def read_and_save():
+    '''Read the values and save them
+    '''
     temperatures = read_temperatures()
     ana_pres = read_ion_gauge(0)
     prep_pres = read_ion_gauge(1)
@@ -77,25 +79,26 @@ def scan_and_save():
     v5 = adda.get_voltage(7)
     temp_fmt = 'Temperature at {}: {:6.3f} C (internal {:6.3f} C)'
     pressure_fmt = '{:.3e} mbar'
-    votage_fmt = '{:5.2f} V'
+    voltage_fmt = '{:5.2f} V'
     for i in range(4):
-        logger.debug(temp_fmt.format(i, temperatures[i][0],
-                                        temperatures[i][1]))
+        logger.debug(temp_fmt.format(i,
+                                     temperatures[i][0],
+                                     temperatures[i][1]))
     logger.debug('Analysis: ' + pressure_fmt.format(ana_pres))
     logger.debug('Preparation: ' + pressure_fmt.format(prep_pres))
     logger.debug('Voltage-3:' + voltage_fmt.format(v3))
     logger.debug('Voltage-4:' + voltage_fmt.format(v4))
     logger.debug('Voltage-5:' + voltage_fmt.format(v5))
-    now = datetime.datetime.strftime(
-            datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
-    LOG.write(SAVE_FMT.format(now,
-                              temperatures[0][0], temperatures[1][0],
-                              temperatures[2][0], temperatures[3][0],
-                              ana_pres, prep_pres, v3, v4, v5))
+    now = datetime.datetime.strftime(datetime.datetime.now(),
+                                     '%Y-%m-%d %H:%M:%S')
+    LOGFILE.write(SAVE_FMT.format(now,
+                                  temperatures[0][0], temperatures[1][0],
+                                  temperatures[2][0], temperatures[3][0],
+                                  ana_pres, prep_pres, v3, v4, v5))
 
 try:
     while True:
-        scan_and_save()
+        read_and_save()
         sleep(1)
 except KeyboardInterrupt:
-    LOG.close()
+    LOGFILE.close()
