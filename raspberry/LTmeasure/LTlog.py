@@ -160,7 +160,7 @@ if __name__ == '__main__':
             data[0].append(now)
             data[1].append(tempA)
             data[2].append(tempB)
-            if len(data[0]) > 300:
+            if len(data[0]) > maxdatalength:
                 del data[0][0]
                 del data[1][0]
                 del data[2][0]
