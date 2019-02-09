@@ -20,8 +20,8 @@ logger.propagate = False
 
 def pressure(volt):
     '''Return the pressure (mbar) from the monitor voltage'''
-    exponent = int[volt] - 11
-    mantissa = ((volt - int[volt]) + .1)/.11
+    exponent = int(volt) - 11
+    mantissa = ((volt - int(volt)) + .1)/.11
     return mantissa * 10**exponent
 
 adda = HPADDA.Board()
@@ -41,10 +41,10 @@ def read_temperatures():
 
     '''
     external = [THERMOCOUPLES[i].read_temp_c() for i in range(4)]
-    internal = [THERMOCOUPLES[i].internal_temp_c() for i in range(4)]
+    internal = [THERMOCOUPLES[i].read_internal_temp_c() for i in range(4)]
     ret = []
     for i in range(4):
-        ret.append(external[i], internal[i])
+        ret.append((external[i], internal[i]))
     return ret
 
 def read_ion_gauge(chamber=0):
@@ -61,7 +61,7 @@ def read_ion_gauge(chamber=0):
     float
         Pressure (mbar)
     '''
-    voltage = adda.get_voltages(chamber+1)
+    voltage = adda.get_voltage(chamber+1)
     return pressure(voltage)
 
 LOGFILE = open('log.txt', mode='w')
