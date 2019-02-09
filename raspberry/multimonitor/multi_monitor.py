@@ -64,7 +64,10 @@ def read_ion_gauge(chamber=0):
 
 save_fmt = '{}\t{:6.3f}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 save_fmt += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
-
+html_fmt = '{} <br>\n'
+html_fmt += '{:6.3f} C, {:6.3f} C, {:6.3f} C,{:6.3f} C <br>\n'
+html_fmt += '{:.3e} mbar (A), {:.3e} mbar (Prep)<br>\n'
+html_fmt += '{:6.3f} V, {:6.3f} V, {:6.3f}V\n'
 
 def read_and_save():
     '''Read the values and save them
@@ -92,8 +95,8 @@ def read_and_save():
                                   temperatures[0][0], temperatures[1][0],
                                   temperatures[2][0], temperatures[3][0],
                                   ana_pres, prep_pres, v3, v4, v5))
-    with open('lastread.dat', mode='w') as lastread:
-        lastread.write(save_fmt.format(now.strftime('%Y-%m-%d %H:%M:%S'),
+    with open('lastread.html', mode='w') as lastread:
+        lastread.write(html_fmt.format(now.strftime('%Y-%m-%d %H:%M:%S'),
                                        temperatures[0][0], temperatures[1][0],
                                        temperatures[2][0], temperatures[3][0],
                                        ana_pres, prep_pres, v3, v4, v5))
