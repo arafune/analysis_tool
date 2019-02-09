@@ -24,7 +24,7 @@ def pressure_indicator(pressure, pressure_range):
                    4: 1E-11, 5: 1E-12, 6: 1E-13}
     if isinstance(pressure_range, int):
         pressure_range = range_table[pressure_range]
-    level = pressure/(pressure_range * 10)
+    level = pressure / (pressure_range * 10)
     if level > 1:
         level = 1
     level = int(level * 100)
@@ -266,10 +266,10 @@ class Qmass():
         if self.multiplier:
             command_pressure = '02 {:02} '.format(self.pressure_range)
         else:
-            command_pressure = '00 {:02} '.format(self.pressure_range-2)
+            command_pressure = '00 {:02} '.format(self.pressure_range - 2)
         command_accuracy = '00 {:02} '.format(self.accuracy)
         command_mass_span = '{:02} '.format(self.mass_span)
-        command_start_mass = '00 {:02} 00 '.format(self.start_mass-1)
+        command_start_mass = '00 {:02} 00 '.format(self.start_mass - 1)
         command = command0 + command_pressure + command_accuracy
         command += command_mass_span + command_start_mass
         logger.debug('start_mass: {}'.format(self.start_mass))
@@ -416,7 +416,7 @@ class Qmass():
         data = []
         #
         if self.mode == 0:
-            mass_step = 1/(256/Qmass.mass_span_analog[self.mass_span])
+            mass_step = 1 / (256 / Qmass.mass_span_analog[self.mass_span])
             mass = self.start_mass - ((1 / mass_step) / 2 - 1) * mass_step
             logger.debug('mass:{} mass_step: {}'.format(mass, mass_step))
         else:
@@ -449,7 +449,7 @@ class Qmass():
                 a_data = '{}\t{:.3e}\n'.format(now, pressure)
                 data.append(a_data)
                 i += 1
-            if  (b'\xf0' in data_bytes) or i > 127:
+            if (b'\xf0' in data_bytes) or i > 127:
                 break
         logger.debug('data_bytes is: {}'.format(data_bytes))
         if b'\xf0\xf0\xf4' == data_bytes:
@@ -466,7 +466,7 @@ class Qmass():
         data = []
         #
         if self.mode == 0:
-            mass_step = 1/(256/Qmass.mass_span_analog[self.mass_span])
+            mass_step = 1 / (256 / Qmass.mass_span_analog[self.mass_span])
             mass = self.start_mass - ((1 / mass_step) / 2 - 1) * mass_step
             logger.debug('mass:{} mass_step: {}'.format(mass, mass_step))
         else:
@@ -519,7 +519,7 @@ class Qmass():
         start_mass: int
             start mass
         '''
-        command = '23 {:02} 00'.format(start_mass-1)
+        command = '23 {:02} 00'.format(start_mass - 1)
         self.start_mass = start_mass
         self.com.write(bytes.fromhex(command))
 

@@ -1,36 +1,36 @@
 #!/usr/bin/env python3
+from Adafruit_MAX31856 import max31856
+import HPADDA
+import matplotlib.pyplot as plt
 '''Multi channel (7 ch for Voltage, 4 ch for temperature)'''
 
 from time import sleep
 import datetime
-from logging import getLogger, StreamHandler, DEBUG, Formatter
+from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO
 import argparse
 from multiprocessing import Process
 #
 import matplotlib
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import HPADDA
-from Adafruit_MAX31856 import max31856
 
 # logger
 logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
 formatter = Formatter(fmt)
 handler = StreamHandler()
-handler.setLevel(DEBUG)
-logger.setLevel(DEBUG)
+handler.setLevel(INFO)
+logger.setLevel(INFO)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
 
 
-
 def pressure(volt):
     '''Return the pressure (mbar) from the monitor voltage'''
     exponent = int(volt) - 11
-    mantissa = ((volt - int(volt)) + .1)/.11
+    mantissa = ((volt - int(volt)) + .1) / .11
     return mantissa * 10**exponent
+
 
 def read_temperatures():
     '''Return temperatue data.
@@ -42,6 +42,7 @@ def read_temperatures():
     for i in range(4):
         ret.append((external[i], internal[i]))
     return ret
+
 
 def read_ion_gauge(chamber=0):
     '''Read ion gauge data
@@ -57,11 +58,13 @@ def read_ion_gauge(chamber=0):
     float
         Pressure (mbar)
     '''
-    voltage = adda.get_voltage(chamber+1)
+    voltage = adda.get_voltage(chamber + 1)
     return pressure(voltage)
+
 
 save_fmt = '{}\t{:6.3f}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 save_fmt += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
+
 
 def read_and_save():
     '''Read the values and save them
@@ -91,13 +94,14 @@ def read_and_save():
                                   ana_pres, prep_pres, v3, v4, v5))
     with open('lastread.dat', mode='w') as lastread:
         lastread.write(save_fmt.format(now.strftime('%Y-%m-%d %H:%M:%S'),
-                                  temperatures[0][0], temperatures[1][0],
-                                  temperatures[2][0], temperatures[3][0],
-                                  ana_pres, prep_pres, v3, v4, v5))
+                                       temperatures[0][0], temperatures[1][0],
+                                       temperatures[2][0], temperatures[3][0],
+                                       ana_pres, prep_pres, v3, v4, v5))
 
     return (now, temperatures[0][0], temperatures[1][0],
             temperatures[2][0], temperatures[3][0],
             ana_pres, prep_pres, v3, v4, v5)
+
 
 def draw_graphs(data):
     """1st column が datetime オブジェクトの2Dデータを読み込んでグラフにする。"""
@@ -118,7 +122,7 @@ def draw_graphs(data):
     ax1.plot_date(data[0], data[2], fmt='-', label='T_Analyis')
     ax1.plot_date(data[0], data[3], fmt='-', label='T_Prep.')
     ax1.plot_date(data[0], data[4], fmt='-', label='T_AUX')
-    
+
     ax1.legend(loc=2)
     ax1.set_ylabel('Temperature  (C)')
     #
@@ -149,21 +153,20 @@ def draw_graphs(data):
     return True
 
 
-
 adda = HPADDA.Board()
 adda.set_sample_rate(300)
-thermos = [max31856.MAX31856(software_spi={'clk':25, 'cs':14,
-                                           'do':8, 'di':7}),
-           max31856.MAX31856(software_spi={'clk':25, 'cs':15,
-                                           'do':8, 'di':7}),
-           max31856.MAX31856(software_spi={'clk':25, 'cs':16,
-                                           'do':8, 'di':7}),
-           max31856.MAX31856(software_spi={'clk':25, 'cs':21,
-                                           'do':8, 'di':7})]
+thermos = [max31856.MAX31856(software_spi={'clk': 25, 'cs': 14,
+                                           'do': 8, 'di': 7}),
+           max31856.MAX31856(software_spi={'clk': 25, 'cs': 15,
+                                           'do': 8, 'di': 7}),
+           max31856.MAX31856(software_spi={'clk': 25, 'cs': 16,
+                                           'do': 8, 'di': 7}),
+           max31856.MAX31856(software_spi={'clk': 25, 'cs': 21,
+                                           'do': 8, 'di': 7})]
 
 parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawTextHelpFormatter,
-        epilog="""
+    formatter_class=argparse.RawTextHelpFormatter,
+    epilog="""
 NOTE: あとでちゃんと書く。""")
 parser.add_argument('--logfile',
                     type=str, default=None,
@@ -192,7 +195,7 @@ try:
                 del data[i][0]
         now = datetime.datetime.now()
         if now.second % drawevery == 0:
-            p = Process(target = draw_graphs, args = (data,))
+            p = Process(target=draw_graphs, args=(data,))
             p.start()
         sleep(sleepingtime)
 except KeyboardInterrupt:
