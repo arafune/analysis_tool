@@ -2,7 +2,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>LakeShore330</title>
+  <title>Multi-channel monitor for Phoibos system</title>
   <script type="text/javascript" src="js/jquery-3.3.0.min.js"></script>
   <script>
     function reloadimg(e, timer) {
@@ -20,19 +20,19 @@
   </script>
   <script type="text/javascript" src="js/jquery.periodicalupdater.js"></script>
   <style type="text/css">
-    < !--
-    h1 {
+    < !-- h1 {
       padding: 10px;
       font-size: 24px;
+      text-align: centering:
     }
 
     body {
       padding: 10px;
-      font-size: 48px;
+      font-size: 12px;
     }
 
     #lastread {
-      font-size: 12px;
+      font-size: 18px;
     }
 
     -->
@@ -42,7 +42,6 @@
 <body>
   <h1>Multi monitor</h1>
   <div id="lastread"></div>
-  <!-- <div id="lastload" font="15" color="red" >aaa</div> -->
   <img src="Logdata.png" onload="reloadimg(this,1000)" onerror="reloadimg(this,5000)" height=80% />
   <address>
     <a href="mailto:ryuichi.arafune@gmail.com">R. Arafune</a>
