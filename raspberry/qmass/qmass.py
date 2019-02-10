@@ -427,11 +427,11 @@ class Qmass():
         data_bytes = b""
         i = 0
         #
-        self.buffer = bytearray[b'']
+        self.buffer = bytearray(b'')
         self.com.write(scan_start_command)
         while True:
             data_bytes = self.com.read(3)
-            pressure = self.convert(data_bytes)
+            pressure = self.convert_mbar(data_bytes)
             if self.mode < 2:  # analog or digital mode
                 logger.debug(
                     log_fmt.format(data_bytes[0], data_bytes[1],
