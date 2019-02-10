@@ -468,7 +468,7 @@ class Qmass():
         return False
 
     def buffer(self):
-        '''With threading
+        """With threading.
 
         '''
         log_fmt = '{:02x} {:02x} {:02x} Pres.: {:.2e} {:5.2f} {}'
