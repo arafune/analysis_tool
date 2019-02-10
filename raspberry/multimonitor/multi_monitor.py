@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-from Adafruit_MAX31856 import max31856
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-'''Multi channel (7 ch for Voltage, 4 ch for temperature)'''
-import PiPyADC.pipyadc
-from PiPyADC.ADS1256_definitions import *
-from PiPyADC.pipyadc import ADS1256
+"""Multi-channel monitor.
+
+7-ch voltage and 4-ch temperature.  Output can be viewed via the web browser
+"""
+
 from time import sleep
 import datetime
 from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO, WARN
 import argparse
 from multiprocessing import Process
-#
+from Adafruit_MAX31856 import max31856
+import matplotlib.pyplot as plt
+from PiPyADC.pipyadc import ADS1256
+from PiPyADC.ADS1256_definitions import *
+import matplotlib
+matplotlib.use('Agg')
 
-# logger
 LOGLEVEL = DEBUG
 logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
@@ -27,45 +28,46 @@ logger.addHandler(handler)
 logger.propagate = False
 
 # Input pin for the potentiometer on the Waveshare Precision ADC board:
-EXT0 = POS_AIN0|NEG_AINCOM
+EXT0 = POS_AIN0 | NEG_AINCOM
 # Light dependant resistor of the same board:
-EXT1 = POS_AIN1|NEG_AINCOM
+EXT1 = POS_AIN1 | NEG_AINCOM
 # The other external input screw terminals of the Waveshare board:
-EXT2, EXT3, EXT4 = POS_AIN2|NEG_AINCOM, POS_AIN3|NEG_AINCOM, POS_AIN4|NEG_AINCOM
-EXT5, EXT6, EXT7 = POS_AIN5|NEG_AINCOM, POS_AIN6|NEG_AINCOM, POS_AIN7|NEG_AINCOM
+EXT2, EXT3, EXT4 = POS_AIN2 | NEG_AINCOM, POS_AIN3 | NEG_AINCOM, POS_AIN4 | NEG_AINCOM
+EXT5, EXT6, EXT7 = POS_AIN5 | NEG_AINCOM, POS_AIN6 | NEG_AINCOM, POS_AIN7 | NEG_AINCOM
 
 # You can connect any pin as well to the positive as to the negative ADC input.
 # The following reads the voltage of the potentiometer with negative polarity.
 # The ADC reading should be identical to that of the POTI channel, but negative.
-POTI_INVERTED = POS_AINCOM|NEG_AIN0
+POTI_INVERTED = POS_AINCOM | NEG_AIN0
 
 # For fun, connect both ADC inputs to the same physical input pin.
 # The ADC should always read a value close to zero for this.
-SHORT_CIRCUIT = POS_AIN0|NEG_AIN0
+SHORT_CIRCUIT = POS_AIN0 | NEG_AIN0
 
 # Specify here an arbitrary length list (tuple) of arbitrary input channel pair
 # eight-bit code values to scan sequentially from index 0 to last.
 # Eight channels fit on the screen nicely for this example..
 CH_SEQUENCE = (EXT1, EXT2, EXT5, EXT6, EXT7)
-################################################################################j
+# j
 
 
 def pressure(volt):
-    '''Return the pressure (mbar) from the monitor voltage'''
+    """Return the pressure (mbar) from the monitor voltage."""
     exponent = int(volt) - 11
     mantissa = ((volt - int(volt)) + .1) / .11
     return mantissa * 10**exponent
 
-def read_temperatures():
-    '''Return temperatue data.
 
-    '''
+def read_temperatures():
+    """Return temperatue data."""
+
     external = [thermos[i].read_temp_c() for i in range(4)]
     internal = [thermos[i].read_internal_temp_c() for i in range(4)]
     ret = []
     for i in range(4):
         ret.append((external[i], internal[i]))
     return ret
+
 
 save_fmt = '{}\t{:6.3f}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 save_fmt += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
@@ -76,8 +78,7 @@ html_fmt += '{:6.3f} V, {:6.3f} V, {:6.3f}V\n'
 
 
 def read_and_save():
-    '''Read the values and save them
-    '''
+    """Read the values and save them."""
     raw_channels = adda.read_sequence(CH_SEQUENCE)
     voltages = [i * adda.v_per_digit for i in raw_channels]
     temperatures = read_temperatures()
@@ -115,7 +116,14 @@ def read_and_save():
 
 
 def draw_graphs(data):
-    """1st column が datetime オブジェクトの2Dデータを読み込んでグラフにする。"""
+    """Draw graph.
+
+    Parameters
+    ----------
+    data: list
+        2D-list. The first column should be datetime object.
+
+    """
     for i in range(10):
         logger.debug('len(data[{}]) is {}'.format(i, data[i]))
     fig = plt.figure(figsize=(15, 10))
@@ -176,15 +184,12 @@ parser.add_argument('--logfile',
 args = parser.parse_args()
 if args.logfile:
     logfile = open(args.logfile, mode='w')
-    logfile.write('#date\tT1\tT2\tT3\tT4\t\Pressure(A)\tPressure(P)\t')
+    logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
     logfile.write('v3\tv4\v5\n')
 else:
     logfile = open('log.txt', mode='w+')
 
-data = [[],
-        [], [], [], [],
-        [], [],
-        [], [], []]
+data = [[] for i in range(10)]
 maxdatalength = 300
 drawevery = 5  # seconds
 sleepingtime = 1  # seconds
