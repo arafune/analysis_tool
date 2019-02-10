@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-'''Q-mass control by python
-'''
+"""Q-mass control by python."""
 import datetime
 import time
 import argparse
@@ -361,20 +360,21 @@ class Qmass():
         return 2
 
     def set_mode(self):
+        """Measure mode set."""
         if self.mode == 0:
             self.analog_mode()
             if savefile:
-                self.write_header()
+                self._write_header()
         elif self.mode == 1:
             self.digital_mode()
             if savefile:
-                self.write_header()
+                self._write_header()
         else:
             self.leak_check()
             if savefile:
-                self.write_header()
+                self._write_header()
 
-    def write_header(self):
+    def _write_header(self):
         self.f_save = open(savefile, mode='w')
         # ここにヘッダ除法を書き込む
         # mode, range, date, start_mass, accuracy
@@ -473,13 +473,20 @@ class Qmass():
                     i += 1
             if b'\xf4' in a_byte or i > 127:
                 break
-            return data
+        return data
 
     def record(self, data):
+        """Record the Data.
+
+        Parameters
+        -----------
+        data: list
+            Data to save
+
+        """
         if self.f_save:
             self.f_save.writelines(data)
-            if self.mode < 2:
-                self.f_save.write('\n')
+            self.f_save.write('\n')
 
     def terminate_scan(self):
         self.com.write(bytes.fromhex('00 00'))
