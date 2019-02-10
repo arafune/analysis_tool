@@ -423,7 +423,7 @@ class Qmass():
         """
         log_fmt = '{:02x} {:02x} {:02x} Pres.: {:.2e} {:5.2f} {}'
         save_fmt = '{:5.3f}\t{:.5e}\n'
-        leak_check_fmt = 'Pressure:{:.3e}: {}'
+        leak_chk_fmt = 'Pressure:{:.3e}: {}'
         data = []
         #
         if self.mode == 0:
@@ -435,85 +435,46 @@ class Qmass():
             mass = start_mass
         logger.debug('Sanning starts...')
         scan_start_command = bytes.fromhex('b6')
-        data_bytes = b""
         i = 0
         #
         self.buffer = bytearray(b'')
         self.com.write(scan_start_command)
         while True:
-            data_bytes = self.com.read(3)
-            pressure = self.convert_mbar(data_bytes)
-            if self.mode < 2:  # analog or digital mode
-                logger.debug(
-                    log_fmt.format(data_bytes[0], data_bytes[1],
-                                   data_bytes[2], pressure, mass,
-                                   pressure_indicator(pressure,
-                                                      pressure_range)))
-                data.append(save_fmt.format(mass, pressure))
-                mass += mass_step
-            else:  # Leak check mode
-                print(leak_check_fmt.format(pressure,
-                                            pressure_indicator(pressure,
-                                                               pressure_range)))
-                now = datetime.datetime.strftime(datetime.datetime.now(),
-                                                 '%Y-%m-%d %H:%M:%S.%f')
-                a_data = '{}\t{:.3e}\n'.format(now, pressure)
-                data.append(a_data)
-                i += 1
-            if (b'\xf0' in data_bytes) or i > 127:
+            data_to_read = self.com.in_waiting
+            while data_to_read == 0:
+                time.sleep(0.1)
+                data_to_read = self.com.in_waiting
+            self.buffer.extend(self.com.read(data_to_read))
+            while len(self.buffer) > 2 or i > 127:
+                buf3bytes = []
+                for _ in range(3):
+                    a_byte = self.buffer.pop(0)
+                if b'\xf4' in a_byte:
+                    break
+                buf3bytes.append(a_byte)
+                pressure = self.convert_mbar(buf3bytes)
+                if self.mode < 2:  # analog or digital mode
+                    logger.debug(
+                        log_fmt.format(buf3bytes[0], buf3bytes[1],
+                                       buf3bytes[2], pressure, mass,
+                                       pressure_indicator(pressure,
+                                                          pressure_range)))
+                    a_data = save_fmt.format(mass, pressure)
+                    data.append(a_data)
+                    mass += mass_step
+                else:  # Leak check mode
+                    print(leak_chk_fmt.format(pressure,
+                                              pressure_indicator(pressure,
+                                                                 pressure_range)))
+                    now = datetime.datetime.strftime(datetime.datetime.now(),
+                                                     '%Y-%m-%d %H:%M:%S.%f')
+                    a_data = '{}\t{:.3e}\n'.format(now, pressure)
+                    data.append(a_data)
+                    i += 1
+            if (b'\xf4' in a_byte) or i > 127:
                 break
-        logger.debug('data_bytes is: {}'.format(data_bytes))
-        if b'\xf0\xf0\xf4' == data_bytes:
             return data
         return False
-
-    def buffer(self):
-        """With threading.
-
-        """
-        log_fmt = '{:02x} {:02x} {:02x} Pres.: {:.2e} {:5.2f} {}'
-        save_fmt = '{:5.3f}\t{:.5e}\n'
-        leak_chk_fmt = 'Pressure:{:.3e}: {}'
-        data = []
-        #
-        if self.mode == 0:
-            mass_step = 1 / (256 / Qmass.mass_span_analog[self.mass_span])
-            mass = self.start_mass - ((1 / mass_step) / 2 - 1) * mass_step
-            logger.debug('mass:{} mass_step: {}'.format(mass, mass_step))
-        else:
-            mass_step = 1
-            mass = start_mass
-#        scan_start_command = bytes.fromhex('b6')
-#        data_bytes = ""
-        i = 0
-        buf3bytes = []
-        #
-        while len(self.buffer) > 2 or i > 127:
-            for _ in range(3):
-                a_byte = self.buffer.pop(0)
-            if b'\xf4' in a_byte:
-                break
-            buf3bytes.append(a_byte)
-            pressure = self.convert_mbar(buf3bytes)
-            if self.mode < 2:  # analog or digital mode
-                logger.debug(
-                    log_fmt.format(buf3bytes[0], buf3bytes[1],
-                                   buf3bytes[2], pressure, mass,
-                                   pressure_indicator(pressure,
-                                                      pressure_range)))
-                a_data = save_fmt.format(mass, pressure)
-                data.append(a_data)
-                mass += mass_step
-            else:  # Leak check mode
-                print(leak_chk_fmt.format(pressure,
-                                          pressure_indicator(pressure,
-                                                             pressure_range)))
-                now = datetime.datetime.strftime(datetime.datetime.now(),
-                                                 '%Y-%m-%d %H:%M:%S.%f')
-                a_data = '{}\t{:.3e}\n'.format(now, pressure)
-                data.append(a_data)
-                i += 1
-            return
 
     def record(self, data):
         if self.f_save:
