@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from Adafruit_MAX31856 import max31856
 import HPADDA
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 '''Multi channel (7 ch for Voltage, 4 ch for temperature)'''
 
@@ -10,26 +12,26 @@ from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO, WARN
 import argparse
 from multiprocessing import Process
 #
-import matplotlib
-matplotlib.use('Agg')
 
 # logger
+LOGLEVEL = WARN
 logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
 formatter = Formatter(fmt)
 handler = StreamHandler()
-handler.setLevel(WARN)
-logger.setLevel(WARN)
+handler.setLevel(LOGLEVEL)
+logger.setLevel(LOGLEVEL)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
 
+rate = 1000
 
 def pressure(volt):
     '''Return the pressure (mbar) from the monitor voltage'''
     exponent = int(volt) - 11
     mantissa = ((volt - int(volt)) + .1) / .11
-    return mantissa * 10**exponent
+    return (1013.25/760) * mantissa * 10**exponent
 
 
 def read_temperatures():
@@ -58,7 +60,10 @@ def read_ion_gauge(chamber=0):
     float
         Pressure (mbar)
     '''
-    voltage = adda.get_voltage(chamber + 1)
+    adda.set_sample_rate(rate)
+    voltage = adda.get_average_v(chamber + 1)
+    voltage = (voltage - 0.0106)/0.93654 # << Correction
+    adda.delay_us(10000)
     return pressure(voltage)
 
 
@@ -76,9 +81,13 @@ def read_and_save():
     temperatures = read_temperatures()
     ana_pres = read_ion_gauge(0)
     prep_pres = read_ion_gauge(1)
-    v3 = adda.get_voltage(5)
-    v4 = adda.get_voltage(6)
-    v5 = adda.get_voltage(7)
+    adda.set_sample_rate(rate)
+    v3 = adda.get_average_v(5)
+    adda.delay_us(10000)
+    v4 = adda.get_average_v(6)
+    adda.delay_us(10000)
+    v5 = adda.get_average_v(7)
+    adda.delay_us(10000)
     temp_fmt = 'Temperature at {}: {:6.3f} C (internal {:6.3f} C)'
     pressure_fmt = '{:.3e} mbar'
     voltage_fmt = '{:5.2f} V'
@@ -149,7 +158,7 @@ def draw_graphs(data):
 
 
 adda = HPADDA.Board()
-adda.set_sample_rate(300)
+adda.set_sample_rate(rate)
 thermos = [max31856.MAX31856(software_spi={'clk': 25, 'cs': 14,
                                            'do': 8, 'di': 7}),
            max31856.MAX31856(software_spi={'clk': 25, 'cs': 15,
@@ -180,7 +189,7 @@ data = [[],
         [], [], []]
 maxdatalength = 300
 drawevery = 5  # seconds
-sleepingtime = 1  # seconds
+sleepingtime = 3  # seconds
 try:
     while True:
         a_read = read_and_save()
@@ -192,6 +201,6 @@ try:
         if now.second % drawevery == 0:
             p = Process(target=draw_graphs, args=(data,))
             p.start()
-        sleep(sleepingtime)
+        sleep(sleepingtime-1)
 except KeyboardInterrupt:
     logfile.close()
