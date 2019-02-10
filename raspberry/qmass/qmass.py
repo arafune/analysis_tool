@@ -86,7 +86,7 @@ class Qmass():
                                  stopbits=serial.STOPBITS_ONE)
 
     def boot(self):
-        '''Boot Microvision plus.'''
+        """Boot Microvision plus."""
         data_to_read = self.com.in_waiting  # よけいなリードバッファがあった時用
         self.com.read(data_to_read)
         #
@@ -489,6 +489,7 @@ class Qmass():
             self.f_save.write('\n')
 
     def terminate_scan(self):
+        """Send scan terminate signal."""
         self.com.write(bytes.fromhex('00 00'))
         time.sleep(1)
 
