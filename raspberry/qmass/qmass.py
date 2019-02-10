@@ -463,18 +463,17 @@ class Qmass():
                     data.append(a_data)
                     mass += mass_step
                 else:  # Leak check mode
-                    print(leak_chk_fmt.format(pressure,
-                                              pressure_indicator(pressure,
-                                                                 pressure_range)))
+                    print(leak_chk_fmt.format(
+                        pressure,
+                        pressure_indicator(pressure, pressure_range)))
                     now = datetime.datetime.strftime(datetime.datetime.now(),
                                                      '%Y-%m-%d %H:%M:%S.%f')
                     a_data = '{}\t{:.3e}\n'.format(now, pressure)
                     data.append(a_data)
                     i += 1
-            if (b'\xf4' in a_byte) or i > 127:
+            if b'\xf4' in a_byte or i > 127:
                 break
             return data
-        return False
 
     def record(self, data):
         if self.f_save:
