@@ -470,7 +470,7 @@ class Qmass():
     def buffer(self):
         """With threading.
 
-        '''
+        """
         log_fmt = '{:02x} {:02x} {:02x} Pres.: {:.2e} {:5.2f} {}'
         save_fmt = '{:5.3f}\t{:.5e}\n'
         leak_check_fmt = 'Pressure:{:.3e}: {}'
