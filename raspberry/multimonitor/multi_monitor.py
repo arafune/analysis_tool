@@ -71,7 +71,7 @@ save_fmt = '{}\t{:6.3f}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 save_fmt += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 html_fmt = '{} <br>\n'
 html_fmt += '{:6.3f} C, {:6.3f} C, {:6.3f} C,{:6.3f} C <br>\n'
-html_fmt += '{:.3e} mbar (A), {:.3e} mbar (Prep)<br>\n'
+html_fmt += '{:.3E} mbar (A), {:.3E} mbar (Prep)<br>\n'
 html_fmt += '{:6.3f} V, {:6.3f} V, {:6.3f}V\n'
 
 
@@ -88,7 +88,7 @@ def read_and_save():
     v5 = voltages[4]
     temp_fmt = 'Temperature at {}: {:6.3f} C (internal {:6.3f} C)'
     pressure_fmt = '{:.3e} mbar'
-    voltage_fmt = '{:5.2f} V'
+    voltage_fmt = '{:9.7f} V'
     for i in range(4):
         logger.info(temp_fmt.format(i,
                                     temperatures[i][0],
