@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 from Adafruit_MAX31856 import max31856
-import HPADDA
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 '''Multi channel (7 ch for Voltage, 4 ch for temperature)'''
-
+import PiPyADC.pipyadc
+from PiPyADC.ADS1256_definitions import *
+from PiPyADC.pipyadc import ADS1256
 from time import sleep
 import datetime
 from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO, WARN
@@ -14,7 +15,7 @@ from multiprocessing import Process
 #
 
 # logger
-LOGLEVEL = WARN
+LOGLEVEL = DEBUG
 logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
 formatter = Formatter(fmt)
@@ -25,14 +26,35 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
 
-rate = 1000
+# Input pin for the potentiometer on the Waveshare Precision ADC board:
+EXT0 = POS_AIN0|NEG_AINCOM
+# Light dependant resistor of the same board:
+EXT1 = POS_AIN1|NEG_AINCOM
+# The other external input screw terminals of the Waveshare board:
+EXT2, EXT3, EXT4 = POS_AIN2|NEG_AINCOM, POS_AIN3|NEG_AINCOM, POS_AIN4|NEG_AINCOM
+EXT5, EXT6, EXT7 = POS_AIN5|NEG_AINCOM, POS_AIN6|NEG_AINCOM, POS_AIN7|NEG_AINCOM
+
+# You can connect any pin as well to the positive as to the negative ADC input.
+# The following reads the voltage of the potentiometer with negative polarity.
+# The ADC reading should be identical to that of the POTI channel, but negative.
+POTI_INVERTED = POS_AINCOM|NEG_AIN0
+
+# For fun, connect both ADC inputs to the same physical input pin.
+# The ADC should always read a value close to zero for this.
+SHORT_CIRCUIT = POS_AIN0|NEG_AIN0
+
+# Specify here an arbitrary length list (tuple) of arbitrary input channel pair
+# eight-bit code values to scan sequentially from index 0 to last.
+# Eight channels fit on the screen nicely for this example..
+CH_SEQUENCE = (EXT1, EXT2, EXT5, EXT6, EXT7)
+################################################################################j
+
 
 def pressure(volt):
     '''Return the pressure (mbar) from the monitor voltage'''
     exponent = int(volt) - 11
     mantissa = ((volt - int(volt)) + .1) / .11
-    return (1013.25/760) * mantissa * 10**exponent
-
+    return mantissa * 10**exponent
 
 def read_temperatures():
     '''Return temperatue data.
@@ -45,28 +67,6 @@ def read_temperatures():
         ret.append((external[i], internal[i]))
     return ret
 
-
-def read_ion_gauge(chamber=0):
-    '''Read ion gauge data
-
-    Parameters
-    -----------
-    chamber: int
-        0: Analysis
-        1: Preparation
-
-    Return
-    -------
-    float
-        Pressure (mbar)
-    '''
-    adda.set_sample_rate(rate)
-    voltage = adda.get_average_v(chamber + 1)
-    voltage = (voltage - 0.0106)/0.93654 # << Correction
-    adda.delay_us(10000)
-    return pressure(voltage)
-
-
 save_fmt = '{}\t{:6.3f}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 save_fmt += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 html_fmt = '{} <br>\n'
@@ -78,16 +78,14 @@ html_fmt += '{:6.3f} V, {:6.3f} V, {:6.3f}V\n'
 def read_and_save():
     '''Read the values and save them
     '''
+    raw_channels = adda.read_sequence(CH_SEQUENCE)
+    voltages = [i * adda.v_per_digit for i in raw_channels]
     temperatures = read_temperatures()
-    ana_pres = read_ion_gauge(0)
-    prep_pres = read_ion_gauge(1)
-    adda.set_sample_rate(rate)
-    v3 = adda.get_average_v(5)
-    adda.delay_us(10000)
-    v4 = adda.get_average_v(6)
-    adda.delay_us(10000)
-    v5 = adda.get_average_v(7)
-    adda.delay_us(10000)
+    ana_pres = pressure(voltages[0])
+    prep_pres = pressure(voltages[1])
+    v3 = voltages[2]
+    v4 = voltages[3]
+    v5 = voltages[4]
     temp_fmt = 'Temperature at {}: {:6.3f} C (internal {:6.3f} C)'
     pressure_fmt = '{:.3e} mbar'
     voltage_fmt = '{:5.2f} V'
@@ -157,8 +155,8 @@ def draw_graphs(data):
     return True
 
 
-adda = HPADDA.Board()
-adda.set_sample_rate(rate)
+adda = ADS1256()
+adda.cal_self()
 thermos = [max31856.MAX31856(software_spi={'clk': 25, 'cs': 14,
                                            'do': 8, 'di': 7}),
            max31856.MAX31856(software_spi={'clk': 25, 'cs': 15,
@@ -189,7 +187,7 @@ data = [[],
         [], [], []]
 maxdatalength = 300
 drawevery = 5  # seconds
-sleepingtime = 3  # seconds
+sleepingtime = 1  # seconds
 try:
     while True:
         a_read = read_and_save()
@@ -201,6 +199,6 @@ try:
         if now.second % drawevery == 0:
             p = Process(target=draw_graphs, args=(data,))
             p.start()
-        sleep(sleepingtime-1)
+        sleep(sleepingtime)
 except KeyboardInterrupt:
     logfile.close()
