@@ -20,6 +20,7 @@ logger.propagate = False
 
 
 def pressure_indicator(pressure, pressure_range):
+    """Return Graph of the pressure by the character."""
     range_table = {0: 1E-7, 1: 1E-8, 2: 1E-9, 3: 1E-10,
                    4: 1E-11, 5: 1E-12, 6: 1E-13}
     if isinstance(pressure_range, int):
@@ -36,7 +37,7 @@ def pressure_indicator(pressure, pressure_range):
 
 
 class Qmass():
-    '''Qmass measurement system class
+    """Qmass measurement system class.
 
     Attributes
     ----------
@@ -60,7 +61,8 @@ class Qmass():
 
     savefile: str
         file name for save
-    '''
+
+    """
 
     mass_span_analog = {0: 4, 1: 8, 2: 32, 3: 64}
     mass_span_digital = {0: 10, 1: 20, 2: 50, 3: 100, 4: 150, 5: 200, 6: 300}
@@ -71,6 +73,7 @@ class Qmass():
     def __init__(self, port='/dev/ttyUSB0',
                  mode=0, init=4, p_range=3, accuracy=5, span=2,
                  output=None):
+        """Initialization."""
         self.filament = None
         self.multiplier = False
         self.mode = mode
@@ -84,7 +87,7 @@ class Qmass():
                                  stopbits=serial.STOPBITS_ONE)
 
     def boot(self):
-        '''Boot Microvision plus'''
+        '''Boot Microvision plus.'''
         data_to_read = self.com.in_waiting  # よけいなリードバッファがあった時用
         self.com.read(data_to_read)
         #
@@ -186,7 +189,7 @@ class Qmass():
         time.sleep(1)
 
     def exit(self):
-        '''Close Microvision plus'''
+        """Close Microvision plus."""
         self.com.write(b'\x00\xaf')
         end = self.com.read(1)  # 0x86
         logger.debug('End: should be 0x86 :{}'.format(end))
@@ -194,13 +197,14 @@ class Qmass():
         self.com.close()
 
     def set_accuracy(self, accuracy=0):
-        '''set accuracy
+        """Set accuracy.
 
         Parameters
         ----------
         accuracy: int
             default:0 ( 0 to 5)
-        '''
+
+        """
         if accuracy == 0:
             self.com.write(b'\x22\x00')
             self.accuracy = 0
@@ -223,7 +227,7 @@ class Qmass():
             raise ValueError("accuracy must be 0 - 5 and integer")
 
     def set_range(self, pressure_range=0):
-        '''Set pressure range
+        """Set pressure range.
 
         Parameters
         -----------
@@ -236,7 +240,8 @@ class Qmass():
             4: E-11
             5: E-12
             6: E-13
-        '''
+
+        """
         if not self.multiplier:
             if pressure_range < 7:
                 raise ValueError('=< E-11 when multiplier is off')
@@ -249,7 +254,7 @@ class Qmass():
         self.com.write(bytes.fromhex(command))
 
     def analog_mode(self):
-        '''Set analog Mode
+        """Set analog Mode.
 
         Parameters
         -----------
@@ -261,7 +266,8 @@ class Qmass():
             default: 5
         pressure_range: int
             default 4: (E-11)
-        '''
+
+        """
         command0 = '00 e4 00 00 02 01 '
         if self.multiplier:
             command_pressure = '02 {:02} '.format(self.pressure_range)
@@ -283,7 +289,7 @@ class Qmass():
         return 0
 
     def digital_mode(self):
-        '''Set Digital mode
+        """Set Digital mode.
 
         Parameters
         -----------
@@ -295,8 +301,8 @@ class Qmass():
             default: 5
         pressure_range: int
             default 4: (E-11)
-        '''
 
+        """
         command0 = '00 e4 00 00 02 02 '
         if self.multiplier:
             command_pressure = '02 {:02x} '.format(self.pressure_range)
@@ -323,7 +329,7 @@ class Qmass():
         return 1
 
     def leak_check(self):
-        '''Set Leak check mode
+        """Set Leak check mode.
 
         Mass offset canbe set. But not supported yet.
 
@@ -335,7 +341,8 @@ class Qmass():
             default: 5
         pressure_range: int
             default 4: (E-11)
-        '''
+
+        """
         command0 = '00 e4 00 00 02 04 '
         if self.multiplier:
             command_pressure = '02 {:02x} '.format(self.pressure_range)
@@ -385,7 +392,7 @@ class Qmass():
         self.f_save.write(header)
 
     def convert_mbar(self, data):
-        '''Convert pressure (mbar) from byte data
+        """Convert pressure (mbar) from byte data.
 
         Parameter
         ---------
@@ -396,20 +403,24 @@ class Qmass():
         ------
         float
             Pressure data
-        '''
+
+        """
         if data[0] == 0x7f:
             return 0.0
         return (data[1] * 1.216 + (data[2] - 64) * 0.019) * 1E-12
 
     def single_scan(self):
-        '''Single scan.  In analog and digital modes, measure
+        """Single scan.
+
+        In analog and digital modes, measure
         the mass spectrum.  In leak check mode, single scan means
         128 times measurement.
 
         Return
         ------
         data: list
-        '''
+
+        """
         log_fmt = '{:02x} {:02x} {:02x} Pres.: {:.2e} {:5.2f} {}'
         save_fmt = '{:5.3f}\t{:.5e}\n'
         leak_check_fmt = 'Pressure:{:.3e}: {}'
@@ -512,31 +523,38 @@ class Qmass():
         time.sleep(1)
 
     def set_start_mass(self, start_mass=4):
-        '''Set start mass
+        """Set start mass.
 
         Parameters
         -----------
         start_mass: int
             start mass
-        '''
+
+        """
         command = '23 {:02} 00'.format(start_mass - 1)
         self.start_mass = start_mass
         self.com.write(bytes.fromhex(command))
 
     def set_mass_span(self, mass_span=0):
-        '''Set mass range
+        """Set mass range.
 
         Parameters
         -----------
         mass_range: int
             mass range: 0: 4, 1:  , 2:  , 3:  4:...
 
-        '''
+        """
         pass
 
     def fil_on(self, fil_no=1):
-        '''Filament on
-        '''
+        """Filament on.
+
+        Parameters
+        -----------
+        fil_no: int
+            Filament # (1 or 2: default 1)
+
+        """
         if not self.filament:
             if fil_no == 1:
                 self.com.write(b'\xe3\x48')
@@ -560,8 +578,7 @@ class Qmass():
             raise ValueError
 
     def fil_off(self):
-        '''Filament off
-        '''
+        """Filament off."""
         if self.multiplier:
             self.multiplier_off()
         self.com.write(b'\xe3\x40')
@@ -570,13 +587,13 @@ class Qmass():
         self.filament = False
 
     def multiplier_on(self):
-        '''multiplier on'''
+        """Multiplier on."""
         self.com.write(b'\x20\x02\x00')
         logger.debug('Multiplier ON')
         self.multiplier = True
 
     def multiplier_off(self):
-        '''multiplier off'''
+        """Multiplier off."""
         self.com.write(b'\x20\x00\x00')
         time.sleep(.5)
         data_to_read = self.com.in_waiting
