@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
+"""Multi channel (7 ch for Voltage, 4 ch for temperature)"""
+
+import ambient
+from multiprocessing import Process
+import argparse
+from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO, WARN
+import datetime
+from time import sleep
+from PiPyADC.pipyadc import ADS1256
+from PiPyADC.ADS1256_definitions import *
+import PiPyADC.pipyadc
+import matplotlib.pyplot as plt
 from Adafruit_MAX31856 import max31856
 import matplotlib
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-'''Multi channel (7 ch for Voltage, 4 ch for temperature)'''
-import PiPyADC.pipyadc
-from PiPyADC.ADS1256_definitions import *
-from PiPyADC.pipyadc import ADS1256
-from time import sleep
-import datetime
-from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO, WARN
-import argparse
-from multiprocessing import Process
 #
 
 # logger
@@ -27,45 +29,45 @@ logger.addHandler(handler)
 logger.propagate = False
 
 # Input pin for the potentiometer on the Waveshare Precision ADC board:
-EXT0 = POS_AIN0|NEG_AINCOM
+EXT0 = POS_AIN0 | NEG_AINCOM
 # Light dependant resistor of the same board:
-EXT1 = POS_AIN1|NEG_AINCOM
+EXT1 = POS_AIN1 | NEG_AINCOM
 # The other external input screw terminals of the Waveshare board:
-EXT2, EXT3, EXT4 = POS_AIN2|NEG_AINCOM, POS_AIN3|NEG_AINCOM, POS_AIN4|NEG_AINCOM
-EXT5, EXT6, EXT7 = POS_AIN5|NEG_AINCOM, POS_AIN6|NEG_AINCOM, POS_AIN7|NEG_AINCOM
+EXT2, EXT3, EXT4 = POS_AIN2 | NEG_AINCOM, POS_AIN3 | NEG_AINCOM, POS_AIN4 | NEG_AINCOM
+EXT5, EXT6, EXT7 = POS_AIN5 | NEG_AINCOM, POS_AIN6 | NEG_AINCOM, POS_AIN7 | NEG_AINCOM
 
 # You can connect any pin as well to the positive as to the negative ADC input.
 # The following reads the voltage of the potentiometer with negative polarity.
 # The ADC reading should be identical to that of the POTI channel, but negative.
-POTI_INVERTED = POS_AINCOM|NEG_AIN0
+POTI_INVERTED = POS_AINCOM | NEG_AIN0
 
 # For fun, connect both ADC inputs to the same physical input pin.
 # The ADC should always read a value close to zero for this.
-SHORT_CIRCUIT = POS_AIN0|NEG_AIN0
+SHORT_CIRCUIT = POS_AIN0 | NEG_AIN0
 
 # Specify here an arbitrary length list (tuple) of arbitrary input channel pair
 # eight-bit code values to scan sequentially from index 0 to last.
 # Eight channels fit on the screen nicely for this example..
 CH_SEQUENCE = (EXT1, EXT2, EXT5, EXT6, EXT7)
-################################################################################j
+# j
 
 
 def pressure(volt):
-    '''Return the pressure (mbar) from the monitor voltage'''
+    """Return the pressure (mbar) from the monitor voltage."""
     exponent = int(volt) - 11
     mantissa = (((volt - int(volt)) + .1) / .11) * 1.33322
     return mantissa * 10**exponent
 
-def read_temperatures():
-    '''Return temperatue data.
 
-    '''
+def read_temperatures():
+    """Return temperatue data."""
     external = [thermos[i].read_temp_c() for i in range(4)]
     internal = [thermos[i].read_internal_temp_c() for i in range(4)]
     ret = []
     for i in range(4):
         ret.append((external[i], internal[i]))
     return ret
+
 
 save_fmt = '{}\t{:6.3f}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 save_fmt += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
@@ -80,10 +82,10 @@ def read_and_save():
     '''
     raw_channels = adda.read_sequence(CH_SEQUENCE)
     # 1.004543 should be tuned.
-    voltages = [(i * adda.v_per_digit) for i in raw_channels] 
+    voltages = [(i * adda.v_per_digit) for i in raw_channels]
     temperatures = read_temperatures()
-    ana_pres = pressure((voltages[0] + 0.000140)/0.33467111)
-    prep_pres = pressure((voltages[1] + 0.000140)/0.335202222)
+    ana_pres = pressure((voltages[0] + 0.000140) / 0.33467111)
+    prep_pres = pressure((voltages[1] + 0.000140) / 0.335202222)
     # port3 (voltage(port3) + 0.000140 ) / 0.335008777
     # port4 (voltage(port4) + 0.000140 ) / 0.334730222
     v3 = voltages[2]
@@ -96,8 +98,10 @@ def read_and_save():
         logger.info(temp_fmt.format(i,
                                     temperatures[i][0],
                                     temperatures[i][1]))
-    logger.debug('Analysis corrected V: {:9.7f} V'.format((voltages[0] + 0.000140)/0.33467111))
-    logger.debug('Preparation corrected V: {:9.7f} V'.format((voltages[1] + 0.000140)/0.335202222))
+    logger.debug('Analysis corrected V: {:9.7f} V'.format(
+        (voltages[0] + 0.000140) / 0.33467111))
+    logger.debug('Preparation corrected V: {:9.7f} V'.format(
+        (voltages[1] + 0.000140) / 0.335202222))
     logger.info('Analysis: ' + pressure_fmt.format(ana_pres))
     logger.info('Preparation: ' + pressure_fmt.format(prep_pres))
     logger.info('Voltage-3:' + voltage_fmt.format(v3))
@@ -119,10 +123,27 @@ def read_and_save():
             ana_pres, prep_pres, v3, v4, v5)
 
 
+def send2ambient(data):
+    """Send pressure data to Ambient."""
+    channelID = '8775'
+    readkey = '6396addf4ce692fa'
+    writekey = '18c9d6f2a7824fa1'
+    userkey = '5541fb66d3f9f20dd6'
+    am = ambient.Ambient(channelID, writekey, readkey, userkey)
+    r = am.send({'created': data[0], 'd1': data[1], 'd2': data[2]})
+
+
 def draw_graphs(data):
-    """1st column が datetime オブジェクトの2Dデータを読み込んでグラフにする。"""
-#    for i in range(10):
-#        logger.debug('len(data[{}]) is {}'.format(i, data[i]))
+    """Draw graph.
+
+    Parameters
+    ----------
+    data: list
+        2D-list. The first column should be datetime object.
+
+    """
+    #    for i in range(10):
+    #        logger.debug('len(data[{}]) is {}'.format(i, data[i]))
     fig = plt.figure(figsize=(15, 10))
     #
     ax1 = fig.add_subplot(221)
@@ -181,15 +202,12 @@ parser.add_argument('--logfile',
 args = parser.parse_args()
 if args.logfile:
     logfile = open(args.logfile, mode='w')
-    logfile.write('#date\tT1\tT2\tT3\tT4\t\Pressure(A)\tPressure(P)\t')
+    logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
     logfile.write('v3\tv4\v5\n')
 else:
     logfile = open('log.txt', mode='w+')
 
-data = [[],
-        [], [], [], [],
-        [], [],
-        [], [], []]
+data = [[] for i in range(10)]
 maxdatalength = 300
 drawevery = 5  # seconds
 sleepingtime = 1  # seconds
@@ -204,6 +222,10 @@ try:
         if now.second % drawevery == 0:
             p = Process(target=draw_graphs, args=(data,))
             p.start()
+        if now.seccond == 0:
+            sendata = (data[0].strftime('%Y-%m-%d %H:%M:%S'), data[5], data[6])
+            p2 = Process(send2ambient, target=(senddata))
+            p2.start()
         sleep(sleepingtime)
 except KeyboardInterrupt:
     logfile.close()
