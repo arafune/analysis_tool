@@ -49,7 +49,7 @@ SHORT_CIRCUIT = POS_AIN0 | NEG_AIN0
 # eight-bit code values to scan sequentially from index 0 to last.
 # Eight channels fit on the screen nicely for this example..
 CH_SEQUENCE = (EXT1, EXT2, EXT5, EXT6, EXT7)
-# j
+#################################################################
 
 
 def pressure(volt):
