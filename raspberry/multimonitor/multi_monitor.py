@@ -78,8 +78,7 @@ html_fmt += '{:6.3f} V, {:6.3f} V, {:6.3f}V\n'
 
 
 def read_and_save():
-    '''Read the values and save them
-    '''
+    """Read the values and save them."""
     raw_channels = adda.read_sequence(CH_SEQUENCE)
     # 1.004543 should be tuned.
     voltages = [(i * adda.v_per_digit) for i in raw_channels]
@@ -130,7 +129,7 @@ def send2ambient(data):
     writekey = '18c9d6f2a7824fa1'
     userkey = '5541fb66d3f9f20dd6'
     am = ambient.Ambient(channelID, writekey, readkey, userkey)
-    r = am.send({'created': data[0], 'd1': data[1], 'd2': data[2]})
+    am.send({'created': data[0], 'd1': data[1], 'd2': data[2]})
 
 
 def draw_graphs(data):
@@ -223,7 +222,8 @@ try:
             p = Process(target=draw_graphs, args=(data,))
             p.start()
         if now.seccond == 0:
-            sendata = (data[0].strftime('%Y-%m-%d %H:%M:%S'), data[5], data[6])
+            senddata = (data[0].strftime(
+                '%Y-%m-%d %H:%M:%S'), data[5], data[6])
             p2 = Process(send2ambient, target=(senddata))
             p2.start()
         sleep(sleepingtime)
