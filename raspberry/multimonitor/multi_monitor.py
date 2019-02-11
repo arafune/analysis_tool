@@ -53,7 +53,7 @@ CH_SEQUENCE = (EXT1, EXT2, EXT5, EXT6, EXT7)
 def pressure(volt):
     '''Return the pressure (mbar) from the monitor voltage'''
     exponent = int(volt) - 11
-    mantissa = ((volt - int(volt)) + .1) / .11
+    mantissa = (((volt - int(volt)) + .1) / .11) * 1.33322
     return mantissa * 10**exponent
 
 def read_temperatures():
@@ -96,6 +96,8 @@ def read_and_save():
         logger.info(temp_fmt.format(i,
                                     temperatures[i][0],
                                     temperatures[i][1]))
+    logger.debug('Analysis corrected V: {:9.7f} V'.format((voltages[0] + 0.000140)/0.33467111))
+    logger.debug('Preparation corrected V: {:9.7f} V'.format((voltages[1] + 0.000140)/0.335202222))
     logger.info('Analysis: ' + pressure_fmt.format(ana_pres))
     logger.info('Preparation: ' + pressure_fmt.format(prep_pres))
     logger.info('Voltage-3:' + voltage_fmt.format(v3))
@@ -119,8 +121,8 @@ def read_and_save():
 
 def draw_graphs(data):
     """1st column が datetime オブジェクトの2Dデータを読み込んでグラフにする。"""
-    for i in range(10):
-        logger.debug('len(data[{}]) is {}'.format(i, data[i]))
+#    for i in range(10):
+#        logger.debug('len(data[{}]) is {}'.format(i, data[i]))
     fig = plt.figure(figsize=(15, 10))
     #
     ax1 = fig.add_subplot(221)
