@@ -15,7 +15,7 @@ from multiprocessing import Process
 #
 
 # logger
-LOGLEVEL = DEBUG
+LOGLEVEL = WARN
 logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
 formatter = Formatter(fmt)
@@ -79,7 +79,8 @@ def read_and_save():
     '''Read the values and save them
     '''
     raw_channels = adda.read_sequence(CH_SEQUENCE)
-    voltages = [i * adda.v_per_digit for i in raw_channels]
+    # 1.004543 should be tuned.
+    voltages = [(i * adda.v_per_digit)/1.004543 for i in raw_channels] 
     temperatures = read_temperatures()
     ana_pres = pressure(voltages[0])
     prep_pres = pressure(voltages[1])
