@@ -84,6 +84,7 @@ class Qmass():
         self.com = serial.Serial(port=port, baudrate=9600, xonxoff=True,
                                  parity=serial.PARITY_NONE,
                                  stopbits=serial.STOPBITS_ONE)
+        logger.debug('__init__() ends')
 
     def boot(self):
         """Boot Microvision plus."""
@@ -92,10 +93,12 @@ class Qmass():
         #
         self.com.write(b'$$$$$$$$$$')
         self.com.write(b'{000D,10:1FB6')
-        time.sleep(0.2)
+        time.sleep(1.5)
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
+            time.sleep(0.3)
             data_to_read = self.com.in_waiting
+            logger.debug('data_to_read {}'.format(data_to_read))
         logger.debug(self.com.read(data_to_read))
         # b'~LM76-00499001,001a,2:0ed1'
         self.com.write(b'}LM76-00499001,001A,5:1660')
@@ -445,10 +448,12 @@ class Qmass():
                 time.sleep(0.1)
                 data_to_read = self.com.in_waiting
             self.buffer.extend(self.com.read(data_to_read))
+            logger.debug('type of self.buffer {}, self.buffer {}'.format(type(self.buffer), self.buffer))
             while len(self.buffer) > 2 or i > 127:
                 buf3bytes = []
                 for _ in range(3):
                     a_byte = self.buffer.pop(0)
+                    logger.debug('type of a_byte is {}, a_byte {}'.format(type(a_byte), a_byte))
                 if b'\xf4' in a_byte:
                     break
                 buf3bytes.append(a_byte)
@@ -645,7 +650,7 @@ NOTE: あとでちゃんと書く。""")
                                                              args.range))
     logger.debug('savefile: {}, args.output: {}'.format(savefile,
                                                         args.output))
-    port = '/dev/ttyUSB1'
+    port = '/dev/ttyUSB0'
     q_mass = Qmass(port=port, mode=mode_select, init=start_mass,
                    p_range=pressure_range, accuracy=accuracy, span=mass_span,
                    output=savefile)
