@@ -439,6 +439,7 @@ class Qmass():
         logger.debug('Sanning starts...')
         scan_start_command = bytes.fromhex('b6')
         i = 0
+        a_byte = ""
         #
         self.buffer = bytearray(b'')
         self.com.write(scan_start_command)
@@ -448,12 +449,14 @@ class Qmass():
                 time.sleep(0.1)
                 data_to_read = self.com.in_waiting
             self.buffer.extend(self.com.read(data_to_read))
-            logger.debug('type of self.buffer {}, self.buffer {}'.format(type(self.buffer), self.buffer))
+            logger.debug('type of self.buffer {}, self.buffer {}'.format(
+                type(self.buffer), self.buffer))
             while len(self.buffer) > 2 or i > 127:
                 buf3bytes = []
                 for _ in range(3):
                     a_byte = self.buffer.pop(0)
-                    logger.debug('type of a_byte is {}, a_byte {}'.format(type(a_byte), a_byte))
+                    logger.debug('type of a_byte is {}, a_byte {}'.format(
+                        type(a_byte), a_byte))
                 if b'\xf4' in a_byte:
                     break
                 buf3bytes.append(a_byte)
