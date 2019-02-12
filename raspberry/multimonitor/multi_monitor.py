@@ -72,7 +72,7 @@ def read_temperatures():
 save_fmt = '{}\t{:6.3f}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 save_fmt += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
 html_fmt = '{} <br>\n'
-html_fmt += '{:6.3f} C, {:6.3f} C, {:6.3f} C,{:6.3f} C <br>\n'
+html_fmt += '{:6.3f} C, {:6.3f} C, {:6.3f} C, {:6.3f} C <br>\n'
 html_fmt += '{:.3E} mbar (A), {:.3E} mbar (Prep)<br>\n'
 html_fmt += '{:6.3f} V, {:6.3f} V, {:6.3f}V\n'
 
@@ -175,7 +175,6 @@ def draw_graphs(data):
     ax3.set_ylabel('Voltage  (V)')
     ax3.legend(loc=2)
     #
-    #
     plt.subplots_adjust(top=0.98, right=0.98, left=0.05, bottom=0.05,
                         wspace=.1)
     plt.savefig('Logdata.png')
@@ -208,6 +207,8 @@ if args.logfile:
     logfile.write('v3\tv4\v5\n')
 else:
     logfile = open('log.txt', mode='w+')
+    logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
+    logfile.write('v3\tv4\v5\n')
 
 data = [[] for i in range(10)]
 maxdatalength = 300
