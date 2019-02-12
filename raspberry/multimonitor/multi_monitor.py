@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Multi channel (7 ch for Voltage, 4 ch for temperature)"""
 
+import matplotlib
+matplotlib.use('Agg')
 import ambient
 from multiprocessing import Process
 import argparse
@@ -12,12 +14,10 @@ from PiPyADC.ADS1256_definitions import *
 import PiPyADC.pipyadc
 import matplotlib.pyplot as plt
 from Adafruit_MAX31856 import max31856
-import matplotlib
-matplotlib.use('Agg')
 #
 
 # logger
-LOGLEVEL = DEBUG
+LOGLEVEL = WARN
 logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
 formatter = Formatter(fmt)
@@ -83,8 +83,11 @@ def read_and_save():
     # 1.004543 should be tuned.
     voltages = [(i * adda.v_per_digit) for i in raw_channels]
     temperatures = read_temperatures()
-    ana_pres = pressure((voltages[0] + 0.000140) / 0.33467111)
-    prep_pres = pressure((voltages[1] + 0.000140) / 0.335202222)
+    ana_pres = pressure((voltages[0] + 0.000140) / 0.32354472361)
+    prep_pres = pressure((voltages[1] + 0.000140) / 0.32441316526)
+    # calibrate by using ADVANTEST
+    #ana_pres = pressure((voltages[0] + 0.000140) / 0.33467111)
+    #prep_pres = pressure((voltages[1] + 0.000140) / 0.335202222)
     # port3 (voltage(port3) + 0.000140 ) / 0.335008777
     # port4 (voltage(port4) + 0.000140 ) / 0.334730222
     v3 = voltages[2]
@@ -221,10 +224,13 @@ try:
         if now.second % drawevery == 0:
             p = Process(target=draw_graphs, args=(data,))
             p.start()
-        if now.seccond == 0:
-            senddata = (data[0].strftime(
-                '%Y-%m-%d %H:%M:%S'), data[5], data[6])
-            p2 = Process(send2ambient, target=(senddata))
+        if now.second == 0:
+            logger.debug('type a_read[0] {}'.format(type(a_read[0])))
+            logger.debug('a_read[0] {}'.format(a_read[0]))
+            senddata = (a_read[0].strftime(
+                '%Y-%m-%d %H:%M:%S'), a_read[5], a_read[6])
+            p2 = Process(target=send2ambient, args=(senddata,))
+            logger.debug('send_data: {}, {}, {}'.format(senddata[0], senddata[1], senddata[2]))
             p2.start()
         sleep(sleepingtime)
 except KeyboardInterrupt:
