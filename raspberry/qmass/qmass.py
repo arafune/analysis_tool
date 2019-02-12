@@ -444,7 +444,8 @@ class Qmass():
         #
         self.buffer = bytearray(b'')
         self.com.write(scan_start_command)
-        while True:
+        running = True
+        while running:
             data_to_read = self.com.in_waiting
             while data_to_read == 0:
                 time.sleep(0.1)
@@ -459,10 +460,13 @@ class Qmass():
                         type(a_byte), a_byte))
                     buf3bytes.append(a_byte)
                 if b'\xf4' == a_byte:
+                    running = False
                     break   # normal end
                 if b'\xf0' == buf3bytes[2]:
+                    running = False
                     break
-                logger.debug('type of buf3bytes is {}, buf3bytes {}'.format(type(buf3bytes), buf3bytes))
+                logger.debug('type of buf3bytes is {}, buf3bytes {}'.format(
+                    type(buf3bytes), buf3bytes))
                 pressure = self.convert_mbar(buf3bytes)
                 if self.mode < 2:  # analog or digital mode
                     logger.debug(
@@ -484,10 +488,7 @@ class Qmass():
                     i += 1
                 for _ in range(3):
                     buf3bytes.pop(0)
-            if len(buf3bytes)==3 and b'\xf4' == buf3bytes[2]:
-                break
-            if b'\xf4' == a_byte or i > 127:
-                break
+            logger.debug('last buf3bytes is {}'.format(bus3bytes))
         return data
 
     def record(self, data):
