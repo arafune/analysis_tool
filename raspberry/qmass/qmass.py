@@ -439,7 +439,8 @@ class Qmass():
         logger.debug('Sanning starts...')
         scan_start_command = bytes.fromhex('b6')
         i = 0
-        a_byte = ""
+        a_byte = b""
+        buf3bytes = []
         #
         self.buffer = bytearray(b'')
         self.com.write(scan_start_command)
@@ -452,14 +453,16 @@ class Qmass():
             logger.debug('type of self.buffer {}, self.buffer {}'.format(
                 type(self.buffer), self.buffer))
             while len(self.buffer) > 2 or i > 127:
-                buf3bytes = []
                 for _ in range(3):
                     a_byte = self.buffer.pop(0)
                     logger.debug('type of a_byte is {}, a_byte {}'.format(
                         type(a_byte), a_byte))
-                if b'\xf4' in a_byte:
+                    buf3bytes.append(a_byte)
+                if b'\xf4' == a_byte:
+                    break   # normal end
+                if b'\xf0' == buf3bytes[2]:
                     break
-                buf3bytes.append(a_byte)
+                logger.debug('type of buf3bytes is {}, buf3bytes {}'.format(type(buf3bytes), buf3bytes))
                 pressure = self.convert_mbar(buf3bytes)
                 if self.mode < 2:  # analog or digital mode
                     logger.debug(
@@ -479,7 +482,11 @@ class Qmass():
                     a_data = '{}\t{:.3e}\n'.format(now, pressure)
                     data.append(a_data)
                     i += 1
-            if b'\xf4' in a_byte or i > 127:
+                for _ in range(3):
+                    buf3bytes.pop(0)
+            if len(buf3bytes)==3 and b'\xf4' == buf3bytes[2]:
+                break
+            if b'\xf4' == a_byte or i > 127:
                 break
         return data
 
