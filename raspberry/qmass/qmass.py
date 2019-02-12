@@ -7,12 +7,13 @@ from logging import getLogger, StreamHandler, DEBUG, Formatter
 import serial
 
 # logger
+LOGLEVEL = DEBUG
 logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
 formatter = Formatter(fmt)
 handler = StreamHandler()
-handler.setLevel(DEBUG)
-logger.setLevel(DEBUG)
+handler.setLevel(LOGLEVEL)
+logger.setLevel(LOGLEVEL)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
@@ -96,7 +97,7 @@ class Qmass():
         time.sleep(1.5)
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
-            time.sleep(0.3)
+            time.sleep(0.2)
             data_to_read = self.com.in_waiting
             logger.debug('data_to_read {}'.format(data_to_read))
         logger.debug(self.com.read(data_to_read))
@@ -105,6 +106,7 @@ class Qmass():
         time.sleep(.2)
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
+            time.sleep(0.2)
             data_to_read = self.com.in_waiting
         logger.debug(self.com.read(data_to_read))
         # b'~LM76-00499001,0025,3,1,V1.51a,0:262a'
@@ -112,6 +114,7 @@ class Qmass():
         time.sleep(.2)
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
+            time.sleep(0.2)
             data_to_read = self.com.in_waiting
         logger.debug(self.com.read(data_to_read))
         # b'~LM76-00499001,001a,2:0ed1'
@@ -119,6 +122,7 @@ class Qmass():
         time.sleep(.2)
         data_to_read = self.com.in_waiting
         while data_to_read == 0:
+            time.sleep(.2)
             data_to_read = self.com.in_waiting
         logger.debug(self.com.read(data_to_read))
         # b'~LM76-00499001,001c,6,0:daad'
@@ -187,14 +191,14 @@ class Qmass():
         # 8f 05 21 0d 4c 4d 37 36 2d 30 30 34 39 39 30 30 31 00 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff 8e
         self.com.write(bytes.fromhex('e6 80 00'))
         self.com.timeout = None
-        logger.debug('Microvision initialized')
+        logger.info('Microvision initialized')
         time.sleep(1)
 
     def exit(self):
         """Close Microvision plus."""
         self.com.write(b'\x00\xaf')
         end = self.com.read(1)  # 0x86
-        logger.debug('End: should be 0x86 :{}'.format(end))
+        logger.info('End: should be 0x86 :{}'.format(end))
         self.com.write(b'\xe2')
         self.com.close()
 
@@ -460,11 +464,12 @@ class Qmass():
                         type(a_byte), a_byte))
                     buf3bytes.append(a_byte)
                 if a_byte == 0xf4:
-                    logger.debug('Scannend byte "0xf4" detected')
+                    logger.debug('Scan end signal "0xf4" detected')
                     running = False
                     break   # normal end
                 if buf3bytes[2] == 0xf0:
-                    logger.debug('The last byte ov the buf3bytes is 0xf0(240). Scan fails.')
+                    logger.debug(
+                        'buf3bytes[2] is 0xf0(240). Scan fails.')
                     running = False
                     break
                 logger.debug('type of buf3bytes is {}, buf3bytes {}'.format(
@@ -494,7 +499,7 @@ class Qmass():
                     break
                 for _ in range(3):
                     buf3bytes.pop(0)
-        logger.debug('last buf3bytes is {}'.format(buf3bytes))
+        logger.debug('Last buf3bytes is {}'.format(buf3bytes))
         logger.debug('data is :{}'.format(data))
         return data
 
@@ -656,18 +661,18 @@ NOTE: あとでちゃんと書く。""")
     accuracy = args.accuracy
     pressure_range = args.range
     savefile = args.output
-    logger.debug('mode_select: {}, args.mode: {}'.format(mode_select,
-                                                         args.mode))
-    logger.debug('start_mass: {}, args.init: {}'.format(start_mass,
-                                                        args.init))
-    logger.debug('mass_span: {}, args.span: {}'.format(mass_span,
-                                                       args.span))
-    logger.debug('accuracy: {}, args.accuracy: {}'.format(accuracy,
-                                                          args.accuracy))
-    logger.debug('pressure_range: {}, args.range: {}'.format(pressure_range,
-                                                             args.range))
-    logger.debug('savefile: {}, args.output: {}'.format(savefile,
-                                                        args.output))
+    logger.info('mode_select: {}, args.mode: {}'.format(mode_select,
+                                                        args.mode))
+    logger.info('start_mass: {}, args.init: {}'.format(start_mass,
+                                                       args.init))
+    logger.info('mass_span: {}, args.span: {}'.format(mass_span,
+                                                      args.span))
+    logger.info('accuracy: {}, args.accuracy: {}'.format(accuracy,
+                                                         args.accuracy))
+    logger.info('pressure_range: {}, args.range: {}'.format(pressure_range,
+                                                            args.range))
+    logger.info('savefile: {}, args.output: {}'.format(savefile,
+                                                       args.output))
     port = '/dev/ttyUSB0'
     q_mass = Qmass(port=port, mode=mode_select, init=start_mass,
                    p_range=pressure_range, accuracy=accuracy, span=mass_span,
