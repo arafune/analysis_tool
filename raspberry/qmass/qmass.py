@@ -453,7 +453,7 @@ class Qmass():
             self.buffer.extend(self.com.read(data_to_read))
             logger.debug('type of self.buffer {}, self.buffer {}'.format(
                 type(self.buffer), self.buffer))
-            while len(self.buffer) > 2 or i > 127:
+            while len(self.buffer) > 2:
                 for _ in range(3):
                     a_byte = self.buffer.pop(0)
                     logger.debug('type of a_byte is {}, a_byte {}'.format(
@@ -487,10 +487,15 @@ class Qmass():
                                                      '%Y-%m-%d %H:%M:%S.%f')
                     a_data = '{}\t{:.3e}\n'.format(now, pressure)
                     data.append(a_data)
+                    logger.debug('iterate {}'.format(i))
                     i += 1
+                if i == 128:
+                    running = False
+                    break
                 for _ in range(3):
                     buf3bytes.pop(0)
         logger.debug('last buf3bytes is {}'.format(buf3bytes))
+        logger.debug('data is :{}'.format(data))
         return data
 
     def record(self, data):
