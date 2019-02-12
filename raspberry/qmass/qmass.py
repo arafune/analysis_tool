@@ -689,8 +689,9 @@ NOTE: あとでちゃんと書く。""")
     q_mass.multiplier_on()
     q_mass.set_mode()
     try:
-        data = q_mass.single_scan()
-        q_mass.record(data)
+        while True:
+            data = q_mass.single_scan()
+            q_mass.record(data)
     except KeyboardInterrupt:
         q_mass.terminate_scan()
     q_mass.multiplier_off()
