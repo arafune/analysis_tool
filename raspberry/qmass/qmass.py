@@ -459,10 +459,12 @@ class Qmass():
                     logger.debug('type of a_byte is {}, a_byte {}'.format(
                         type(a_byte), a_byte))
                     buf3bytes.append(a_byte)
-                if b'\xf4' == a_byte:
+                if a_byte == 0xf4:
+                    logger.debug('Scannend byte "0xf4" detected')
                     running = False
                     break   # normal end
-                if b'\xf0' == buf3bytes[2]:
+                if buf3bytes[2] == 0xf0:
+                    logger.debug('The last byte ov the buf3bytes is 0xf0(240). Scan fails.')
                     running = False
                     break
                 logger.debug('type of buf3bytes is {}, buf3bytes {}'.format(
@@ -488,7 +490,7 @@ class Qmass():
                     i += 1
                 for _ in range(3):
                     buf3bytes.pop(0)
-            logger.debug('last buf3bytes is {}'.format(bus3bytes))
+        logger.debug('last buf3bytes is {}'.format(buf3bytes))
         return data
 
     def record(self, data):
