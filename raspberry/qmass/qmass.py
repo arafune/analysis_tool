@@ -499,6 +499,11 @@ class Qmass():
                     break
                 for _ in range(3):
                     buf3bytes.pop(0)
+        if buf3bytes[2] == 0xf0:
+            logger.debug(
+                'buf3bytes[2] is 0xf0(240). Scan fails.')
+            running = False
+            data = []
         logger.debug('Last buf3bytes is {}'.format(buf3bytes))
         logger.debug('data is :{}'.format(data))
         return data
@@ -512,6 +517,8 @@ class Qmass():
             Data to save
 
         """
+        if not data:
+            return False
         if self.f_save:
             self.f_save.writelines(data)
             self.f_save.write('\n')
