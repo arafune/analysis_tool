@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 import random
-from Adafruit_MAX31856 import max31856
 import matplotlib.pyplot as plt
-import PiPyADC.pipyadc
-from PiPyADC.ADS1256_definitions import *
-from PiPyADC.pipyadc import ADS1256
+try:
+    from Adafruit_MAX31856 import max31856
+    import PiPyADC.pipyadc
+    from PiPyADC.ADS1256_definitions import *
+    from PiPyADC.pipyadc import ADS1256
+    import ambient
+except ModuleNotFoundError:
+    print("Not found max31856 and/or PiPyADC module. Use -dummy")
 from time import sleep
 import datetime
 from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO, WARN
 import argparse
 from multiprocessing import Process
-import ambient
 """Multi channel (7 ch for Voltage, 4 ch for temperature)"""
 
 import matplotlib
@@ -29,29 +32,32 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
 
-# Input pin for the potentiometer on the Waveshare Precision ADC board:
-EXT0 = POS_AIN0 | NEG_AINCOM
-# Light dependant resistor of the same board:
-EXT1 = POS_AIN1 | NEG_AINCOM
-# The other external input screw terminals of the Waveshare board:
-EXT2, EXT3, EXT4 = POS_AIN2 | NEG_AINCOM, POS_AIN3 | NEG_AINCOM, POS_AIN4 | NEG_AINCOM
-EXT5, EXT6, EXT7 = POS_AIN5 | NEG_AINCOM, POS_AIN6 | NEG_AINCOM, POS_AIN7 | NEG_AINCOM
 
-# You can connect any pin as well to the positive as to the negative ADC input.
-# The following reads the voltage of the potentiometer with negative polarity.
-# The ADC reading should be identical to that of the POTI channel, but negative.
-POTI_INVERTED = POS_AINCOM | NEG_AIN0
-
-# For fun, connect both ADC inputs to the same physical input pin.
-# The ADC should always read a value close to zero for this.
-SHORT_CIRCUIT = POS_AIN0 | NEG_AIN0
-
-# Specify here an arbitrary length list (tuple) of arbitrary input channel pair
-# eight-bit code values to scan sequentially from index 0 to last.
-# Eight channels fit on the screen nicely for this example..
-CH_SEQUENCE = (EXT1, EXT2, EXT5, EXT6, EXT7)
-#################################################################
-
+try:
+    # Input pin for the potentiometer on the Waveshare Precision ADC board:
+    EXT0 = POS_AIN0 | NEG_AINCOM
+    # Light dependant resistor of the same board:
+    EXT1 = POS_AIN1 | NEG_AINCOM
+    # The other external input screw terminals of the Waveshare board:
+    EXT2, EXT3, EXT4 = POS_AIN2 | NEG_AINCOM, POS_AIN3 | NEG_AINCOM, POS_AIN4 | NEG_AINCOM
+    EXT5, EXT6, EXT7 = POS_AIN5 | NEG_AINCOM, POS_AIN6 | NEG_AINCOM, POS_AIN7 | NEG_AINCOM
+    
+    # You can connect any pin as well to the positive as to the negative ADC input.
+    # The following reads the voltage of the potentiometer with negative polarity.
+    # The ADC reading should be identical to that of the POTI channel, but negative.
+    POTI_INVERTED = POS_AINCOM | NEG_AIN0
+    
+    # For fun, connect both ADC inputs to the same physical input pin.
+    # The ADC should always read a value close to zero for this.
+    SHORT_CIRCUIT = POS_AIN0 | NEG_AIN0
+    
+    # Specify here an arbitrary length list (tuple) of arbitrary input channel pair
+    # eight-bit code values to scan sequentially from index 0 to last.
+    # Eight channels fit on the screen nicely for this example..
+    CH_SEQUENCE = (EXT1, EXT2, EXT5, EXT6, EXT7)
+    #################################################################
+except NameError:
+    print("Not found PiPyADC module Use -dummy")
 
 def read_dummy(n_ch):
     """Return random data.
@@ -196,17 +202,6 @@ def draw_graphs(data):
 
 
 if __name__ == "__main__":
-    adda = ADS1256()
-    adda.cal_self()
-    thermos = [max31856.MAX31856(software_spi={'clk': 25, 'cs': 14,
-                                               'do': 8, 'di': 7}),
-               max31856.MAX31856(software_spi={'clk': 25, 'cs': 15,
-                                               'do': 8, 'di': 7}),
-               max31856.MAX31856(software_spi={'clk': 25, 'cs': 16,
-                                               'do': 8, 'di': 7}),
-               max31856.MAX31856(software_spi={'clk': 25, 'cs': 21,
-                                               'do': 8, 'di': 7})]
-
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="""
@@ -215,10 +210,24 @@ if __name__ == "__main__":
                         type=str, default=None,
                         help='''Log filename''')
     parser.add_argument('--dummy',
-                        type=Boolean, default=False,
+                        action='store_true', default=False,
                         help='''Use dummy data''')
     args = parser.parse_args()
-
+#
+    try:
+        adda = ADS1256()
+        adda.cal_self()
+        thermos = [max31856.MAX31856(software_spi={'clk': 25, 'cs': 14,
+                                                   'do': 8, 'di': 7}),
+                   max31856.MAX31856(software_spi={'clk': 25, 'cs': 15,
+                                                   'do': 8, 'di': 7}),
+                   max31856.MAX31856(software_spi={'clk': 25, 'cs': 16,
+                                                   'do': 8, 'di': 7}),
+                   max31856.MAX31856(software_spi={'clk': 25, 'cs': 21,
+                                                   'do': 8, 'di': 7})]
+    except NameError:
+        pass
+#
     if args.logfile and not args.dummy:
         logfile = open(args.logfile, mode='w')
         logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
@@ -245,7 +254,7 @@ if __name__ == "__main__":
             if now.second % drawevery == 0:
                 p = Process(target=draw_graphs, args=(data,))
                 p.start()
-            if now.second == 0 and if not dummy:
+            if now.second == 0 and not args.dummy:
                 logger.debug('type a_read[0] {}'.format(type(a_read[0])))
                 logger.debug('a_read[0] {}'.format(a_read[0]))
                 senddata = (a_read[0].strftime(
