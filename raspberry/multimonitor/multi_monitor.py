@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
+import random
+from Adafruit_MAX31856 import max31856
+import matplotlib.pyplot as plt
+import PiPyADC.pipyadc
+from PiPyADC.ADS1256_definitions import *
+from PiPyADC.pipyadc import ADS1256
+from time import sleep
+import datetime
+from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO, WARN
+import argparse
+from multiprocessing import Process
+import ambient
 """Multi channel (7 ch for Voltage, 4 ch for temperature)"""
 
 import matplotlib
 matplotlib.use('Agg')
-import ambient
-from multiprocessing import Process
-import argparse
-from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO, WARN
-import datetime
-from time import sleep
-from PiPyADC.pipyadc import ADS1256
-from PiPyADC.ADS1256_definitions import *
-import PiPyADC.pipyadc
-import matplotlib.pyplot as plt
-from Adafruit_MAX31856 import max31856
 #
 
 # logger
@@ -50,6 +51,18 @@ SHORT_CIRCUIT = POS_AIN0 | NEG_AIN0
 # Eight channels fit on the screen nicely for this example..
 CH_SEQUENCE = (EXT1, EXT2, EXT5, EXT6, EXT7)
 #################################################################
+
+
+def read_dummy(n_ch):
+    """Return random data.
+
+    n_ch: int
+        number of channels
+
+    """
+    data = [datetime.datetime.now()]
+    data[1:] = [random.random() for a in range(n_ch)]
+    return data
 
 
 def pressure(volt):
@@ -182,57 +195,66 @@ def draw_graphs(data):
     return True
 
 
-adda = ADS1256()
-adda.cal_self()
-thermos = [max31856.MAX31856(software_spi={'clk': 25, 'cs': 14,
-                                           'do': 8, 'di': 7}),
-           max31856.MAX31856(software_spi={'clk': 25, 'cs': 15,
-                                           'do': 8, 'di': 7}),
-           max31856.MAX31856(software_spi={'clk': 25, 'cs': 16,
-                                           'do': 8, 'di': 7}),
-           max31856.MAX31856(software_spi={'clk': 25, 'cs': 21,
-                                           'do': 8, 'di': 7})]
+if __name__ == "__main__":
+    adda = ADS1256()
+    adda.cal_self()
+    thermos = [max31856.MAX31856(software_spi={'clk': 25, 'cs': 14,
+                                               'do': 8, 'di': 7}),
+               max31856.MAX31856(software_spi={'clk': 25, 'cs': 15,
+                                               'do': 8, 'di': 7}),
+               max31856.MAX31856(software_spi={'clk': 25, 'cs': 16,
+                                               'do': 8, 'di': 7}),
+               max31856.MAX31856(software_spi={'clk': 25, 'cs': 21,
+                                               'do': 8, 'di': 7})]
 
-parser = argparse.ArgumentParser(
-    formatter_class=argparse.RawTextHelpFormatter,
-    epilog="""
-NOTE: あとでちゃんと書く。""")
-parser.add_argument('--logfile',
-                    type=str, default=None,
-                    help='''Log filename''')
-args = parser.parse_args()
-if args.logfile:
-    logfile = open(args.logfile, mode='w')
-    logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
-    logfile.write('v3\tv4\v5\n')
-else:
-    logfile = open('log.txt', mode='w+')
-    logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
-    logfile.write('v3\tv4\v5\n')
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog="""
+    NOTE: あとでちゃんと書く。""")
+    parser.add_argument('--logfile',
+                        type=str, default=None,
+                        help='''Log filename''')
+    parser.add_argument('--dummy',
+                        type=Boolean, default=False,
+                        help='''Use dummy data''')
+    args = parser.parse_args()
 
-data = [[] for i in range(10)]
-maxdatalength = 300
-drawevery = 5  # seconds
-sleepingtime = 1  # seconds
-try:
-    while True:
-        a_read = read_and_save()
-        [data[i].append(a_read[i]) for i in range(len(a_read))]
-        if len(data[0]) > maxdatalength:
-            for i in range(len(a_read)):
-                del data[i][0]
-        now = datetime.datetime.now()
-        if now.second % drawevery == 0:
-            p = Process(target=draw_graphs, args=(data,))
-            p.start()
-        if now.second == 0:
-            logger.debug('type a_read[0] {}'.format(type(a_read[0])))
-            logger.debug('a_read[0] {}'.format(a_read[0]))
-            senddata = (a_read[0].strftime(
-                '%Y-%m-%d %H:%M:%S'), a_read[5], a_read[6])
-            p2 = Process(target=send2ambient, args=(senddata,))
-            logger.debug('send_data: {}, {}, {}'.format(senddata[0], senddata[1], senddata[2]))
-            p2.start()
-        sleep(sleepingtime)
-except KeyboardInterrupt:
-    logfile.close()
+    if args.logfile and not args.dummy:
+        logfile = open(args.logfile, mode='w')
+        logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
+        logfile.write('v3\tv4\v5\n')
+    elif not args.dummy:
+        logfile = open('log.txt', mode='w+')
+        logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
+        logfile.write('v3\tv4\v5\n')
+    data = [[] for i in range(10)]
+    maxdatalength = 300
+    drawevery = 5  # seconds
+    sleepingtime = 1  # seconds
+    try:
+        while True:
+            if not args.dummy:
+                a_read = read_and_save()
+            else:
+                a_read = read_dummy(9)
+            [data[i].append(a_read[i]) for i in range(len(a_read))]
+            if len(data[0]) > maxdatalength:
+                for i in range(len(a_read)):
+                    del data[i][0]
+            now = datetime.datetime.now()
+            if now.second % drawevery == 0:
+                p = Process(target=draw_graphs, args=(data,))
+                p.start()
+            if now.second == 0 and if not dummy:
+                logger.debug('type a_read[0] {}'.format(type(a_read[0])))
+                logger.debug('a_read[0] {}'.format(a_read[0]))
+                senddata = (a_read[0].strftime(
+                    '%Y-%m-%d %H:%M:%S'), a_read[5], a_read[6])
+                p2 = Process(target=send2ambient, args=(senddata,))
+                logger.debug('send_data: {}, {}, {}'.format(
+                    senddata[0], senddata[1], senddata[2]))
+                p2.start()
+            sleep(sleepingtime)
+    except KeyboardInterrupt:
+        if not args.dummy:
+            logfile.close()
