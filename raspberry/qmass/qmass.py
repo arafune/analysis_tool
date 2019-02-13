@@ -414,7 +414,12 @@ class Qmass():
         """
         if data[0] == 0x7f:
             return 0.0
-        return (data[1] * 1.216 + (data[2] - 64) * 0.019) * 1E-12
+        if self.pressure_range in (0, 1, 2):
+            unit = 3.81e-12
+            return (data[0] * 64 * 64 + data[1] * 64 * unit + data[2] * unit)
+        if self.puressure_range in (3, 4, 5, 6):
+            unit = 1.907e-14
+            return (data[0] * 64 * 64 + data[1] * 64 * unit + (data[2] - 64) * unit)
 
     def single_scan(self):
         """Single scan.
