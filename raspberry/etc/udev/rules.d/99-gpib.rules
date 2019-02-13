@@ -1,0 +1,2 @@
+KERNEL=="gpib[0-9]*", MODE="0660", GROUP="gpib",  RUN+="/usr/local/sbin/gpib_config --minor 0"
+

@@ -1,0 +1,51 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Multi-channel monitor for Phoibos system</title>
+  <script type="text/javascript" src="js/jquery-3.3.0.min.js"></script>
+  <script>
+    function reloadimg(e, timer) {
+      setTimeout(function() {
+        e.src = "Logdata.png?r=" + Math.random();
+      }, timer);
+    }
+  </script>
+  <script type="text/javascript">
+    setInterval("my_function();", 3000); 
+
+    function my_function() {
+      $("#lastread").load("lastread.html");
+    };
+  </script>
+  <script type="text/javascript" src="js/jquery.periodicalupdater.js"></script>
+  <style type="text/css">
+    < !-- h1 {
+      padding: 10px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    body {
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    #lastread {
+      font-size: 24px;
+    }
+
+    -->
+  </style>
+</head>
+
+<body>
+  <h1>Multi monitor</h1>
+  <div id="lastread"></div>
+  <img src="Logdata.png" onload="reloadimg(this,1000)" onerror="reloadimg(this,5000)" height=80% />
+  <address>
+    <a href="mailto:ryuichi.arafune@gmail.com">R. Arafune</a>
+  </address>
+</body>
+
+</html>
