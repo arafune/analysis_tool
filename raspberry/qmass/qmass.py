@@ -468,11 +468,11 @@ class Qmass():
                     logger.debug('type of a_byte is {}, a_byte {}'.format(
                         type(a_byte), a_byte))
                     buf3bytes.append(a_byte)
-                if a_byte == 0xf4:
+                if a_byte in (0xf4, 0xf6):
                     logger.debug('Scan end signal "0xf4" detected')
                     running = False
                     break   # normal end
-                if buf3bytes[2] == 0xf0:
+                if buf3bytes[2] in (0xf0, 0xf2):
                     logger.debug(
                         'buf3bytes[2] is 0xf0(240). Scan fails.')
                     running = False
@@ -504,7 +504,7 @@ class Qmass():
                     break
                 for _ in range(3):
                     buf3bytes.pop(0)
-        if buf3bytes[2] == 0xf0:
+        if buf3bytes[2] not in (0xf4, 0xf6):
             logger.debug(
                 'buf3bytes[2] is 0xf0(240). Scan fails.')
             running = False
