@@ -16,8 +16,19 @@ class FC104():
         self.inst.write('MODE?')
         self.inst.read(100)
 
+    def _wait_for_ready(self):
+        self.inst.write('SRQ:')
+        srq = self.inst.read(100)
+        wait_time = 0.1
+        while 'B' in srq:
+            time.sleep(wait_time)
+            wait_time *= 2
+            self.inst.write('SRQ:')
+            srq = self.inst.read(100)
+
     def position(self):
         """Return current position."""
+        self._wait_for_ready()
         self.inst.write("P:1")
         pos = int(self.inst.read(100))
         pos_mm = pos * 1E-4
@@ -25,18 +36,22 @@ class FC104():
 
     def move_to_origin(self):
         """Move to mechanical origin."""
+        self._wait_for_ready()
         self.inst.write("H:1")
 
     def move_to_zero(self):
         """Move to electrical origin which can be varied."""
+        self._wave_for_ready()
         self.inst.write("Z:1")
 
     def set_zero(self):
         """Set the current position as the electrical origin."""
+        self._wait_for_ready()
         self.inst.write("R:1")
 
     def move_abs(self, pos, micron=False):
         """Move to the absolute position."""
+        self._wait_for_ready()
         if micron:
             pos /= 1000
         if pos >= 0:
@@ -58,6 +73,7 @@ class FC104():
             if True, the unit of travel distance is micron (default: False)
 
         """
+        self._wait_for_read()
         if micron:
             move /= 1000
         if move >= 0:
