@@ -40,9 +40,9 @@ class FC104():
         if micron:
             pos /= 1000
         if pos >= 0:
-            command = 'M:w+P{}'.int(abs(pos * 1E4))
+            command = 'M:w+P{}'.format(int(abs(pos * 1E4)))
         else:
-            command = 'M:w-P{}'.int(abs(pos * 1E4))
+            command = 'M:w-P{}'.format(int(abs(pos * 1E4)))
         self.inst.write(command)
         time.sleep(0.1)
         self.inst.write()
@@ -61,9 +61,9 @@ class FC104():
         if micron:
             move /= 1000
         if move >= 0:
-            command = 'M:w+P{}'.int(abs(move * 1E4))
+            command = 'M:w+P{}'.format(int(abs(move * 1E4)))
         else:
-            command = 'M:w-P{}'.int(abs(move * 1E4))
+            command = 'M:w-P{}'.format(int(abs(move * 1E4)))
         self.inst.write(command)
         time.sleep(0.1)
         self.inst.write()

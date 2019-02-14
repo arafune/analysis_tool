@@ -30,11 +30,10 @@ class QTADM2():
         self.com.write(b'D:A500P10000P100\r\n')
         self.com.write(b'D:B500P9000P100\r\n')
         self.com.write(b'F:\r\n')
-        ok = self.readline()
-        if ok.decode('utf-8').strip() == 'OK':
+        _ok = self.com.readline()
+        if _ok.decode('utf-8').strip() == 'OK':
             return
-        else:
-            raise RuntimeError
+        raise RuntimeError
 
     def current_position(self, physical=False):
         """Return current position.
@@ -119,7 +118,6 @@ class QTADM2():
         current_z = self.current_position(physical=True)[1]
         if z_mm + current_z < 0 or z_mm + current_z > 100:
             raise ValueError('Value check. Do nothing.')
-            return
         pulse = int(z_mm * QTADM2.ONE_MM)
         command = 'MGO:B{}'.format(pulse)
         self.com.write(command.encode('utf-8'))
