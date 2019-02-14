@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-'''
-Delay line 用 module
-'''
+"""Delay line 用 module."""
 
 import time
 import Gpib
@@ -9,6 +7,7 @@ import Gpib
 
 class FC104():
     """Class for Linear Translation feedback stage controller."""
+
     DEFAULT_POSITION = 0.0
 
     def __init__(self):
