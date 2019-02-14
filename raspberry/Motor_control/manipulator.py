@@ -19,6 +19,14 @@ class QTADM2():
         # com のセット
         # スピードセット？
         self.com = serial.Serial(port='/dev/ttyUSB0')
+        self.com.write(b'D:A500P10000P100\r\n')
+        self.com.write(b'D:B500P9000P100\r\n')
+        self.com.write(b'F:\r\n')
+        ok = self.readline()
+        if ok.decode('utf-8').strip() == 'OK':
+            return
+        else:
+            raise RuntimeError
 
     def current_position(self, physical=False):
         """Return current position.
