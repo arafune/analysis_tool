@@ -3,6 +3,37 @@
 Manipulator (Z, and phi) 用 module
 '''
 
+class QTADM2():
+    """Manipulator motor control."""
+
+    def __init__():
+    """Initialization.""" 
+    # com のセット
+    # スピードセット？
+    
+
+
+
+    def move_to(self, pos_mm):
+        """move along Z.
+       
+        Parameters
+        -------------
+        pos_mm: float
+                position
+                
+        memo 600000pulse = 10cm"""
+
+
+    def rotate_to(self, angle_deg):
+        """Rotate theta.
+
+
+        Parameters
+        ------------
+        angle_deg: float
+            Angle.
+        memo: 54000pulse= 45degree"""
 
 def init():
     '''Initialization'''
