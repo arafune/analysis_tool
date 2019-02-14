@@ -84,6 +84,10 @@ class QTADM2():
         command = 'MGO:A{}'.format(pulse)
         self.com.write(command.encode('utf-8'))
 
+    def close(self):
+        """Close RS232C port."""
+        self.com.close()
+
 
 if __name__ == '__main__':
     pass
