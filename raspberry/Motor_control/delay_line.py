@@ -43,7 +43,7 @@ class FC104():
 
     def move_to_zero(self):
         """Move to electrical origin which can be varied."""
-        self._wave_for_ready()
+        self._wait_for_ready()
         self.inst.write("Z:1")
 
     def set_zero(self):
