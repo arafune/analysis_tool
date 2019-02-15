@@ -99,6 +99,7 @@ class QTADM2():
             Angle
         pos_mm: float
             position
+
         """
         if 0 <= pos_mm <= 100:
             move_pulse = int(pos_mm / QTADM2.ONE_MM)
