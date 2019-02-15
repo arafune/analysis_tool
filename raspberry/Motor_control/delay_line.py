@@ -14,13 +14,15 @@ class FC104():
         """Initialization."""
         self.inst = Gpib.Gpib(0, 8)
         self.inst.write('MODE?')
-        self.inst.read(100)
+        mode = self.inst.read(100)
+        if b'LOCAL' in mode:
+            self.inst.write('MODE:REMOTE')
 
     def _wait_for_ready(self):
         self.inst.write('SRQ:')
         srq = self.inst.read(100)
         wait_time = 0.1
-        while 'B' in srq:
+        while b'B' in srq:
             time.sleep(wait_time)
             wait_time *= 2
             self.inst.write('SRQ:')
@@ -53,14 +55,14 @@ class FC104():
         """Move to the absolute position."""
         self._wait_for_ready()
         if micron:
-            pos /= 1000
+            eos /= 1000
         if pos >= 0:
-            command = 'M:w+P{}'.format(int(abs(pos * 1E4)))
+            command = 'M:1+P{}'.format(int(abs(pos * 1E4)))
         else:
-            command = 'M:w-P{}'.format(int(abs(pos * 1E4)))
+            command = 'M:1-P{}'.format(int(abs(pos * 1E4)))
         self.inst.write(command)
         time.sleep(0.1)
-        self.inst.write()
+        self.inst.write('G')
 
     def move_ref(self, move, micron=False):
         """Move relatively.
@@ -73,16 +75,16 @@ class FC104():
             if True, the unit of travel distance is micron (default: False)
 
         """
-        self._wait_for_read()
+        self._wait_for_ready()
         if micron:
             move /= 1000
         if move >= 0:
-            command = 'M:w+P{}'.format(int(abs(move * 1E4)))
+            command = 'M:1+P{}'.format(int(abs(move * 1E4)))
         else:
-            command = 'M:w-P{}'.format(int(abs(move * 1E4)))
+            command = 'M:1-P{}'.format(int(abs(move * 1E4)))
         self.inst.write(command)
         time.sleep(0.1)
-        self.inst.write()
+        self.inst.write('G')
 
 
 if __name__ == '__main__':
