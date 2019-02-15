@@ -9,6 +9,9 @@ from time import mktime, sleep
 
 import matplotlib
 import matplotlib.pyplot as plt
+from flask import Flask, render_template, request
+from gevent import pywsgi
+from geventwebsocket.handler import WebSocketHandler
 
 try:
     from Adafruit_MAX31856 import max31856
@@ -16,7 +19,7 @@ try:
     from PiPyADC.ADS1256_definitions import *
     from PiPyADC.pipyadc import ADS1256
     import ambient
-except ModuleNotFoundError:
+except (ModuleNotFoundError, ImportError):
     print("Not found max31856 and/or PiPyADC module. Use -dummy")
 """Multi channel (7 ch for Voltage, 4 ch for temperature)"""
 
@@ -24,7 +27,7 @@ matplotlib.use('Agg')
 #
 
 # logger
-LOGLEVEL = WARN
+LOGLEVEL = INFO
 logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
 formatter = Formatter(fmt)
@@ -41,8 +44,9 @@ try:
     # Light dependant resistor of the same board:
     EXT1 = POS_AIN1 | NEG_AINCOM
     # The other external input screw terminals of the Waveshare board:
-    EXT2, EXT3, EXT4 = POS_AIN2 | NEG_AINCOM, POS_AIN3 | NEG_AINCOM, POS_AIN4 | NEG_AINCOM
-    EXT5, EXT6, EXT7 = POS_AIN5 | NEG_AINCOM, POS_AIN6 | NEG_AINCOM, POS_AIN7 | NEG_AINCOM
+    EXT2, EXT3 = POS_AIN2 | NEG_AINCOM, POS_AIN3 | NEG_AINCOM
+    EXT4, EXT5 = POS_AIN4 | NEG_AINCOM, POS_AIN5 | NEG_AINCOM
+    EXT6, EXT7 = POS_AIN6 | NEG_AINCOM, POS_AIN7 | NEG_AINCOM
 
     # You can connect any pin as well to the positive as to the negative ADC input.
     # The following reads the voltage of the potentiometer with negative polarity.
@@ -53,8 +57,8 @@ try:
     # The ADC should always read a value close to zero for this.
     SHORT_CIRCUIT = POS_AIN0 | NEG_AIN0
 
-    # Specify here an arbitrary length list (tuple) of arbitrary input channel pair
-    # eight-bit code values to scan sequentially from index 0 to last.
+    # Specify here an arbitrary length list (tuple) of arbitrary input
+    # channel pair eight-bit code values to scan sequentially from index 0 to last.
     # Eight channels fit on the screen nicely for this example..
     CH_SEQUENCE = (EXT1, EXT2, EXT5, EXT6, EXT7)
     #################################################################
@@ -108,8 +112,8 @@ def read_and_save():
     ana_pres = pressure((voltages[0] + 0.000140) / 0.32354472361)
     prep_pres = pressure((voltages[1] + 0.000140) / 0.32441316526)
     # calibrate by using ADVANTEST
-    #ana_pres = pressure((voltages[0] + 0.000140) / 0.33467111)
-    #prep_pres = pressure((voltages[1] + 0.000140) / 0.335202222)
+    # ana_pres = pressure((voltages[0] + 0.000140) / 0.33467111)
+    # prep_pres = pressure((voltages[1] + 0.000140) / 0.335202222)
     # port3 (voltage(port3) + 0.000140 ) / 0.335008777
     # port4 (voltage(port4) + 0.000140 ) / 0.334730222
     v3 = voltages[2]
