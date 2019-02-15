@@ -8,7 +8,8 @@ import Gpib
 class FC104():
     """Class for Linear Translation feedback stage controller."""
 
-    DEFAULT_POSITION = 0.0
+    OVERLAP_POSITION = 0.0
+
 
     def __init__(self):
         """Initialization."""
@@ -37,7 +38,10 @@ class FC104():
         return pos_mm
 
     def move_to_origin(self):
-        """Move to mechanical origin."""
+        """Move to mechanical origin.
+       
+        And electric zero is set at this point.
+        """
         self._wait_for_ready()
         self.inst.write("H:1")
 
@@ -85,6 +89,15 @@ class FC104():
         self.inst.write(command)
         time.sleep(0.1)
         self.inst.write('G')
+
+    def go_to_overlap():
+        """Go to overlap opsition."""
+        self._wait_for_ready()
+        self.move_to_origin()
+        self._wait_for_ready()
+        self.move_abs(FC104.OVERLAP_POSITION)
+        self._wait_for_ready()
+        set_zero()
 
 
 if __name__ == '__main__':
