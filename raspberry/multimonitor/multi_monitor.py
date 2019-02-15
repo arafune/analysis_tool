@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
+import argparse
+import datetime
+import json
 import random
+from logging import DEBUG, INFO, WARN, Formatter, StreamHandler, getLogger
+from multiprocessing import Process
+from time import mktime, sleep
+
+import matplotlib
 import matplotlib.pyplot as plt
+
 try:
     from Adafruit_MAX31856 import max31856
     import PiPyADC.pipyadc
@@ -9,14 +18,8 @@ try:
     import ambient
 except ModuleNotFoundError:
     print("Not found max31856 and/or PiPyADC module. Use -dummy")
-from time import sleep
-import datetime
-from logging import getLogger, StreamHandler, DEBUG, Formatter, INFO, WARN
-import argparse
-from multiprocessing import Process
 """Multi channel (7 ch for Voltage, 4 ch for temperature)"""
 
-import matplotlib
 matplotlib.use('Agg')
 #
 
@@ -32,7 +35,6 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = False
 
-
 try:
     # Input pin for the potentiometer on the Waveshare Precision ADC board:
     EXT0 = POS_AIN0 | NEG_AINCOM
@@ -41,16 +43,16 @@ try:
     # The other external input screw terminals of the Waveshare board:
     EXT2, EXT3, EXT4 = POS_AIN2 | NEG_AINCOM, POS_AIN3 | NEG_AINCOM, POS_AIN4 | NEG_AINCOM
     EXT5, EXT6, EXT7 = POS_AIN5 | NEG_AINCOM, POS_AIN6 | NEG_AINCOM, POS_AIN7 | NEG_AINCOM
-    
+
     # You can connect any pin as well to the positive as to the negative ADC input.
     # The following reads the voltage of the potentiometer with negative polarity.
     # The ADC reading should be identical to that of the POTI channel, but negative.
     POTI_INVERTED = POS_AINCOM | NEG_AIN0
-    
+
     # For fun, connect both ADC inputs to the same physical input pin.
     # The ADC should always read a value close to zero for this.
     SHORT_CIRCUIT = POS_AIN0 | NEG_AIN0
-    
+
     # Specify here an arbitrary length list (tuple) of arbitrary input channel pair
     # eight-bit code values to scan sequentially from index 0 to last.
     # Eight channels fit on the screen nicely for this example..
@@ -58,6 +60,7 @@ try:
     #################################################################
 except NameError:
     print("Not found PiPyADC module Use -dummy")
+
 
 def read_dummy(n_ch):
     """Return random data.
@@ -116,9 +119,7 @@ def read_and_save():
     pressure_fmt = '{:.3e} mbar'
     voltage_fmt = '{:9.7f} V'
     for i in range(4):
-        logger.info(temp_fmt.format(i,
-                                    temperatures[i][0],
-                                    temperatures[i][1]))
+        logger.info(temp_fmt.format(i, temperatures[i][0], temperatures[i][1]))
     logger.debug('Analysis corrected V: {:9.7f} V'.format(
         (voltages[0] + 0.000140) / 0.33467111))
     logger.debug('Preparation corrected V: {:9.7f} V'.format(
@@ -129,19 +130,19 @@ def read_and_save():
     logger.info('Voltage-4:' + voltage_fmt.format(v4))
     logger.info('Voltage-5:' + voltage_fmt.format(v5))
     now = datetime.datetime.now()
-    logfile.write(save_fmt.format(now.strftime('%Y-%m-%d %H:%M:%S'),
-                                  temperatures[0][0], temperatures[1][0],
-                                  temperatures[2][0], temperatures[3][0],
-                                  ana_pres, prep_pres, v3, v4, v5))
+    logfile.write(
+        save_fmt.format(
+            now.strftime('%Y-%m-%d %H:%M:%S'), temperatures[0][0],
+            temperatures[1][0], temperatures[2][0], temperatures[3][0],
+            ana_pres, prep_pres, v3, v4, v5))
     with open('lastread.html', mode='w') as lastread:
-        lastread.write(html_fmt.format(now.strftime('%Y-%m-%d %H:%M:%S'),
-                                       temperatures[0][0], temperatures[1][0],
-                                       temperatures[2][0], temperatures[3][0],
-                                       ana_pres, prep_pres, v3, v4, v5))
-
-    return (now, temperatures[0][0], temperatures[1][0],
-            temperatures[2][0], temperatures[3][0],
-            ana_pres, prep_pres, v3, v4, v5)
+        lastread.write(
+            html_fmt.format(
+                now.strftime('%Y-%m-%d %H:%M:%S'), temperatures[0][0],
+                temperatures[1][0], temperatures[2][0], temperatures[3][0],
+                ana_pres, prep_pres, v3, v4, v5))
+    return (now, temperatures[0][0], temperatures[1][0], temperatures[2][0],
+            temperatures[3][0], ana_pres, prep_pres, v3, v4, v5)
 
 
 def send2ambient(data):
@@ -176,26 +177,23 @@ def draw_graphs(data):
     ax1.set_ylabel('Temperature  (C)')
     #
     ax2 = fig.add_subplot(222)
-    ax2.plot_date(data[0], data[5], color='red',
-                  fmt='-', label='Analysis Pressure')
-    ax2.plot_date(data[0], data[6], color='blue',
-                  fmt='-', label='Preparation Pressure')
+    ax2.plot_date(
+        data[0], data[5], color='red', fmt='-', label='Analysis Pressure')
+    ax2.plot_date(
+        data[0], data[6], color='blue', fmt='-', label='Preparation Pressure')
     ax2.set_ylabel('Pressure  (mbar)')
     ax2.legend(loc=2)
     ax2.set_yscale('log')
     #
     ax3 = fig.add_subplot(223)
-    ax3.plot_date(data[0], data[7],
-                  fmt='-', label='V3')
-    ax3.plot_date(data[0], data[8],
-                  fmt='-', label='V4')
-    ax3.plot_date(data[0], data[9],
-                  fmt='-', label='V5')
+    ax3.plot_date(data[0], data[7], fmt='-', label='V3')
+    ax3.plot_date(data[0], data[8], fmt='-', label='V4')
+    ax3.plot_date(data[0], data[9], fmt='-', label='V5')
     ax3.set_ylabel('Voltage  (V)')
     ax3.legend(loc=2)
     #
-    plt.subplots_adjust(top=0.98, right=0.98, left=0.05, bottom=0.05,
-                        wspace=.1)
+    plt.subplots_adjust(
+        top=0.98, right=0.98, left=0.05, bottom=0.05, wspace=.1)
     plt.savefig('Logdata.png')
     plt.close()
     return True
@@ -206,25 +204,44 @@ if __name__ == "__main__":
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="""
     NOTE: あとでちゃんと書く。""")
-    parser.add_argument('--logfile',
-                        type=str, default=None,
-                        help='''Log filename''')
-    parser.add_argument('--dummy',
-                        action='store_true', default=False,
-                        help='''Use dummy data''')
+    parser.add_argument(
+        '--logfile', type=str, default=None, help='''Log filename''')
+    parser.add_argument(
+        '--dummy',
+        action='store_true',
+        default=False,
+        help='''Use dummy data''')
     args = parser.parse_args()
-#
+    #
     try:
         adda = ADS1256()
         adda.cal_self()
-        thermos = [max31856.MAX31856(software_spi={'clk': 25, 'cs': 14,
-                                                   'do': 8, 'di': 7}),
-                   max31856.MAX31856(software_spi={'clk': 25, 'cs': 15,
-                                                   'do': 8, 'di': 7}),
-                   max31856.MAX31856(software_spi={'clk': 25, 'cs': 16,
-                                                   'do': 8, 'di': 7}),
-                   max31856.MAX31856(software_spi={'clk': 25, 'cs': 21,
-                                                   'do': 8, 'di': 7})]
+        thermos = [
+            max31856.MAX31856(software_spi={
+                'clk': 25,
+                'cs': 14,
+                'do': 8,
+                'di': 7
+            }),
+            max31856.MAX31856(software_spi={
+                'clk': 25,
+                'cs': 15,
+                'do': 8,
+                'di': 7
+            }),
+            max31856.MAX31856(software_spi={
+                'clk': 25,
+                'cs': 16,
+                'do': 8,
+                'di': 7
+            }),
+            max31856.MAX31856(software_spi={
+                'clk': 25,
+                'cs': 21,
+                'do': 8,
+                'di': 7
+            })
+        ]
     except NameError:
         pass
 #
@@ -250,16 +267,31 @@ if __name__ == "__main__":
             if len(data[0]) > maxdatalength:
                 for i in range(len(a_read)):
                     del data[i][0]
+            dumpjson = json.dumps({
+                'readdata': {
+                    'date': int(mktime(a_read[0].timetuple())),
+                    'T1': a_read[1],
+                    'T2': a_read[2],
+                    'T3': a_read[3],
+                    'T4': a_read[4],
+                    'Pres_A': a_read[5],
+                    'Pres_P': a_read[6],
+                    'V3': a_read[7],
+                    'V4': a_read[8],
+                    'V5': a_read[9]
+                }
+            })
+            logger.info('dumpjson {}'.format(dumpjson))
             now = datetime.datetime.now()
             if now.second % drawevery == 0:
-                p = Process(target=draw_graphs, args=(data,))
+                p = Process(target=draw_graphs, args=(data, ))
                 p.start()
             if now.second == 0 and not args.dummy:
                 logger.debug('type a_read[0] {}'.format(type(a_read[0])))
                 logger.debug('a_read[0] {}'.format(a_read[0]))
-                senddata = (a_read[0].strftime(
-                    '%Y-%m-%d %H:%M:%S'), a_read[5], a_read[6])
-                p2 = Process(target=send2ambient, args=(senddata,))
+                senddata = (a_read[0].strftime('%Y-%m-%d %H:%M:%S'), a_read[5],
+                            a_read[6])
+                p2 = Process(target=send2ambient, args=(senddata, ))
                 logger.debug('send_data: {}, {}, {}'.format(
                     senddata[0], senddata[1], senddata[2]))
                 p2.start()
