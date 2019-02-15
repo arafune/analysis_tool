@@ -57,23 +57,34 @@ def publish(data, logfile):
                             data[7], data[8], data[9]))
 
 
-def json(data):
+def json(a_read):
     """Return json format data."""
-    json_dump = dumps({
-        'readdata': {
-            'date': int(mktime(a_read[0].timetuple())),
-            'T1': a_read[1],
-            'T2': a_read[2],
-            'T3': a_read[3],
-            'T4': a_read[4],
-            'Pres_A': a_read[5],
-            'Pres_P': a_read[6],
-            'V3': a_read[7],
-            'V4': a_read[8],
-            'V5': a_read[9]
-        }
-    })
+    #    print(int(mktime(a_read[0].timetuple())))
+    t = int(mktime(a_read[0].timetuple()))
+    json_dump = dumps([{
+        'time': t,
+        'y': a_read[1]
+    }, {
+        'time': t,
+        'y': a_read[2]
+    }])
+
+    #    json_dump = dumps({
+    #        'readdata': {
+    #            'date': int(mktime(a_read[0].timetuple())),
+    #            'T1': a_read[1],
+    #            'T2': a_read[2],
+    #            'T3': a_read[3],
+    #            'T4': a_read[4],
+    #            'Pres_A': a_read[5],
+    #            'Pres_P': a_read[6],
+    #            'V3': a_read[7],
+    #            'V4': a_read[8],
+    #            'V5': a_read[9]
+    #    })
+
     logger.info('json format: {}'.format(json_dump))
+    return json_dump
 
 
 def graphs(data):
