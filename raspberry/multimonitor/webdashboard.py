@@ -57,17 +57,20 @@ app.layout = html.Div(children=[
     Output('live-update-graph', 'figure'),
     [Input('interval-component', 'n_intervals')])
 def update_graph_live(n):
-    """Live update graph by using dash with plotly"""
+    """Live update graph by using dash with plotly."""
     fig = plotly.tools.make_subplots(
-        rows=2,
-        cols=2,
-        vertical_spacing=0.15,
-        subplot_titles=('Temperatures', 'Pressures', 'Voltages'))
-    fig['layout']['margin'] = {'l': 50, 'r': 30, 'b': 0, 't': 0}
-    fig['layout']['legend'] = {'x': 0.5, 'y': .3, 'xanchor': 'left'}
+        rows=2, cols=2, vertical_spacing=0.01, shared_xaxes=True)
+    fig['layout']['margin'] = {'l': 50, 'r': 30, 'b': 40, 't': 0}
+    fig['layout']['legend'] = {
+        'x': 1.,
+        'y': .88,
+        'xanchor': 'left',
+        'yanchor': 'top'
+    }
     fig['layout'].update(height=800)
     fig['layout']['yaxis2'].update(title='Pressure (mbar)', type='log')
     fig['layout']['yaxis'].update(title='Temperature (C)')
+    fig['layout']['yaxis3'].update(title='Voltage  (V)')
 
     # temperature
     fig.append_trace({
