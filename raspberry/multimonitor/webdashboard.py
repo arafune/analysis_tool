@@ -11,6 +11,7 @@ import plotly
 from dash.dependencies import Input, Output
 
 import output
+import sensor_set_a
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 data = {
@@ -53,7 +54,7 @@ def update_graph_live(n):
         'xanchor': 'left',
         'yanchor': 'top'
     }
-    fig['layout'].update(height=800)
+    fig['layout'].update(height=650)
     fig['layout']['yaxis2'].update(
         title='Pressure (mbar)', type='log', exponentformat='power')
     fig['layout']['yaxis'].update(title='Temperature (C)')
@@ -136,7 +137,7 @@ def update_graph_live(n):
     [Input('interval-component', 'n_intervals')])
 def update_values(n):
     """Read values from the sensors, store them and display them."""
-    now, t1, t2, t3, t4, ana, prep, v3, v4, v5 = output.dummy(9)
+    now, t1, t2, t3, t4, ana, prep, v3, v4, v5 = sensor_set_a.read()
     output.publish((now, t1, t2, t3, t4, ana, prep, v3, v4, v5),
                    logfile=logfile)
     style = {'padding': '5px', 'fontSize': '24px'}
@@ -162,21 +163,21 @@ def update_values(n):
         del data['v4'][0]
         del data['v5'][0]
     return [
-        html.Span("{}".format(now.strftime('%Y-%m-%d %H:%M:%S')), style=style),
-        html.Br(),
+        html.Span("{}  ".format(now.strftime('%Y-%m-%d %H:%M:%S')), style=style),
+        # html.Br(),
         html.Span('Temp 1: {0:6.2f} C, '.format(t1), style=style),
         html.Span('Temp 2: {0:6.2f} C, '.format(t2), style=style),
         html.Span('Temp 3: {0:6.2f} C, '.format(t3), style=style),
         html.Span('Temp 4: {0:6.2f} C, '.format(t4), style=style),
         html.Br(),
-        html.Span('Pressure (A): {0:.3E} mbar'.format(ana), style=style),
-        html.Span('Pressure (P): {0:.3E} mbar'.format(prep), style=style),
-        html.Br(),
-        html.Span('V3: {0:6.3f} V'.format(v3), style=style),
-        html.Span('V4: {0:6.3f} V'.format(v4), style=style),
-        html.Span('V5: {0:6.3f} V'.format(v5), style=style),
+        html.Span('Pressure (A): {0:.3E} mbar,'.format(ana), style=style),
+        html.Span('Pressure (P): {0:.3E} mbar  '.format(prep), style=style),
+        # html.Br(),
+        html.Span('V3: {0:6.3f} V, '.format(v3), style=style),
+        html.Span('V4: {0:6.3f} V, '.format(v4), style=style),
+        html.Span('V5: {0:6.3f} V, '.format(v5), style=style),
     ]
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, host='144.213.126.137')

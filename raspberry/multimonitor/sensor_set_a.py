@@ -14,7 +14,7 @@ from Adafruit_MAX31856 import max31856
 from PiPyADC.ADS1256_definitions import *
 from PiPyADC.pipyadc import ADS1256
 
-LOGLEVEL = INFO
+LOGLEVEL = WARN
 logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
 formatter = Formatter(fmt)
