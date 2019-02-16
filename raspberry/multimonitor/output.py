@@ -38,23 +38,23 @@ def dummy(n_ch):
     return data
 
 
-def publish(data, logfile):
+def publish(a_read, logfile):
     """Publish the data strings."""
     save_fmt = '{}\t{:6.3f}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
-    save_fmt += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
+    save_fmt += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}\n'
     html_fmt = '{} <br>\n'
     html_fmt += '{:6.3f} C, {:6.3f} C, {:6.3f} C, {:6.3f} C <br>\n'
     html_fmt += '{:.3E} mbar (A), {:.3E} mbar (Prep)<br>\n'
     html_fmt += '{:6.3f} V, {:6.3f} V, {:6.3f}V\n'
     logfile.write(
-        save_fmt.format(data[0].strftime('%Y-%m-%d %H:%M:%S'), data[1],
-                        data[2], data[3], data[4], data[5], data[6], data[7],
-                        data[8], data[9]))
+        save_fmt.format(a_read[0].strftime('%Y-%m-%d %H:%M:%S'), a_read[1],
+                        a_read[2], a_read[3], a_read[4], a_read[5], a_read[6],
+                        a_read[7], a_read[8], a_read[9]))
     with open('lastread.html', mode='w') as lastread:
         lastread.write(
-            html_fmt.format(data[0].strftime('%Y-%m-%d %H:%M:%S'), data[1],
-                            data[2], data[3], data[4], data[5], data[6],
-                            data[7], data[8], data[9]))
+            html_fmt.format(a_read[0].strftime('%Y-%m-%d %H:%M:%S'), a_read[1],
+                            a_read[2], a_read[3], a_read[4], a_read[5],
+                            a_read[6], a_read[7], a_read[8], a_read[9]))
 
 
 def json(a_read):
