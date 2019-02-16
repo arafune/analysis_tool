@@ -54,7 +54,8 @@ def update_graph_live(n):
         'yanchor': 'top'
     }
     fig['layout'].update(height=800)
-    fig['layout']['yaxis2'].update(title='Pressure (mbar)', type='log')
+    fig['layout']['yaxis2'].update(
+        title='Pressure (mbar)', type='log', exponentformat='power')
     fig['layout']['yaxis'].update(title='Temperature (C)')
     fig['layout']['yaxis3'].update(title='Voltage  (V)')
 
@@ -161,13 +162,12 @@ def update_values(n):
         del data['v4'][0]
         del data['v5'][0]
     return [
-        html.Span('n: {}'.format(n), style=style),
         html.Span("{}".format(now.strftime('%Y-%m-%d %H:%M:%S')), style=style),
         html.Br(),
-        html.Span('Temperature 1: {0:6.2f} C'.format(t1), style=style),
-        html.Span('Temperature 2: {0:6.2f} C'.format(t2), style=style),
-        html.Span('Temperature 3: {0:6.2f} C'.format(t3), style=style),
-        html.Span('Temperature 4: {0:6.2f} C'.format(t4), style=style),
+        html.Span('Temp 1: {0:6.2f} C, '.format(t1), style=style),
+        html.Span('Temp 2: {0:6.2f} C, '.format(t2), style=style),
+        html.Span('Temp 3: {0:6.2f} C, '.format(t3), style=style),
+        html.Span('Temp 4: {0:6.2f} C, '.format(t4), style=style),
         html.Br(),
         html.Span('Pressure (A): {0:.3E} mbar'.format(ana), style=style),
         html.Span('Pressure (P): {0:.3E} mbar'.format(prep), style=style),
