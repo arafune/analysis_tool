@@ -4,9 +4,6 @@
 Use dash with plotly.
 """
 
-import datetime
-from logging import DEBUG, INFO, WARN, Formatter, StreamHandler, getLogger
-
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -14,17 +11,6 @@ import plotly
 from dash.dependencies import Input, Output
 
 import output
-
-LOGLEVEL = DEBUG
-logger = getLogger(__name__)
-fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
-formatter = Formatter(fmt)
-handler = StreamHandler()
-handler.setLevel(LOGLEVEL)
-logger.setLevel(LOGLEVEL)
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.propagate = False
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 data = {
@@ -163,6 +149,17 @@ def update_values(n):
     data['v3'].append(v3)
     data['v4'].append(v4)
     data['v5'].append(v5)
+    if len(data['date_time']) > 2048:
+        del data['date_time'][0]
+        del data['T1'][0]
+        del data['T2'][0]
+        del data['T3'][0]
+        del data['T4'][0]
+        del data['Pres_A'][0]
+        del data['Pres_P'][0]
+        del data['v3'][0]
+        del data['v4'][0]
+        del data['v5'][0]
     return [
         html.Span('n: {}'.format(n), style=style),
         html.Span("{}".format(now.strftime('%Y-%m-%d %H:%M:%S')), style=style),
