@@ -4,14 +4,16 @@
 Use dash with plotly.
 """
 
+import logging
+from multiprocessing import Process
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly
 from dash.dependencies import Input, Output
-import logging
-import output
 
+import output
 
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 dummy = False
@@ -53,7 +55,11 @@ app.layout = html.Div(children=[
 def update_graph_live(n):
     """Live update graph by using dash with plotly."""
     fig = plotly.tools.make_subplots(
-        rows=2, cols=2, vertical_spacing=0.01, shared_xaxes=True, print_grid=False)
+        rows=2,
+        cols=2,
+        vertical_spacing=0.01,
+        shared_xaxes=True,
+        print_grid=False)
     fig['layout']['margin'] = {'l': 50, 'r': 30, 'b': 40, 't': 0}
     fig['layout']['legend'] = {
         'x': 1.,
@@ -148,6 +154,11 @@ def update_values(n):
         now, t1, t2, t3, t4, ana, prep, v3, v4, v5 = output.dummy(9)
     else:
         now, t1, t2, t3, t4, ana, prep, v3, v4, v5 = sensor_set_a.read()
+        if now.second == 0:
+            senddata = (a_read[0].strftime('%Y-%m-%d %H:%M:%S'), ana * 1E10,
+                        prep * 1E10)
+            proc = Process(target=output.send2ambient, args=(senddata, ))
+            proc.start()
     output.publish((now, t1, t2, t3, t4, ana, prep, v3, v4, v5),
                    logfile=logfile)
     style = {'padding': '5px', 'fontSize': '24px'}
@@ -173,7 +184,8 @@ def update_values(n):
         del data['v4'][0]
         del data['v5'][0]
     return [
-        html.Span("{}  ".format(now.strftime('%Y-%m-%d %H:%M:%S')), style=style),
+        html.Span(
+            "{}  ".format(now.strftime('%Y-%m-%d %H:%M:%S')), style=style),
         # html.Br(),
         html.Span('Temp 1: {0:6.2f} C, '.format(t1), style=style),
         html.Span('Temp 2: {0:6.2f} C, '.format(t2), style=style),
@@ -190,4 +202,4 @@ def update_values(n):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False, host='192.168.1.2')
+    app.run_server(debug=False, host='0.0.0.0')
