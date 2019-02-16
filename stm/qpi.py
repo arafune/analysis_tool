@@ -16,7 +16,7 @@ class QPI(object):
     Attributes
     ------------
     data: tuple, list, np.ndarray
-       1D or 2D matrix data.  The size of data should be n**2. 
+       1D or 2D matrix data.  The size of data should be n**2.
     physical_size: float
        The length of the horizontal line.
     bias: float
@@ -42,23 +42,23 @@ class QPI(object):
         self.current = current
         self.dataname = dataname
 
-    def cross_section_by_degree(self, angle):
+    def cross_section_by_degree(self, angle_deg):
         '''Calculated the intensity along the line tilted by the angle'''
         degree = np.pi / 180.0
-        if -1.0 < np.tan(angle * degree) <= 1.0:
-            position_pixel = [(x, self.ypixel(x, angle))
+        if -1.0 < np.tan(angle_deg * degree) <= 1.0:
+            position_pixel = [(x, self.ypixel(x, angle_deg))
                               for x in range(self.pixels)]
         else:
             position_pixel = [(int((y - self.pixels / 2.0) /
-                                   np.tan(angle * degree) +
+                                   np.tan(angle_deg * degree) +
                                    self.pixels / 2.0), y)
                               for y in range(self.pixels)]
         return np.array([self.data[pos] for pos in position_pixel])
 
-    def ypixel(self, x, angle):
+    def ypixel(self, x, angle_deg):
         '''Calculate y pixel with quantization-error correction'''
         degree = np.pi / 180.0
-        y = int(np.tan(angle * degree) *
+        y = int(np.tan(angle_deg * degree) *
                 (x - self.pixels / 2.0) + self.pixels / 2.0)
         if y >= self.pixels:
             y = self.pixels-1
@@ -66,20 +66,20 @@ class QPI(object):
             y = 0
         return y
 
-    def physical_axis(self, angle):
+    def physical_axis(self, angle_deg):
         '''Calculate k-value along the line tilted by the angle'''
         degree = np.pi / 180.0
-        if -1.0 <= np.tan(angle * degree) <= 1.0:
+        if -1.0 <= np.tan(angle_deg * degree) <= 1.0:
             return np.linspace(- self.physical_size / 2.0 *
-                               np.abs(1 / np.cos(angle * degree)),
+                               np.abs(1 / np.cos(angle_deg * degree)),
                                self.physical_size / 2.0 *
-                               np.abs(1 / np.cos(angle * degree)),
+                               np.abs(1 / np.cos(angle_deg * degree)),
                                self.pixels)
         else:
             return np.linspace(- self.physical_size / 2.0 *
-                               np.abs(1 / np.sin(angle * degree)),
+                               np.abs(1 / np.sin(angle_deg * degree)),
                                self.physical_size / 2.0 *
-                               np.abs(1 / np.sin(angle * degree)),
+                               np.abs(1 / np.sin(angle_deg * degree)),
                                self.pixels)
 
 
@@ -103,9 +103,8 @@ def qpidataload(filename):
     with thefile:
         [next(thefile) for i in range(4)]
         tmp = next(thefile)
-        bias, bias_unit, current, current_unit = \
-            float(tmp.split()[3]), tmp.split()[4],
-        float(tmp.split()[6]), tmp.split()[7]
+        bias, bias_unit, current = (float(tmp.split()[3]),
+                                    tmp.split()[4], float(tmp.split()[6]))
         if bias_unit in "mV,":
             bias = float(bias) / 1000
         [next(thefile) for i in range(2)]
