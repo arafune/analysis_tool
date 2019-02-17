@@ -36,6 +36,8 @@ data = {
     'v5': []
 }
 
+interval_time = 3 # second
+
 logfile = open('log.txt', mode='a+')
 logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
 logfile.write('v3\tv4\tv5\n')
@@ -45,7 +47,7 @@ app.layout = html.Div(children=[
     html.H1(children='Multi monitor system Dashboard'),
     html.Div(id='live-update-text'),
     dcc.Graph(id='live-update-graph'),
-    dcc.Interval(id='interval-component', interval=3 * 1000, n_intervals=0)
+    dcc.Interval(id='interval-component', interval=interval_time * 1000, n_intervals=0)
 ])
 
 
@@ -154,8 +156,8 @@ def update_values(n):
         now, t1, t2, t3, t4, ana, prep, v3, v4, v5 = output.dummy(9)
     else:
         now, t1, t2, t3, t4, ana, prep, v3, v4, v5 = sensor_set_a.read()
-        if now.second == 0:
-            senddata = (a_read[0].strftime('%Y-%m-%d %H:%M:%S'), ana * 1E10,
+        if now.second < interval_time:
+            senddata = (now.strftime('%Y-%m-%d %H:%M:%S'), ana * 1E10,
                         prep * 1E10)
             proc = Process(target=output.send2ambient, args=(senddata, ))
             proc.start()
