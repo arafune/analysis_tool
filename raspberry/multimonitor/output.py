@@ -11,10 +11,11 @@ from time import mktime, sleep
 
 import matplotlib
 import matplotlib.pyplot as plt
+import ambient
 
 matplotlib.use('Agg')
 
-LOGLEVEL = DEBUG
+LOGLEVEL = WARN
 logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
 formatter = Formatter(fmt)
