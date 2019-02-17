@@ -9,12 +9,11 @@ from multiprocessing import Process
 from random import random
 from time import mktime, sleep
 
+import ambient
 import matplotlib
 import matplotlib.pyplot as plt
 
-import ambient
-
-matplotlib.use('Agg')
+# matplotlib.use('Agg')
 
 LOGLEVEL = WARN
 logger = getLogger(__name__)
@@ -42,13 +41,14 @@ def dummy(n_ch):
 
 def publish(a_read, logfile):
     """Publish the data strings."""
-    save_fmt = '{}\t{:6.3f}\t{:6.3f}\t{:6.3f}\t{:6.3f}'
-    save_fmt += '\t{:.3e}\t{:.3e}\t{:6.3f}\t{:6.3f}\t{:6.3f}\n'
-    html_fmt = '{} <br>\n'
-    logfile.write(
-        save_fmt.format(a_read[0].strftime('%Y-%m-%d %H:%M:%S'), a_read[1],
-                        a_read[2], a_read[3], a_read[4], a_read[5], a_read[6],
-                        a_read[7], a_read[8], a_read[9]))
+    save_fmt = '{}\t{:.18e}\t{:18e}\t{:18e}\t{:18e}'
+    save_fmt += '\t{:.18e}\t{:.8e}\t{:18e}\t{:18e}\t{:18e}\n'
+    a_data_series = save_fmt.format(a_read[0].strftime('%Y-%m-%d %H:%M:%S'),
+                                    a_read[1], a_read[2], a_read[3], a_read[4],
+                                    a_read[5], a_read[6], a_read[7], a_read[8],
+                                    a_read[9])
+    with open(logfile, 'a+') as log:
+        log.write(a_data_series)
 
 
 def json(a_read):
@@ -144,13 +144,14 @@ if __name__ == '__main__':
         '--logfile', type=str, default=None, help='''Log filename''')
     args = parser.parse_args()
     if args.logfile:
-        logfile = open(args.logfile, mode='w')
-        logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
-        logfile.write('v3\tv4\v5\n')
+        with open(args.logfile, mode='w') as logfile:
+            logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
+            logfile.write('v3\tv4\v5\n')
     else:
-        logfile = open('output_log.txt', mode='w+')
-        logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
-        logfile.write('v3\tv4\v5\n')
+        with open('output_log.txt', 'w+') as logfile:
+            logfile = open('output_log.txt', mode='w+')
+            logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
+            logfile.write('v3\tv4\v5\n')
     #
     data = [[] for i in range(10)]
     maxdatalength = 300

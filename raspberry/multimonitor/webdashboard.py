@@ -4,22 +4,17 @@
 Use dash with plotly.
 """
 
+import datetime
 import logging
-from multiprocessing import Process
+import mmap
 
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import output
 import plotly
 from dash.dependencies import Input, Output
 
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
-dummy = False
-try:
-    import sensor_set_a
-except ImportError:
-    dummy = True
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 data = {
@@ -35,12 +30,8 @@ data = {
     'v5': []
 }
 
+store_length = 1500
 interval_time = 3  # second
-store_data = 1500
-
-logfile = open('log.txt', mode='a+')
-logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
-logfile.write('v3\tv4\tv5\n')
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div(children=[
@@ -148,23 +139,32 @@ def update_graph_live(n):
     return fig
 
 
+def _getlastline(fname):
+    with open(fname) as source:
+        mapping = mmap.mmap(source.fileno(), 0, prot=mmap.PROT_READ)
+        return mapping[mapping.rfind(b'\n', 0, -1) + 1:]
+
+
+logfile_name = 'log.txt'
+
+
 @app.callback(
     Output('live-update-text', 'children'),
     [Input('interval-component', 'n_intervals')])
 def update_values(n):
     """Read values from the sensors, store them and display them."""
-    if dummy:
-        now, t1, t2, t3, t4, ana, prep, v3, v4, v5 = output.dummy(9)
-    else:
-        now, t1, t2, t3, t4, ana, prep, v3, v4, v5 = sensor_set_a.read()
-        if now.second < interval_time:
-            senddata = (now.strftime('%Y-%m-%d %H:%M:%S'), ana * 1E10,
-                        prep * 1E10)
-            proc = Process(target=output.send2ambient, args=(senddata, ))
-            proc.start()
-    output.publish((now, t1, t2, t3, t4, ana, prep, v3, v4, v5),
-                   logfile=logfile)
     style = {'padding': '5px', 'fontSize': '24px'}
+    lastline = _getlastline(logfile_name).decode('utf-8').strip().split('\t')
+    now = datetime.datetime.strptime(lastline[0], '%Y-%m-%d %H:%M:%S')
+    t1 = float(lastline[1])
+    t2 = float(lastline[2])
+    t3 = float(lastline[3])
+    t4 = float(lastline[4])
+    ana = float(lastline[5])
+    prep = float(lastline[6])
+    v3 = float(lastline[7])
+    v4 = float(lastline[8])
+    v5 = float(lastline[9])
     data['date_time'].append(now)
     data['T1'].append(t1)
     data['T2'].append(t2)
@@ -175,7 +175,7 @@ def update_values(n):
     data['v3'].append(v3)
     data['v4'].append(v4)
     data['v5'].append(v5)
-    if len(data['date_time']) > store_data:
+    if len(data['date_time']) > store_length:
         del data['date_time'][0]
         del data['T1'][0]
         del data['T2'][0]
@@ -205,4 +205,4 @@ def update_values(n):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False, host='0.0.0.0')
+    app.run_server(debug=True, host='0.0.0.0')
