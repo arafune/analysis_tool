@@ -37,6 +37,7 @@ data = {
 }
 
 interval_time = 3 # second
+store_data = 1500
 
 logfile = open('log.txt', mode='a+')
 logfile.write('#date\tT1\tT2\tT3\tT4\tPressure(A)\tPressure(P)\t')
@@ -174,7 +175,7 @@ def update_values(n):
     data['v3'].append(v3)
     data['v4'].append(v4)
     data['v5'].append(v5)
-    if len(data['date_time']) > 150:
+    if len(data['date_time']) > store_data:
         del data['date_time'][0]
         del data['T1'][0]
         del data['T2'][0]
