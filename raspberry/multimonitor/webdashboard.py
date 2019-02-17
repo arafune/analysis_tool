@@ -155,7 +155,7 @@ def update_values(n):
     else:
         now, t1, t2, t3, t4, ana, prep, v3, v4, v5 = sensor_set_a.read()
         if now.second == 0:
-            senddata = (now.strftime('%Y-%m-%d %H:%M:%S'), ana * 1E10,
+            senddata = (a_read[0].strftime('%Y-%m-%d %H:%M:%S'), ana * 1E10,
                         prep * 1E10)
             proc = Process(target=output.send2ambient, args=(senddata, ))
             proc.start()
