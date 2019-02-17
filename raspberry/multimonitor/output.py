@@ -11,6 +11,7 @@ from time import mktime, sleep
 
 import matplotlib
 import matplotlib.pyplot as plt
+
 import ambient
 
 matplotlib.use('Agg')

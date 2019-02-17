@@ -10,10 +10,9 @@ from multiprocessing import Process
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import output
 import plotly
 from dash.dependencies import Input, Output
-
-import output
 
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 dummy = False
@@ -36,7 +35,7 @@ data = {
     'v5': []
 }
 
-interval_time = 3 # second
+interval_time = 3  # second
 store_data = 1500
 
 logfile = open('log.txt', mode='a+')
@@ -48,7 +47,8 @@ app.layout = html.Div(children=[
     html.H1(children='Multi monitor system Dashboard'),
     html.Div(id='live-update-text'),
     dcc.Graph(id='live-update-graph'),
-    dcc.Interval(id='interval-component', interval=interval_time * 1000, n_intervals=0)
+    dcc.Interval(
+        id='interval-component', interval=interval_time * 1000, n_intervals=0)
 ])
 
 
@@ -82,28 +82,28 @@ def update_graph_live(n):
         'y': data['T1'],
         'name': 'Temperature1',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 1, 1)
     fig.append_trace({
         'x': data['date_time'],
         'y': data['T2'],
         'name': 'Temperature2',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 1, 1)
     fig.append_trace({
         'x': data['date_time'],
         'y': data['T3'],
         'name': 'Temperature3',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 1, 1)
     fig.append_trace({
         'x': data['date_time'],
         'y': data['T4'],
         'name': 'Temperature4',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 1, 1)
 
     #
@@ -112,14 +112,14 @@ def update_graph_live(n):
         'y': data['Pres_A'],
         'name': 'Pressure (A)',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 1, 2)
     fig.append_trace({
         'x': data['date_time'],
         'y': data['Pres_P'],
         'name': 'Pressure (P)',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 1, 2)
 
     #
@@ -128,21 +128,21 @@ def update_graph_live(n):
         'y': data['v3'],
         'name': 'V3',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 2, 1)
     fig.append_trace({
         'x': data['date_time'],
         'y': data['v4'],
         'name': 'v4',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 2, 1)
     fig.append_trace({
         'x': data['date_time'],
         'y': data['v5'],
         'name': 'V5',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 2, 1)
 
     return fig
