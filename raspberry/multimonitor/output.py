@@ -79,6 +79,16 @@ def json(a_read):
     return json_dump
 
 
+def send2ambient(data):
+    """Send pressure data to Ambient."""
+    channelID = '8775'
+    readkey = '6396addf4ce692fa'
+    writekey = '18c9d6f2a7824fa1'
+    userkey = '5541fb66d3f9f20dd6'
+    am = ambient.Ambient(channelID, writekey, readkey, userkey)
+    am.send({'created': data[0], 'd1': data[1], 'd2': data[2]})
+
+
 def graphs(data):
     """Draw graph.
 
