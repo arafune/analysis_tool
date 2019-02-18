@@ -7,6 +7,7 @@ Use dash with plotly.
 import datetime
 import logging
 import mmap
+import fasteners
 
 import dash
 import dash_core_components as dcc
@@ -14,7 +15,7 @@ import dash_html_components as html
 import plotly
 from dash.dependencies import Input, Output
 
-logging.getLogger('werkzeug').setLevel(logging.ERROR)
+## logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 data = {
@@ -30,8 +31,8 @@ data = {
     'v5': []
 }
 
-store_length = 1500
-interval_time = 3  # second
+store_length = 500
+interval_time = 5  # second
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div(children=[
@@ -140,9 +141,10 @@ def update_graph_live(n):
 
 
 def _getlastline(fname):
-    with open(fname) as source:
-        mapping = mmap.mmap(source.fileno(), 0, prot=mmap.PROT_READ)
-        return mapping[mapping.rfind(b'\n', 0, -1) + 1:]
+    with fasteners.InterProcessLock('/var/lock/webdashboard'):
+        with open(fname) as source:
+            mapping = mmap.mmap(source.fileno(), 0, prot=mmap.PROT_READ)
+            return mapping[mapping.rfind(b'\n', 0, -1) + 1:]
 
 
 logfile_name = 'log.txt'
@@ -154,7 +156,7 @@ logfile_name = 'log.txt'
 def update_values(n):
     """Read values from the sensors, store them and display them."""
     style = {'padding': '5px', 'fontSize': '24px'}
-    lastline = _getlastline(logfile_name).decode('utf-8').strip().split('\t')
+    lastline = _getlastline("current_data.dat").decode('utf-8').strip().split('\t')
     now = datetime.datetime.strptime(lastline[0], '%Y-%m-%d %H:%M:%S')
     t1 = float(lastline[1])
     t2 = float(lastline[2])

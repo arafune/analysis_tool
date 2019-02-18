@@ -13,6 +13,8 @@ import ambient
 import matplotlib
 import matplotlib.pyplot as plt
 
+import fasteners
+
 # matplotlib.use('Agg')
 
 LOGLEVEL = WARN
@@ -49,6 +51,9 @@ def publish(a_read, logfile):
                                     a_read[9])
     with open(logfile, 'a+') as log:
         log.write(a_data_series)
+    with fasteners.InterProcessLock('/var/lock/webdashboard'):
+        with open('current_data.dat', mode='w') as current:
+             current.write(a_data_series)
 
 
 def json(a_read):

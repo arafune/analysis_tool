@@ -50,4 +50,4 @@ def continuous(logfile_name, sleeping_time=1):
 if __name__ == '__main__':
     logfile_name = 'log.txt'
     header(logfile_name)
-    continuous(logfile_name)
+    continuous(logfile_name, sleeping_time=interval_time)
