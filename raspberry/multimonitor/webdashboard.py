@@ -147,9 +147,6 @@ def _getlastline(fname):
             return mapping[mapping.rfind(b'\n', 0, -1) + 1:]
 
 
-logfile_name = 'log.txt'
-
-
 @app.callback(
     Output('live-update-text', 'children'),
     [Input('interval-component', 'n_intervals')])
