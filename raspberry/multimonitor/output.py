@@ -53,7 +53,7 @@ def publish(a_read, logfile):
         log.write(a_data_series)
     with fasteners.InterProcessLock('/var/lock/webdashboard'):
         with open('current_data.dat', mode='w') as current:
-             current.write(a_data_series)
+            current.write(a_data_series)
 
 
 def json(a_read):
