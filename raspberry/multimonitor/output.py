@@ -10,7 +10,6 @@ from random import random
 from time import mktime, sleep
 
 import ambient
-import matplotlib
 import matplotlib.pyplot as plt
 
 # matplotlib.use('Agg')
@@ -88,7 +87,15 @@ def send2ambient(data):
     writekey = '18c9d6f2a7824fa1'
     userkey = '5541fb66d3f9f20dd6'
     am = ambient.Ambient(channelID, writekey, readkey, userkey)
-    am.send({'created': data[0], 'd1': data[1], 'd2': data[2]})
+    am.send({
+        'created': data[0],
+        'd1': data[1],  #  Ana pressure
+        'd2': data[2],  #  Prep. pressure
+        'd3': data[3],
+        'd4': data[4],
+        'd5': data[5],
+        'd6': data[6]
+    })
 
 
 def graphs(data):
