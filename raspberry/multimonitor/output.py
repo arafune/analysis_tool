@@ -10,7 +10,6 @@ from random import random
 from time import mktime, sleep
 
 import ambient
-import matplotlib
 import matplotlib.pyplot as plt
 
 import fasteners
@@ -93,7 +92,15 @@ def send2ambient(data):
     writekey = '18c9d6f2a7824fa1'
     userkey = '5541fb66d3f9f20dd6'
     am = ambient.Ambient(channelID, writekey, readkey, userkey)
-    am.send({'created': data[0], 'd1': data[1], 'd2': data[2]})
+    am.send({
+        'created': data[0],
+        'd1': data[1],  # Ana pressure
+        'd2': data[2],  # Prep. pressure
+        'd3': data[3],  # T1
+        'd4': data[4],  # T2
+        'd5': data[5],  # T3
+        'd6': data[6]  # T4
+    })
 
 
 def graphs(data):
@@ -173,15 +180,6 @@ if __name__ == '__main__':
             if a_read[0].second % drawevery == 0:
                 p = Process(target=graphs, args=(data, ))
                 p.start()
-#            if a_read[0].second == 0:
-#                logger.debug('type a_read[0] {}'.format(type(a_read[0])))
-#                logger.debug('a_read[0] {}'.format(a_read[0]))
-#                senddata = (a_read[0].strftime('%Y-%m-%d %H:%M:%S'),
-#                             a_read[5], a_read[6])
-#                p2 = Process(target=send2ambient, args=(senddata, ))
-#                logger.debug('send_data: {}, {}, {}'.format(
-#                    senddata[0], senddata[1], senddata[2]))
-#                p2.start()
             sleep(sleepingtime)
     except KeyboardInterrupt:
         logfile.close()
