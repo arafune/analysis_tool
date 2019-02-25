@@ -17,7 +17,14 @@ interval_time = 3  # second
 
 
 def header(logfile_name):
-    """Write header of log file."""
+    """Write header of log file.
+
+    Parameters
+    ----------
+    logfile_name: str
+        File for log.
+
+    """
     if os.path.isfile(logfile_name):
         return
     with open(logfile_name, mode='a+') as logfile:
@@ -26,14 +33,24 @@ def header(logfile_name):
 
 
 def single(logfile_name):
-    """Read values from sensors."""
+    """Read values from sensors, and send data to Ambient.
+
+    Read the Temperatures from 4ch sensor, Pressure from Varian
+    ion gauge, and AUX Voltages from 3ch.
+
+    Parameters
+    ----------
+    logfile_name: str
+        Filename for log
+
+    """
     if dummy:
         now, t1, t2, t3, t4, ana, prep, v3, v4, v5 = output.dummy(9)
     else:
         now, t1, t2, t3, t4, ana, prep, v3, v4, v5 = sensor_set_a.read()
         if now.second < interval_time:
             senddata = (now.strftime('%Y-%m-%d %H:%M:%S'), ana * 1E10,
-                        prep * 1E10)
+                        prep * 1E10, t1, t2, t3, t4)
             proc = Process(target=output.send2ambient, args=(senddata, ))
             proc.start()
     output.publish((now, t1, t2, t3, t4, ana, prep, v3, v4, v5),
