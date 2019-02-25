@@ -14,7 +14,9 @@ import dash_html_components as html
 import plotly
 from dash.dependencies import Input, Output
 
-logging.getLogger('werkzeug').setLevel(logging.ERROR)
+import fasteners
+
+# logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 data = {
@@ -30,8 +32,8 @@ data = {
     'v5': []
 }
 
-store_length = 1500
-interval_time = 3  # second
+store_length = 500
+interval_time = 5  # second
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div(children=[
@@ -73,28 +75,28 @@ def update_graph_live(n):
         'y': data['T1'],
         'name': 'Temperature1',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 1, 1)
     fig.append_trace({
         'x': data['date_time'],
         'y': data['T2'],
         'name': 'Temperature2',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 1, 1)
     fig.append_trace({
         'x': data['date_time'],
         'y': data['T3'],
         'name': 'Temperature3',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 1, 1)
     fig.append_trace({
         'x': data['date_time'],
         'y': data['T4'],
         'name': 'Temperature4',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 1, 1)
 
     #
@@ -103,14 +105,14 @@ def update_graph_live(n):
         'y': data['Pres_A'],
         'name': 'Pressure (A)',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 1, 2)
     fig.append_trace({
         'x': data['date_time'],
         'y': data['Pres_P'],
         'name': 'Pressure (P)',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 1, 2)
 
     #
@@ -119,37 +121,31 @@ def update_graph_live(n):
         'y': data['v3'],
         'name': 'V3',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 2, 1)
     fig.append_trace({
         'x': data['date_time'],
         'y': data['v4'],
         'name': 'v4',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 2, 1)
     fig.append_trace({
         'x': data['date_time'],
         'y': data['v5'],
         'name': 'V5',
         'mode': 'lines',
-        'type': 'scatter'
+        'type': 'scattergl'
     }, 2, 1)
 
     return fig
 
 
-now = datetime.datetime.now()
-t1 = t2 = t3 = t4 = ana = prep = v3 = v4 = v5 = 0.0
-
-
 def _getlastline(fname):
-    with open(fname) as source:
-        mapping = mmap.mmap(source.fileno(), 0, prot=mmap.PROT_READ)
-        return mapping[mapping.rfind(b'\n', 0, -1) + 1:]
-
-
-logfile_name = 'log.txt'
+    with fasteners.InterProcessLock('/var/lock/webdashboard'):
+        with open(fname) as source:
+            mapping = mmap.mmap(source.fileno(), 0, prot=mmap.PROT_READ)
+            return mapping[mapping.rfind(b'\n', 0, -1) + 1:]
 
 
 @app.callback(
@@ -158,7 +154,8 @@ logfile_name = 'log.txt'
 def update_values(n):
     """Read values from the sensors, store them and display them."""
     style = {'padding': '5px', 'fontSize': '24px'}
-    lastline = _getlastline(logfile_name).decode('utf-8').strip().split('\t')
+    lastline = _getlastline("current_data.dat").decode('utf-8').strip().split(
+        '\t')
     now = datetime.datetime.strptime(lastline[0], '%Y-%m-%d %H:%M:%S')
     t1 = float(lastline[1])
     t2 = float(lastline[2])
