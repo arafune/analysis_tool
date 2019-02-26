@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
-'''.. py:module:: splab
+""".. py:module:: splab
 
 Module to read splab xml data files and analyze them.
 
 lxml package is required to treat xml file.
-'''
+"""
 
-import os
 import bz2
+import os
+
 import numpy as np
-from scipy import interpolate
 from lxml import etree
+from scipy import interpolate
+
 import arpes
 
+
 class SPLab(object):
-    '''..py:class:: SPlab(xmlfile)
+    """..py:class:: SPlab(xmlfile)
 
 Treat a SPLab xml file as the Python Object
 
@@ -32,7 +35,8 @@ Treat a SPLab xml file as the Python Object
 
     groups: list
         list object stores SPGroup object
-    '''
+    """
+
     def __init__(self, file):
         xml = etree.parse(file)
         self.root = xml.getroot()
@@ -44,7 +48,7 @@ Treat a SPLab xml file as the Python Object
 
 
 class SPGroup(object):
-    '''.. py:class:: SPGroup(group)
+    """.. py:class:: SPGroup(group)
 
     Capsulated a "RegionGroup" struct
 
@@ -55,7 +59,8 @@ class SPGroup(object):
 
     regions: list
         list object stores SPRegion object
-    '''
+    """
+
     def __init__(self, xmlgroup):
         self.name = xmlgroup[0].text
         self.regions = []
@@ -65,7 +70,7 @@ class SPGroup(object):
 
 
 class SPRegion(object):
-    '''.. py:class:: SPRegion(region)
+    """.. py:class:: SPRegion(region)
 
     Capsulated a "RegionData" struct
 
@@ -98,7 +103,8 @@ class SPRegion(object):
     angle_axis: numpy.ndarray
         angle axis of the data. Starts with zero and ends
     with the value of OrdinateRange
-    '''
+    """
+
     def __init__(self, xmlregion):
         self.xmlregion = xmlregion
         self.name = xmlregion[0].text
@@ -106,8 +112,9 @@ class SPRegion(object):
         for elm in xmlregion[1]:
             if elm.get('name') == 'scan_mode':
                 self.param[elm.get('name')] = elm[0].text
-            elif elm.get('name') in ['num_scans', 'curves_per_scan',
-                                     'values_per_curve']:
+            elif elm.get('name') in [
+                    'num_scans', 'curves_per_scan', 'values_per_curve'
+            ]:
                 self.param[elm.get('name')] = int(elm.text)
             else:
                 try:
@@ -120,24 +127,18 @@ class SPRegion(object):
         analyzer = xmlregion.find('.//struct[@type_name="AnalyzerInfo"]')
         self.analyzer_info["name"] = analyzer[0].text
         detectors = xmlregion.find('.//sequence[@type_name="DetectorSeq"]')
-        self.analyzer_info['Detector'] = np.array([[float(elm2.text)
-                                                    for elm2 in elm
-                                                    if elm2.tag == 'double']
-                                                   for elm in detectors])
+        self.analyzer_info['Detector'] = np.array(
+            [[float(elm2.text) for elm2 in elm if elm2.tag == 'double']
+             for elm in detectors])
         num_detectors = len(self.analyzer_info['Detector'])
         counts_tag = './/ulong[@type_name="Counts"]'
-        counts = np.array([[int(count)
-                            for count
-                            in elm.text.split()]
-                           for elm
-                           in xmlregion.findall(counts_tag)])
+        counts = np.array([[int(count) for count in elm.text.split()]
+                           for elm in xmlregion.findall(counts_tag)])
         # self.rawcount[scan#][ch#][angle#][energy#]
-        self.rawcounts = counts.reshape(self.param['num_scans'],
-                                        num_angles,
-                                        self.param['values_per_curve'] +
-                                        self.mcd_head_tail[0] +
-                                        self.mcd_head_tail[1],
-                                        num_detectors).transpose(0, 3, 1, 2)
+        self.rawcounts = counts.reshape(
+            self.param['num_scans'], num_angles, self.param['values_per_curve']
+            + self.mcd_head_tail[0] + self.mcd_head_tail[1],
+            num_detectors).transpose(0, 3, 1, 2)
         # energy_axis_ch
         # E_{0n} =E_0+s_n =E1–h*delta+sn
         E1 = self.param['kinetic_energy']
@@ -150,19 +151,16 @@ class SPRegion(object):
         # self.mcd_head_tail[1] -1) * self.param['scan_delta']
         # values_per_curve+
         # np.linspace(sn, en
-        self.energy_axis = np.array([E1 + delta * i
-                                     for i
-                                     in range(self.param['values_per_curve'])])
+        self.energy_axis = np.array(
+            [E1 + delta * i for i in range(self.param['values_per_curve'])])
         # energy_axis_ch would be local before release
-        self.energy_axis_ch = np.array([[E1 - mcdhead * delta +
-                                         self.analyzer_info['Detector'][i][1] *
-                                         self.param['pass_energy'] +
-                                         delta * j
-                                         for j in
-                                         range(self.param['values_per_curve'] +
-                                               self.mcd_head_tail[0] +
-                                               self.mcd_head_tail[1])]
-                                        for i in range(num_detectors)])
+        self.energy_axis_ch = np.array([[
+            E1 - mcdhead * delta +
+            self.analyzer_info['Detector'][i][1] * self.param['pass_energy'] +
+            delta * j
+            for j in range(self.param['values_per_curve'] +
+                           self.mcd_head_tail[0] + self.mcd_head_tail[1])
+        ] for i in range(num_detectors)])
 
         # Most cases, the required data is
         # * angle resolved
@@ -171,10 +169,11 @@ class SPRegion(object):
         scan_integrated = np.sum(self.rawcounts, axis=0)
         apportioned = []
         for ch, data in enumerate(scan_integrated):
-            interp_f = interpolate.interp1d(self.energy_axis_ch[ch],
-                                            data,
-                                            bounds_error=False,
-                                            fill_value='extrapolate')
+            interp_f = interpolate.interp1d(
+                self.energy_axis_ch[ch],
+                data,
+                bounds_error=False,
+                fill_value='extrapolate')
             # Note: As broadcast technique in interp1d is used, the
             # intensity at the highest energy is a little bit different
             # from that in the output from SpecsLab originally.
@@ -186,17 +185,16 @@ class SPRegion(object):
                 p = elm.getparent()
                 anglespan = float(
                     p.find(".//any[@name='value']").find(".//double").text)
-                self.angle_axis = np.linspace(0, anglespan,
-                                              num=num_angles)
+                self.angle_axis = np.linspace(0, anglespan, num=num_angles)
 
     def make_arpesmap(self):
-        '''.. py:method:: make_arpesmap()
+        """.. py:method:: make_arpesmap()
 
         Returns
         --------
 
         ARPESmap: arpes.ARPESMap object
-'''
+"""
         arpes_data = arpes.ARPESmap()
         arpes_data.intensities = self.arpes
         arpes_data.energy_axis = self.energy_axis
@@ -205,7 +203,7 @@ class SPRegion(object):
 
 
 def load(splab_xml):
-    '''.. py:function:: load(filename)
+    """.. py:function:: load(filename)
 
     Load Splab xml file to make SPLab object
 
@@ -213,7 +211,7 @@ def load(splab_xml):
     -----------
     splab_xml: str
         Filename of SPLab xml file. Bzipped file is acceptable
-'''
+"""
     if os.path.splitext(splab_xml)[1] == ".bz2":
         try:
             xml = bz2.open(splab_xml, mode='rt')
