@@ -16,18 +16,37 @@ def air(lambda_micron):
 
 
 def alphaBBO(lambda_micron):
-    """Return reflactive index.
+    r"""Return reflactive index.
 
 
     http://www.newlightphotonics.com/Birefringent-Crystals/alpha-BBO-Crystals
 
     Return
     -------
-        (n_o, n_e)"""
+    tuple
+        :math:`n_o` and :math:`n_e`(n_o, n_e)
+    """
     return (np.sqrt(2.67579 + 0.02099 / (lambda_micron**2 - 0.00470) -
                     0.00528 * lambda_micron**2),
             np.sqrt(2.31197 + 0.01184 / (lambda_micron**2 - 0.01607) -
                     0.00400 * lambda_micron**2))
+
+
+def betaBBO(lambda_micron):
+    r"""Return n_o and n_e of :math:`\beta`-BBO.
+
+    http://www.castech.com/manage/upfile/fileload/20170823144544.pdf
+
+    Returns
+    ---------
+    tuple
+        :math:`n_o` and :math:`n_e`
+
+    """
+    return (np.sqrt(2.7359 + 0.01878 / (lambda_micron**2 - 0.01822) -
+                    0.01354 * lambda_micron**2),
+            np.sqrt(2.3753 + 0.01224 / (lambda_micron**2 - 0.01667) -
+                    0.01516 * lambda_micron**2))
 
 
 def quartz(lambda_micron):
