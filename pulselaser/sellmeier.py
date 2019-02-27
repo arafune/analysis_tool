@@ -1,63 +1,92 @@
 #!/usr/bin/env python3
-"""Collection of Selmeier equation"""
+"""Collection of Selmeier equation."""
 
 import numpy as np
 
 
 def air(lambda_micron):
-    """Dispersion of Refractive index of air.
+    """Dispersion of air.
 
     https://refractiveindex.info/?shelf=other&book=air&page=Ciddor
 
     """
-    return (1 + 0.05792105 / (238.0185 - lambda_micron**
-                              (-2)) + 0.00167917 / (57.362 - lambda_micron**
-                                                    (-2)))
+    return (1 + 0.05792105
+            / (238.0185 - lambda_micron ** (-2))
+            + 0.00167917 / (57.362 - lambda_micron ** (-2)))
 
 
 def alphaBBO(lambda_micron):
-    r"""Return reflactive index.
-
+    r"""Dispersion of :math:`\alpha`-BBO.
 
     http://www.newlightphotonics.com/Birefringent-Crystals/alpha-BBO-Crystals
 
+
+    * Negative birefringence
+
     Return
     -------
-    tuple
-        :math:`n_o` and :math:`n_e`(n_o, n_e)
+    tuple:   :math:`n_o` and :math:`n_e`  (:math:`n_o`, :math:`n_e`)
+
     """
-    return (np.sqrt(2.67579 + 0.02099 / (lambda_micron**2 - 0.00470) -
-                    0.00528 * lambda_micron**2),
-            np.sqrt(2.31197 + 0.01184 / (lambda_micron**2 - 0.01607) -
-                    0.00400 * lambda_micron**2))
+    return (np.sqrt(2.67579 + 0.02099 / (lambda_micron**2 - 0.00470)
+                    - 0.00528 * lambda_micron**2),
+            np.sqrt(2.31197 + 0.01184 / (lambda_micron**2 - 0.01607)
+                    - 0.00400 * lambda_micron**2))
 
 
 def betaBBO(lambda_micron):
-    r"""Return n_o and n_e of :math:`\beta`-BBO.
+    r"""Return :math:`n_o` and :math:`n_e` of :math:`\beta`-BBO.
 
     http://www.castech.com/manage/upfile/fileload/20170823144544.pdf
 
+    * Negative birefringence
+
     Returns
     ---------
-    tuple
-        :math:`n_o` and :math:`n_e`
+    tuple:  :math:`n_o` and :math:`n_e`
 
     """
-    return (np.sqrt(2.7359 + 0.01878 / (lambda_micron**2 - 0.01822) -
-                    0.01354 * lambda_micron**2),
-            np.sqrt(2.3753 + 0.01224 / (lambda_micron**2 - 0.01667) -
-                    0.01516 * lambda_micron**2))
+    return (np.sqrt(2.7359 + 0.01878 / (lambda_micron**2 - 0.01822)
+                    - 0.01354 * lambda_micron**2),
+            np.sqrt(2.3753 + 0.01224 / (lambda_micron**2 - 0.01667)
+                    - 0.01516 * lambda_micron**2))
 
 
 def quartz(lambda_micron):
-    """Dispersion of refractive index of crystal quartz
-
+    """Dispersion of crystal quartz.
 
     Optics communications. 2011, vol. 284, issue 12, p. 2683-2686.
+
+    Returns
+    ---------
+    tuple:  :math:`n_o` and :math:`n_e`
+
     """
-    return (np.sqrt(1.28604141 + 1.07044083 * lambda_micron**2 /
-                    (lambda_micron**2 - 1.00585997 * 1E-2) +
-                    1.10202242 * lambda_micron**2 / (lambda_micron**2 - 100)),
-            np.sqrt(1.28851804 + 1.09509924 * lambda_micron**2 /
-                    (lambda_micron**2 - 1.02101864 * 1E-2) +
-                    1.15662475 * lambda_micron**2 / (lambda_micron**2 - 100)))
+    return (np.sqrt(1.28604141 + 1.07044083 * lambda_micron**2
+                    / (lambda_micron**2 - 1.00585997 * 1E-2)
+                    + 1.10202242 * lambda_micron**2
+                    / (lambda_micron**2 - 100)),
+            np.sqrt(1.28851804 + 1.09509924 * lambda_micron**2
+                    / (lambda_micron**2 - 1.02101864 * 1E-2)
+                    + 1.15662475 * lambda_micron**2
+                    / (lambda_micron**2 - 100)))
+
+
+def calcite(lambda_micron):
+    r"""Dispersion of calcite (:math:`\textrm{CaCO}_3`).
+
+    http://www.redoptronics.com/Calcite-crystal.html
+
+    * Negative birefringence
+
+    Returns
+    --------
+        :math:`n_o` and :math:`n_e`
+
+    """
+    return (np.sqrt(2.69705
+                    + 0.0192064 / (lambda_micron**2 - 0.01820)
+                    - 0.0151624 * lambda_micron**2),
+            np.sqrt(2.18438
+                    + 0.0087309 / (lambda_micron**2 - 0.01018)
+                    - 0.0024411 * lambda_micron**2))
