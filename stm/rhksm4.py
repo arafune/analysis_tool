@@ -115,9 +115,9 @@ structure defined by RHK.
 
     def __init__(self, fhandle, parent):
         self.parent = parent
-        self.objtype, self.offset, self.size = RHKObject.packer.unpack_from_file(
-            fhandle
-        )
+        self.objtype,
+        self.offset,
+        self.size = RHKObject.packer.unpack_from_file(fhandle)
         self.objname = ""
         self.children = []
         if self.objtype in RHKObject.classes:
