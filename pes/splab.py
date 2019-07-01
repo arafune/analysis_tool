@@ -13,7 +13,7 @@ import numpy as np
 from lxml import etree
 from scipy import interpolate
 
-import arpes
+import pes.arpes  as arpes
 
 
 class SPLab(object):
