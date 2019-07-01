@@ -25,7 +25,20 @@ def alphaBBO(lambda_micron):
 
     Return
     -------
-    tuple:   :math:`n_o` and :math:`n_e`  (:math:`n_o`, :math:`n_e`)
+        (n_o, n_e)
+    """
+    return (
+        np.sqrt(
+            2.67579
+            + 0.02099 / (lambda_micron ** 2 - 0.00470)
+            - 0.00528 * lambda_micron ** 2
+        ),
+        np.sqrt(
+            2.31197
+            + 0.01184 / (lambda_micron ** 2 - 0.01607)
+            - 0.00400 * lambda_micron ** 2
+        ),
+    )
 
     """
     return (np.sqrt(2.67579 + 0.02099 / (lambda_micron**2 - 0.00470)
@@ -84,9 +97,19 @@ def calcite(lambda_micron):
         :math:`n_o` and :math:`n_e`
 
     """
-    return (np.sqrt(2.69705
-                    + 0.0192064 / (lambda_micron**2 - 0.01820)
-                    - 0.0151624 * lambda_micron**2),
-            np.sqrt(2.18438
-                    + 0.0087309 / (lambda_micron**2 - 0.01018)
-                    - 0.0024411 * lambda_micron**2))
+    return (
+        np.sqrt(
+            1.28604141
+            + 1.07044083
+            * lambda_micron ** 2
+            / (lambda_micron ** 2 - 1.00585997 * 1e-2)
+            + 1.10202242 * lambda_micron ** 2 / (lambda_micron ** 2 - 100)
+        ),
+        np.sqrt(
+            1.28851804
+            + 1.09509924
+            * lambda_micron ** 2
+            / (lambda_micron ** 2 - 1.02101864 * 1e-2)
+            + 1.15662475 * lambda_micron ** 2 / (lambda_micron ** 2 - 100)
+        ),
+    )

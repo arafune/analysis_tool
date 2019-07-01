@@ -25,7 +25,7 @@ class ARPESdata(object):
         --------
             tuple: the value of the start and end energies
         """
-        return self.energy_axis[0], self.energy_axis[-1],
+        return self.energy_axis[0], self.energy_axis[-1]
 
     def energy_shift(self, energy):
         """.. py:method:: energy_shift(energy)
@@ -34,19 +34,24 @@ class ARPESdata(object):
         """
         self.energy_axis = self.energy_axis + energy
 
-    def show(self, interpolation='nearest'):
+    def show(self, interpolation="nearest"):
         """.. py:method:: show()
 
         Show the band data
         """
-        ax = plt.imshow(
-            self.intensities, aspect='auto', interpolation=interpolation)
-        ax.axes.set_xlabel('Energy  ( eV )')
-        ax.set_extent((self.energy_axis[0], self.energy_axis[-1],
-                       self.intensities.shape[0], 0))
+        ax = plt.imshow(self.intensities,
+                        aspect="auto",
+                        interpolation=interpolation)
+        ax.axes.set_xlabel("Energy  ( eV )")
+        ax.set_extent((
+            self.energy_axis[0],
+            self.energy_axis[-1],
+            self.intensities.shape[0],
+            0,
+        ))
         return ax
 
-    def showspectra(self, spacing='auto', color='blue'):
+    def showspectra(self, spacing="auto", color="blue"):
         """.. py:method:: show()
 
         Show the waterfall view
@@ -61,7 +66,7 @@ class ARPESdata(object):
         fig = plt.figure()
         ax = fig.add_subplot(111)
         maxintensity = np.max(self.intensities)
-        if spacing == 'auto':
+        if spacing == "auto":
             spacing = int(maxintensity * 7 / 2 / numspectra)
         for no, spectrum in enumerate(reversed(self.intensities)):
             ax.plot(self.energy_axis, spectrum + spacing * no, color=color)
@@ -94,15 +99,19 @@ class ARPESmap(ARPESdata):
         """
         self.angle_axis = self.angle_axis + angle
 
-    def show(self, interpolation='nearest'):
+    def show(self, interpolation="nearest"):
         """.. py:method:: show()
 
         Show the band data
         """
         ax = super(ARPESmap, self).show(interpolation)
-        ax.set_extent((self.energy_axis[0], self.energy_axis[-1],
-                       self.angle_axis[-1], self.angle_axis[0]))
-        ax.axes.set_ylabel('Angle  ( deg )')
+        ax.set_extent((
+            self.energy_axis[0],
+            self.energy_axis[-1],
+            self.angle_axis[-1],
+            self.angle_axis[0],
+        ))
+        ax.axes.set_ylabel("Angle  ( deg )")
         return ax
 
 
@@ -132,13 +141,17 @@ class ARPESband(ARPESdata):
         """
         self.k_axis = self.k_axis + k
 
-    def show(self, interpolation='nearest'):
+    def show(self, interpolation="nearest"):
         """.. py:method:: show()
 
         Show the band data
         """
         ax = super(ARPESmap, self).show(interpolation)
-        ax.set_extent((self.energy_axis[0], self.energy_axis[-1],
-                       self.k_axis[-1], self.k_axis[0]))
-        ax.axes.set_ylabel('momentum  ( AA-1 )')
+        ax.set_extent((
+            self.energy_axis[0],
+            self.energy_axis[-1],
+            self.k_axis[-1],
+            self.k_axis[0],
+        ))
+        ax.axes.set_ylabel("momentum  ( AA-1 )")
         return ax
