@@ -47,7 +47,7 @@ class SPLab():
                 self.groups.append(SPGroup(group))
 
 
-class SPGroup(object):
+class SPGroup():
     """Capsulated a "RegionGroup" struct.
 
     .. py:class:: SPGroup(group)
@@ -70,7 +70,7 @@ class SPGroup(object):
                 self.regions.append(SPRegion(region))
 
 
-class SPRegion(object):
+class SPRegion():
     """Capsulated a "RegionData" struct.
 
     .. py:class:: SPRegion(region)
@@ -175,9 +175,9 @@ class SPRegion(object):
         # summing up each detector data and each scan
         scan_integrated = np.sum(self.rawcounts, axis=0)
         apportioned = []
-        for ch, data in enumerate(scan_integrated):
+        for channel, data in enumerate(scan_integrated):
             interp_f = interpolate.interp1d(
-                self.energy_axis_ch[ch],
+                self.energy_axis_ch[channel],
                 data,
                 bounds_error=False,
                 fill_value="extrapolate",
@@ -190,9 +190,10 @@ class SPRegion(object):
         self.arpes = np.sum(apportioned, axis=0)
         for elm in xmlregion.findall(".//string[@name='name']"):
             if elm.text == "OrdinateRange":
-                p = elm.getparent()
+                parent = elm.getparent()
                 anglespan = float(
-                    p.find(".//any[@name='value']").find(".//double").text)
+                    parent.find(".//any[@name='value']").find(
+                        ".//double").text)
                 self.angle_axis = np.linspace(0, anglespan, num=num_angles)
 
     def make_arpesmap(self):
