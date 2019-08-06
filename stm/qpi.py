@@ -26,7 +26,7 @@ class QPI(object):
        The tunneling current in nA unit.
     """
 
-    def __init__(self, data, physical_size=0, bias=0, current=0, dataname=''):
+    def __init__(self, data, physical_size=0, bias=0, current=0, dataname=""):
         self.data = np.array(data, dtype=np.float_)
         if self.data.ndim == 1:
             self.pixels = int(np.sqrt(self.data.shape[0]))
@@ -50,10 +50,11 @@ class QPI(object):
             position_pixel = [(x, self.ypixel(x, angle_deg))
                               for x in range(self.pixels)]
         else:
-            position_pixel = [
-                (int((y - self.pixels / 2.0) / np.tan(angle_deg * degree) +
-                     self.pixels / 2.0), y) for y in range(self.pixels)
-            ]
+            position_pixel = [(
+                int((y - self.pixels / 2.0) / np.tan(angle_deg * degree) +
+                    self.pixels / 2.0),
+                y,
+            ) for y in range(self.pixels)]
         return np.array([self.data[pos] for pos in position_pixel])
 
     def ypixel(self, x, angle_deg):
@@ -69,18 +70,24 @@ class QPI(object):
         return y
 
     def physical_axis(self, angle_deg):
-        """Calculate k-value along the line tilted by the angle."""
+        """Calculate k-value along the line tilted by the angle"""
         degree = np.pi / 180.0
         if -1.0 <= np.tan(angle_deg * degree) <= 1.0:
             return np.linspace(
-                -self.physical_size / 2.0 * np.abs(
-                    1 / np.cos(angle_deg * degree)), self.physical_size / 2.0 *
-                np.abs(1 / np.cos(angle_deg * degree)), self.pixels)
+                -self.physical_size / 2.0 *
+                np.abs(1 / np.cos(angle_deg * degree)),
+                self.physical_size / 2.0 *
+                np.abs(1 / np.cos(angle_deg * degree)),
+                self.pixels,
+            )
         else:
             return np.linspace(
-                -self.physical_size / 2.0 * np.abs(
-                    1 / np.sin(angle_deg * degree)), self.physical_size / 2.0 *
-                np.abs(1 / np.sin(angle_deg * degree)), self.pixels)
+                -self.physical_size / 2.0 *
+                np.abs(1 / np.sin(angle_deg * degree)),
+                self.physical_size / 2.0 *
+                np.abs(1 / np.sin(angle_deg * degree)),
+                self.pixels,
+            )
 
 
 def qpidataload(filename):
@@ -103,8 +110,11 @@ def qpidataload(filename):
     with thefile:
         [next(thefile) for i in range(4)]
         tmp = next(thefile)
-        bias, bias_unit, current = (float(tmp.split()[3]), tmp.split()[4],
-                                    float(tmp.split()[6]))
+        bias, bias_unit, current = (
+            float(tmp.split()[3]),
+            tmp.split()[4],
+            float(tmp.split()[6]),
+        )
         if bias_unit in "mV,":
             bias = float(bias) / 1000
         [next(thefile) for i in range(2)]
@@ -112,12 +122,11 @@ def qpidataload(filename):
         [next(thefile) for i in range(5)]
         for line in thefile:
             data.append(line.split()[1:])
-    return QPI(
-        data,
-        physical_size=xdim,
-        bias=bias,
-        current=current,
-        dataname=dataname)
+    return QPI(data,
+               physical_size=xdim,
+               bias=bias,
+               current=current,
+               dataname=dataname)
 
 
 def anglestring(angle):

@@ -4,7 +4,7 @@ import os
 from nose.tools import with_setup
 from nose.tools import eq_
 from nose.tools import ok_
-import rhksm4 
+import stm.rhksm4 as rhksm4
 
 
 class TestSM4(object):
