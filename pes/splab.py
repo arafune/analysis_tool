@@ -30,7 +30,7 @@ class SPLab():
     -----------
     root: lxml.etree._Element
 
-    version: text
+    version: str
         version number of SPlab.
 
     groups: list
@@ -49,8 +49,6 @@ class SPLab():
 
 class SPGroup():
     """Capsulated a "RegionGroup" struct.
-
-    .. py:class:: SPGroup(group)
 
     Attributes
     ----------
@@ -73,11 +71,9 @@ class SPGroup():
 class SPRegion():
     """Capsulated a "RegionData" struct.
 
-    .. py:class:: SPRegion(region)
-
     Attributes
     -----------
-    name: text
+    name: str
         region name
 
     param: dictionary

@@ -54,7 +54,7 @@ def get_objects_from_list(fhandle, n, parent):
     return [RHKObject(fhandle, parent) for i in range(n)]
 
 
-class RHKObject:
+class RHKObject():
     """.. py:class:: RHKObject()
 
     Class for RHKObject, used as the parent class for the data
@@ -115,9 +115,8 @@ structure defined by RHK.
 
     def __init__(self, fhandle, parent):
         self.parent = parent
-        self.objtype,
-        self.offset,
-        self.size = RHKObject.packer.unpack_from_file(fhandle)
+        self.objtype, self.offset, self.size = \
+            RHKObject.packer.unpack_from_file(fhandle)
         self.objname = ""
         self.children = []
         if self.objtype in RHKObject.classes:
@@ -133,8 +132,7 @@ structure defined by RHK.
             return RHKObject.classes[self.objtype].__str__(self)
 
         this = "RHKObject of type {0.objtype} @ {0.offset} x {0.size}".format(
-            self
-        )
+            self)
         if self.children:
             return this + "\n" + "\n".join(str(c) for c in self.children)
         else:
@@ -164,7 +162,7 @@ structure defined by RHK.
             child.read(fhandle)
 
 
-class RHKPageIndexHeader:  # Object Id: 1
+class RHKPageIndexHeader():  # Object Id: 1
     """.. py::class:: RHKPageIndexHeader
 
     Class for RHK Page Index Header
@@ -215,8 +213,7 @@ the respective page, etc without reading th eentire SM4 file
 
     def __str__(self):
         return "RHKPageIndexHeader:@{0.offset} x {0.size}\n  ".format(
-            self
-        ) + "\n".join(str(child) for child in self.children)
+            self) + "\n".join(str(child) for child in self.children)
 
 
 class RHKPage:
@@ -274,8 +271,7 @@ class RHKPage:
             "imported page",
         ]
         self.page_id, self.datatype, self.sourcetype, self.objcount, self.minorversion = RHKPage.packer.unpack_from_file(
-            fhandle
-        )
+            fhandle)
         self.datatype_name = datatypes[self.datatype]
         self.sourcetype_name = sourcetypes[self.sourcetype]
         self.children = get_objects_from_list(fhandle, self.objcount, self)
@@ -500,8 +496,7 @@ class RHKPageHeader:  # Object id: 3
 
     def __str__(self):
         return "RHKPageHeader @ {0.offset} x {0.size}\n  ".format(
-            self
-        ) + "\n  ".join(str(child) for child in self.children)
+            self) + "\n  ".join(str(child) for child in self.children)
 
 
 class RHKPageData:
@@ -566,8 +561,7 @@ class RHKStringData:  # Object id: 10
 
     def __str__(self):
         return "RHKStringData @ {0.offset} x {0.size}\n ".format(
-            self
-        ) + "\n ".join(self.strings)
+            self) + "\n ".join(self.strings)
 
 
 class RHKPRMHeader:  # Object id: 15
@@ -701,9 +695,8 @@ class SM4File:
             headersize = struct.unpack("H", fhandle.read(2))[0]
             header = SM4File.packer.unpack_from_file(fhandle)
             if headersize > SM4File.packer.size:
-                self.header_pad = fhandle.read(
-                    headersize - SM4File.packer.size
-                )
+                self.header_pad = fhandle.read(headersize -
+                                               SM4File.packer.size)
             self.signature = header[0]
             self.pagecount = header[1]
             self.children = get_objects_from_list(fhandle, header[2], self)

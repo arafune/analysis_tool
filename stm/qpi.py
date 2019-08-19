@@ -10,9 +10,7 @@ import numpy as np
 
 
 class QPI(object):
-    """.. py:class:: QPI(array-like)
-
-    Class for QPI data
+    """Class for QPI data.
 
     Attributes
     ------------
@@ -24,9 +22,11 @@ class QPI(object):
        The bias voltage in V unit.
     current
        The tunneling current in nA unit.
+
     """
 
     def __init__(self, data, physical_size=0, bias=0, current=0, dataname=""):
+        """Initialization."""
         self.data = np.array(data, dtype=np.float_)
         if self.data.ndim == 1:
             self.pixels = int(np.sqrt(self.data.shape[0]))
@@ -44,7 +44,14 @@ class QPI(object):
         self.dataname = dataname
 
     def cross_section_by_degree(self, angle_deg):
-        """Calculated the intensity along the line tilted by the angle."""
+        """Return the intensities along the line tilted by the angle.
+
+        Parameters
+        ----------
+        angle_deg: float
+            Cutting angle by degrees
+
+        """
         degree = np.pi / 180.0
         if -1.0 < np.tan(angle_deg * degree) <= 1.0:
             position_pixel = [(x, self.ypixel(x, angle_deg))
@@ -58,7 +65,16 @@ class QPI(object):
         return np.array([self.data[pos] for pos in position_pixel])
 
     def ypixel(self, x, angle_deg):
-        """Calculate y pixel with quantization-error correction."""
+        """Calculate y pixel with quantization-error correction.
+
+        Parameters
+        ----------
+            x: float
+
+            angle_deg: float
+                Cutting angle by degrees
+
+        """
         degree = np.pi / 180.0
         y = int(
             np.tan(angle_deg * degree) * (x - self.pixels / 2.0) +
@@ -70,7 +86,14 @@ class QPI(object):
         return y
 
     def physical_axis(self, angle_deg):
-        """Calculate k-value along the line tilted by the angle"""
+        """Calculate k-value along the line tilted by the angle.
+
+        Parameters
+        ----------
+        angle_deg: float
+            Cutting angle by degrees
+
+        """
         degree = np.pi / 180.0
         if -1.0 <= np.tan(angle_deg * degree) <= 1.0:
             return np.linspace(
@@ -91,9 +114,7 @@ class QPI(object):
 
 
 def qpidataload(filename):
-    """.. py:function:: qpidataload(file)
-
-    Data loader for the file converted from SM4
+    """Loader for the file converted from SM4.
 
     Parameters
     ----------
@@ -103,6 +124,7 @@ def qpidataload(filename):
     Returns
     -------
         QPI: QPI object
+
     """
     dataname = os.path.splitext(filename)[0]
     thefile = open(filename)
@@ -130,18 +152,17 @@ def qpidataload(filename):
 
 
 def anglestring(angle):
-    """.. py:function::anglestring(angle)
+    """Return the angle string with 'm' when the angle is negative.
 
-    parameters
+    Parameters
     -----------
-    angle: float
-          The angle.
-
+        angle: float
+            The angle.
 
     Returns
     ---------
-    str
-          When the angle is negative, return 'm'+abs(angle).
+        str
+            When the angle is negative, return 'm'+abs(angle).
 
 """
     if angle < 0:
