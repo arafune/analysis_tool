@@ -134,14 +134,14 @@ class ARPESband(ARPESdata):
 
     Attributes
     -----------
-    k_axis: numpy.array
+    momenta: numpy.array
         momentum axis
 
     """
     def __init__(self):
         """Initialization."""
-        super(ARPESmap, self).__init__()
-        self.k_axis = np.zeros(0)  # Not tested
+        super(ARPESband, self).__init__()
+        self.momenta = np.zeros(0)  # Not tested
 
     def k_start_end(self):
         """Return the start and end momentum.
@@ -151,7 +151,7 @@ class ARPESband(ARPESdata):
             tuple: the value of the start and end axis
 
         """
-        return self.k_axis[0], self.k_axis[-1]  # Not tested
+        return self.momenta[0], self.momenta[-1]  # Not tested
 
     def k_shift(self, momentum):
         """Shift the k-axis by "momentum".
@@ -162,7 +162,7 @@ class ARPESband(ARPESdata):
             Momentum shift
 
         """
-        self.k_axis = self.k_axis + momentum  # Not teseted
+        self.momenta = self.momenta + momentum  # Not teseted
 
     def show(self, interpolation="nearest"):
         """Show the band data.
@@ -173,12 +173,12 @@ class ARPESband(ARPESdata):
             Interpolation method
 
         """
-        ax = super(ARPESmap, self).show(interpolation)
+        ax = super(ARPESband, self).show(interpolation)
         ax.set_extent((
             self.energy_axis[0],
             self.energy_axis[-1],
-            self.k_axis[-1],
-            self.k_axis[0],
+            self.momenta[-1],
+            self.momenta[0],
         ))
         ax.axes.set_ylabel("momentum  ( AA-1 )")
         return ax  # Not teseted
