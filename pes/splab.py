@@ -32,7 +32,6 @@ class SPLab:
         list object stores SPGroup object
 
     """
-
     def __init__(self, file):
         """Initialization."""
         xml = etree.parse(file)
@@ -56,7 +55,6 @@ class SPGroup:
         list object stores SPRegion object
 
     """
-
     def __init__(self, xmlgroup):
         """Initialization."""
         self.name = xmlgroup[0].text
@@ -95,12 +93,11 @@ class SPRegion:
         energy axis for each detector.
         energy_axis_ch[detector_ch] returns the np.array of the energy axis.
 
-    angle_axis: numpy.ndarray
+    angle_degs: numpy.ndarray
         angle axis of the data. Starts with zero and ends with the value
         of OrdinateRange
 
     """
-
     def __init__(self, xmlregion):
         """Initialization."""
         self.xmlregion = xmlregion
@@ -110,9 +107,9 @@ class SPRegion:
             if elm.get("name") == "scan_mode":
                 self.param[elm.get("name")] = elm[0].text
             elif elm.get("name") in [
-                "num_scans",
-                "curves_per_scan",
-                "values_per_curve",
+                    "num_scans",
+                    "curves_per_scan",
+                    "values_per_curve",
             ]:
                 self.param[elm.get("name")] = int(elm.text)
             else:
@@ -127,26 +124,18 @@ class SPRegion:
         self.analyzer_info["name"] = analyzer[0].text
         detectors = xmlregion.find('.//sequence[@type_name="DetectorSeq"]')
         self.analyzer_info["Detector"] = np.array(
-            [
-                [float(elm2.text) for elm2 in elm if elm2.tag == "double"]
-                for elm in detectors
-            ]
-        )
+            [[float(elm2.text) for elm2 in elm if elm2.tag == "double"]
+             for elm in detectors])
         num_detectors = len(self.analyzer_info["Detector"])
         counts_tag = './/ulong[@type_name="Counts"]'
-        counts = np.array(
-            [
-                [int(count) for count in elm.text.split()]
-                for elm in xmlregion.findall(counts_tag)
-            ]
-        )
+        counts = np.array([[int(count) for count in elm.text.split()]
+                           for elm in xmlregion.findall(counts_tag)])
         # self.rawcount[scan#][ch#][angle#][energy#]
         self.rawcounts = counts.reshape(
             self.param["num_scans"],
             num_angles,
-            self.param["values_per_curve"]
-            + self.mcd_head_tail[0]
-            + self.mcd_head_tail[1],
+            self.param["values_per_curve"] + self.mcd_head_tail[0] +
+            self.mcd_head_tail[1],
             num_detectors,
         ).transpose(0, 3, 1, 2)
         # energy_axis_ch
@@ -162,26 +151,15 @@ class SPRegion:
         # values_per_curve+
         # np.linspace(sn, en
         self.energy_axis = np.array(
-            [E1 + delta * i for i in range(self.param["values_per_curve"])]
-        )
+            [E1 + delta * i for i in range(self.param["values_per_curve"])])
         # energy_axis_ch would be local before release
-        self.energy_axis_ch = np.array(
-            [
-                [
-                    E1
-                    - mcdhead * delta
-                    + self.analyzer_info["Detector"][i][1]
-                    * self.param["pass_energy"]
-                    + delta * j
-                    for j in range(
-                        self.param["values_per_curve"]
-                        + self.mcd_head_tail[0]
-                        + self.mcd_head_tail[1]
-                    )
-                ]
-                for i in range(num_detectors)
-            ]
-        )
+        self.energy_axis_ch = np.array([[
+            E1 - mcdhead * delta +
+            self.analyzer_info["Detector"][i][1] * self.param["pass_energy"] +
+            delta * j
+            for j in range(self.param["values_per_curve"] +
+                           self.mcd_head_tail[0] + self.mcd_head_tail[1])
+        ] for i in range(num_detectors)])
 
         # Most cases, the required data is
         # * angle resolved
@@ -206,9 +184,9 @@ class SPRegion:
             if elm.text == "OrdinateRange":
                 parent = elm.getparent()
                 anglespan = float(
-                    parent.find(".//any[@name='value']").find(".//double").text
-                )
-                self.angle_axis = np.linspace(0, anglespan, num=num_angles)
+                    parent.find(".//any[@name='value']").find(
+                        ".//double").text)
+                self.angle_degs = np.linspace(0, anglespan, num=num_angles)
 
     def make_arpesmap(self):
         """Make APRESmap object.
@@ -221,7 +199,7 @@ class SPRegion:
         arpes_data = arpes.ARPESmap()
         arpes_data.intensities = self.arpes
         arpes_data.energy_axis = self.energy_axis
-        arpes_data.angle_axis = self.angle_degs
+        arpes_data.angle_degs = self.angle_degs
         return arpes_data
 
 
