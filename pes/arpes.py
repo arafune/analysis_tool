@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Module to analyze and show ARPES data.
-
-.. py:module:: areps
-"""
+"""Module to analyze and show ARPES data."""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,9 +7,19 @@ from scipy import interpolate
 
 
 class ARPESdata(object):
-    """Parent class for ARPESmap and ARPESband."""
+    """Parent class for ARPESmap and ARPESband.
+
+    Parameters
+    -----------
+    intensities: numpy.array
+        Photoemission intensity
+    energy_axis: numpy.array
+        Energy
+
+    """
 
     def __init__(self):
+        """Initialization."""
         self.intensities = np.zeros(0)
         self.energy_axis = np.zeros(0)
 
@@ -21,7 +28,7 @@ class ARPESdata(object):
 
         Returns
         --------
-            tuple: the value of the start and end energies
+        tuple: the value of the start and end energies
 
         """
         return self.energy_axis[0], self.energy_axis[-1]  # Not tested
@@ -32,7 +39,7 @@ class ARPESdata(object):
         Parameters
         ----------
         energy: float
-           Energy shift
+            Energy shift
 
         """
         self.energy_axis = self.energy_axis + energy
@@ -40,18 +47,20 @@ class ARPESdata(object):
     def show(self, interpolation="nearest"):
         """Show the band data.
 
-        Parameters
-        -----------
-        interpolation: str, default 'nearest'
-            Interpolation method
-
+        .. py:method:: show()
         """
-        ax = plt.imshow(self.intensities,
-                        aspect="auto",
-                        interpolation=interpolation)
+        ax = plt.imshow(
+            self.intensities, aspect="auto", interpolation=interpolation
+        )
         ax.axes.set_xlabel("Energy  ( eV )")
-        ax.set_extent((self.energy_axis[0], self.energy_axis[-1],
-                       self.intensities.shape[0], 0))
+        ax.set_extent(
+            (
+                self.energy_axis[0],
+                self.energy_axis[-1],
+                self.intensities.shape[0],
+                0,
+            )
+        )
         return ax  # Not tested
 
     def showspectra(self, spacing="auto", color="blue"):
@@ -76,11 +85,19 @@ class ARPESdata(object):
 
 
 class ARPESmap(ARPESdata):
-    """Class for ARPES intensity data  with infomation of physical axes."""
+    """Class for ARPES intensity data with infomation of physical axes.
+
+    Parameters
+    -----------
+    angles_degs: numpy.array
+        Emission angle
+
+    """
 
     def __init__(self):
+        """Initialization."""
         super(ARPESmap, self).__init__()
-        self.angle_axis = np.zeros(0)
+        self.angle_degs = np.zeros(0)
 
     def angle_start_end(self):
         """Return the start and end energies.
@@ -89,45 +106,47 @@ class ARPESmap(ARPESdata):
         --------
             tuple: the value of the start and end axis
 
-
         """
         return self.angle_axis[0], self.angle_axis[-1]  # Not tested
 
     def angle_shift(self, degree):
-        """Shift the angle  axis by "degree".
-
-        Parameters
-        ----------
-        degree: float
-            Angle for shift by degree
-
-        """
-        self.angle_axis = self.angle_axis + degree
+        """Shift the angle  axis by "degree"."""
+        self.angle_degs = self.angle_axis + degree
 
     def show(self, interpolation="nearest"):
         """Show the band data.
 
         Parameters
-        ----------
-        interpolation: str, deault 'nearest'
+        ------------
+        interpolation: str, default="nearest"
             Interpolation method
 
         """
         ax = super(ARPESmap, self).show(interpolation)
-        ax.set_extent((
-            self.energy_axis[0],
-            self.energy_axis[-1],
-            self.angle_axis[-1],
-            self.angle_axis[0],
-        ))
+        ax.set_extent(
+            (
+                self.energy_axis[0],
+                self.energy_axis[-1],
+                self.angle_degs[-1],
+                self.angle_degs[0],
+            )
+        )
         ax.axes.set_ylabel("Angle  ( deg )")
         return ax  # Not tested
 
 
 class ARPESband(ARPESdata):
-    """Class for ARPES data with wavenumber as the  nonenergy axis."""
+    """Class for ARPES data with wavenumber as the  nonenergy axis.
+
+    Attributes
+    -----------
+    k_axis: numpy.array
+        momentum axis
+
+    """
 
     def __init__(self):
+        """Initialization."""
         super(ARPESmap, self).__init__()
         self.k_axis = np.zeros(0)  # Not tested
 
@@ -145,7 +164,7 @@ class ARPESband(ARPESdata):
         """Shift the k-axis by "momentum".
 
         Parameters
-        ------------
+        -----------
         momentum: float
             Momentum shift
 
@@ -157,12 +176,18 @@ class ARPESband(ARPESdata):
 
         Parameters
         ----------
-        interpolation: str
-            Interpolation method, default 'nearest'
+        interpolation:str, default="nearest"
+            Interpolation method
 
         """
         ax = super(ARPESmap, self).show(interpolation)
-        ax.set_extent((self.energy_axis[0], self.energy_axis[-1],
-                       self.k_axis[-1], self.k_axis[0]))
+        ax.set_extent(
+            (
+                self.energy_axis[0],
+                self.energy_axis[-1],
+                self.k_axis[-1],
+                self.k_axis[0],
+            )
+        )
         ax.axes.set_ylabel("momentum  ( AA-1 )")
         return ax  # Not teseted
