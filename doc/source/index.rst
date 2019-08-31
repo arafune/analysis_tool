@@ -46,6 +46,8 @@ QPI
 Pulselaser Package
 ========================
 
+.. toctree::
+   :maxdepth: 4
 
 pulselaser.sellmeier module
 ---------------------------
@@ -60,10 +62,16 @@ pulselaser.sellmeier module
 PES Package
 =================
 
+
+
 Two modules included.
 
 * pes.splab: Load SPecsLab2 data
 * pes.arpes: Analyze ARPES data
+
+.. toctree::
+   :maxdepth: 2
+
 
 .. automodule:: pes.splab
     :members:

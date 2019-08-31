@@ -11,3 +11,6 @@ raspberry/multimonitor/.ropeproject
 raspberry/.ropeproject
 .ropeproject
 docs
+test/pes/htmlcov
+test/pes/cover
+.coverage
