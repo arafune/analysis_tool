@@ -9,12 +9,12 @@ import os.path
 import numpy as np
 
 
-class QPI():
+class QPI:
     """Class for QPI data.
 
     Attributes
     ------------
-    data: tuple, list, np.ndarray
+    data: tuple, list, numpy.ndarray
        1D or 2D matrix data.  The size of data should be n**2.
     physical_size: float
        The length of the horizontal line.
@@ -24,6 +24,7 @@ class QPI():
        The tunneling current in nA unit.
 
     """
+
     def __init__(self, data, physical_size=0, bias=0, current=0, dataname=""):
         """Initialization."""
         self.data = np.array(data, dtype=np.float_)
@@ -53,14 +54,20 @@ class QPI():
         """
         degree = np.pi / 180.0
         if -1.0 < np.tan(angle_deg * degree) <= 1.0:
-            position_pixel = [(x, self.ypixel(x, angle_deg))
-                              for x in range(self.pixels)]
+            position_pixel = [
+                (x, self.ypixel(x, angle_deg)) for x in range(self.pixels)
+            ]
         else:
-            position_pixel = [(
-                int((y - self.pixels / 2.0) / np.tan(angle_deg * degree) +
-                    self.pixels / 2.0),
-                y,
-            ) for y in range(self.pixels)]
+            position_pixel = [
+                (
+                    int(
+                        (y - self.pixels / 2.0) / np.tan(angle_deg * degree)
+                        + self.pixels / 2.0
+                    ),
+                    y,
+                )
+                for y in range(self.pixels)
+            ]
         return np.array([self.data[pos] for pos in position_pixel])
 
     def ypixel(self, x, angle_deg):
@@ -76,8 +83,9 @@ class QPI():
         """
         degree = np.pi / 180.0
         y = int(
-            np.tan(angle_deg * degree) * (x - self.pixels / 2.0) +
-            self.pixels / 2.0)
+            np.tan(angle_deg * degree) * (x - self.pixels / 2.0)
+            + self.pixels / 2.0
+        )
         if y >= self.pixels:
             y = self.pixels - 1
         elif y < 0:
@@ -96,18 +104,22 @@ class QPI():
         degree = np.pi / 180.0
         if -1.0 <= np.tan(angle_deg * degree) <= 1.0:
             return np.linspace(
-                -self.physical_size / 2.0 *
-                np.abs(1 / np.cos(angle_deg * degree)),
-                self.physical_size / 2.0 *
-                np.abs(1 / np.cos(angle_deg * degree)),
+                -self.physical_size
+                / 2.0
+                * np.abs(1 / np.cos(angle_deg * degree)),
+                self.physical_size
+                / 2.0
+                * np.abs(1 / np.cos(angle_deg * degree)),
                 self.pixels,
             )
         else:
             return np.linspace(
-                -self.physical_size / 2.0 *
-                np.abs(1 / np.sin(angle_deg * degree)),
-                self.physical_size / 2.0 *
-                np.abs(1 / np.sin(angle_deg * degree)),
+                -self.physical_size
+                / 2.0
+                * np.abs(1 / np.sin(angle_deg * degree)),
+                self.physical_size
+                / 2.0
+                * np.abs(1 / np.sin(angle_deg * degree)),
                 self.pixels,
             )
 
@@ -143,11 +155,9 @@ def qpidataload(filename):
         [next(thefile) for i in range(5)]
         for line in thefile:
             data.append(line.split()[1:])
-    return QPI(data,
-               physical_size=xdim,
-               bias=bias,
-               current=current,
-               dataname=dataname)
+    return QPI(
+        data, physical_size=xdim, bias=bias, current=current, dataname=dataname
+    )
 
 
 def anglestring(angle):
