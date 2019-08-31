@@ -49,10 +49,10 @@ class SPGroup:
     Attributes
     ------------
     name: text
-        group name
+        Group name
 
     regions: list
-        list object stores SPRegion object
+        List object stores SPRegion object
 
     """
     def __init__(self, xmlgroup):

@@ -17,7 +17,6 @@ class ExtStruct(struct.Struct):
     """.. py:class:: ExtStruct()
 
     Helper class to treat pack/unpack smoothly"""
-
     def __init__(self, fmt):
         super().__init__(fmt)
 
@@ -55,10 +54,10 @@ def get_objects_from_list(fhandle, n, parent):
 
 
 class RHKObject():
-    """.. py:class:: RHKObject()
+    """Class for RHKObject.
 
-    Class for RHKObject, used as the parent class for the data
-structure defined by RHK.
+    This class is used as the parent class for the data
+    structure defined by RHK.
 
     Attributes
     --------------
@@ -112,7 +111,6 @@ structure defined by RHK.
         "AppInfo",
     ]  # 15 16 17
     """list for object id defined by RHK"""
-
     def __init__(self, fhandle, parent):
         self.parent = parent
         self.objtype, self.offset, self.size = \
@@ -163,17 +161,15 @@ structure defined by RHK.
 
 
 class RHKPageIndexHeader():  # Object Id: 1
-    """.. py::class:: RHKPageIndexHeader
-
-    Class for RHK Page Index Header
+    """Class for RHK Page Index Header.
 
     The page index header stores the details of page index array,
-which contains the array of page offsets and other info.  Using the
-index array we can locate the required page data, thumbnail data for
-the respective page, etc without reading th eentire SM4 file
+    which contains the array of page offsets and other info.  Using the
+    index array we can locate the required page data, thumbnail data for
+    the respective page, etc without reading th eentire SM4 file
 
-
-    .. seealso::
+    SeeAlso
+    ------------
 
     rhk_sm4_read_page_index_header in rhk-sm4.c
 
@@ -192,7 +188,6 @@ the respective page, etc without reading th eentire SM4 file
     packer = ExtStruct("<4I")
     """format is '<4I'
 """
-
     def read(self, fhandle):
         """.. py:method:read(file)
 
@@ -253,7 +248,6 @@ class RHKPage:
     packer = ExtStruct("<16s4I")
     """format is '<16s4I'
 """
-
     def __init__(self, fhandle):
         datatypes = [
             "image data",
@@ -304,7 +298,6 @@ class RHKPageIndexArray:  # Object Id: 2
     pages: list
         List for storing RHKPage objects
 """
-
     def read(self, fhandle):
         """.. py:method:: read(file)
 
@@ -440,7 +433,6 @@ class RHKPageHeader:  # Object id: 3
     packer = ExtStruct("<2H3I7iI2i11f3iI64B")
     """format is '<2H3I7iI2i11f3iI64B'
 """
-
     def read(self, fhandle):
         """.. py:method:: read(file)
 
@@ -510,7 +502,6 @@ class RHKPageData:
     data: tuple
         The matrix data. Note that the item is int for STM/QPI image
 """
-
     def read(self, fhandle):
         """.. py:method:: read(file)
 
@@ -542,7 +533,6 @@ class RHKStringData:  # Object id: 10
     packer = ExtStruct("<H")
     """format is '<H'
 """
-
     def read(self, fhandle):
         """.. py:method:: read(file)
 
@@ -573,7 +563,6 @@ class RHKPRMHeader:  # Object id: 15
     packer = ExtStruct("<3I")
     """format is '<3I'
 """
-
     def read(self, fhandle):
         """.. py:method:read(file)
 
@@ -612,7 +601,6 @@ class RHKThumbnailHeader:  # Object id: 16
     packer = ExtStruct("<3I")
     """format is '<3I'
     """
-
     def read(self, fhandle):
         """.. py:method:read(file)
 
@@ -684,7 +672,6 @@ class SM4File:
     packer = ExtStruct("<36s5I")
     """format is '<36s5I'
 """
-
     def __init__(self, filename):
         if isinstance(filename, str):
             fhandle = open(filename, "rb")
