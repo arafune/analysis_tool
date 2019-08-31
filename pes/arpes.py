@@ -156,10 +156,11 @@ class ARPESmap(ARPESdata):
 class ARPESband(ARPESdata):
     """Class for ARPES data with wavenumber as the nonenergy axis.
 
-    The main data consists of three-column array. The first column is the
-    momenta and the second is the energy and the third is the intensity.
-    The length of the list is len('momentum') x len('angle').
-    The data is not simple Z-matrix shape as the ARPESmap data.
+    The main data (self.data) consists of three-column array.
+    The first column is the momenta and the second is the energy
+    and the third is the intensity. The length of the list is
+    len('momentum') x len('angle'). The data is not simple Z-matrix
+    shape as the ARPESmap data.
 
     Parameters
     -----------
@@ -175,9 +176,9 @@ class ARPESband(ARPESdata):
     data: list
         Energy
     k_axis: list
-        momentum axis data for *Grid style* (i.e. for intensity attribute).
+        Momentum axis for *Grid style* (i.e. for intensities attribute).
     energy_axis: list
-        energy axis data for *Grid style* (i.e. for intensity attribute).
+        Energy axis for *Grid style* (i.e. for intensities attribute).
 
     """
 

@@ -31,7 +31,7 @@ class ExtStruct(struct.Struct):
 
 
 def get_objects_from_list(fhandle, n, parent):
-    """.. py:function:: get_objects_from_list(fhandle, n, parent)
+    """As the method name indicates...
 
     Parameters
     ------------
@@ -45,8 +45,9 @@ def get_objects_from_list(fhandle, n, parent):
     Returns
     ----------
     list
-       Contains RHKObject
-"""
+      Contains RHKObject
+
+    """
     return [RHKObject(fhandle, parent) for i in range(n)]
 
 
@@ -75,9 +76,7 @@ class RHKObject:
     @classmethod
     def registObjType(self, obj_id, obj_name):
         RHKObject.classes[obj_id] = obj_name
-        """.. py:classmethod:: registObjType(parameters)
-
-        Register object whose class is defined.
+        """Register object whose class is defined.
 
         Parameters
         -------------
@@ -148,13 +147,14 @@ class RHKObject:
         self.contents = fhandle.read(self.size)
 
     def read_children(self, fhandle):
-        """.. py:method:: read_children(fhandle)
+        """Read child data.
 
-        Attributes
+        Parameters
         -----------
         fhandle: io.IOBase
             File handle
-"""
+
+        """
         for child in self.children:
             #            print(self.offset, child.objtype, child.size)
             child.read(fhandle)
@@ -166,10 +166,10 @@ class RHKPageIndexHeader:  # Object Id: 1
     The page index header stores the details of page index array,
     which contains the array of page offsets and other info.  Using the
     index array we can locate the required page data, thumbnail data for
-    the respective page, etc without reading th eentire SM4 file
+    the respective page, etc without reading the entire SM4 file
 
-    SeeAlso
-    ------------
+    See Also
+    ---------
     rhk_sm4_read_page_index_header in rhk-sm4.c
 
     Attributes
@@ -182,6 +182,7 @@ class RHKPageIndexHeader:  # Object Id: 1
       1. Page Index Array
     reserved: int
       0   (Not used, just prepared for future by RHK)
+
     """
 
     packer = ExtStruct("<4I")
@@ -278,16 +279,16 @@ class RHKPage:
         self.children = get_objects_from_list(fhandle, self.objcount, self)
 
     def read(self, fhandle):
-        """.. py:method:: read(fhandle)
+        """Reader for Page Index Array.
 
-        Reader for Page Index Array.  This method should not be
-        directly by the user
+        This method should not be directly by the user.
 
-        Attributes
+        Parameters
         -----------
         fhandle: io.IOBase
             file handle
-"""
+
+        """
         for child in self.children:
             child.read(fhandle)
 
@@ -296,27 +297,26 @@ class RHKPage:
 
 
 class RHKPageIndexArray:  # Object Id: 2
-    """.. py:class:: RHKPageIndexArray
-
-    Class for RHK Page Index Array (RHK object id: 2)
+    """Class for RHK Page Index Array (RHK object id: 2)
 
     Attributes
     -----------
     pages: list
         List for storing RHKPage objects
-"""
+
+    """
 
     def read(self, fhandle):
-        """.. py:method:: read(file)
+        """Reader for Page Index Array.
 
-        Reader for Page Index Array.  This method should not be
-        directly by the user
+        This method should not be directly by the user
 
         Parameters
         ------------
         fhandle: io.IOBase
             file handle
-"""
+
+        """
 
         fhandle.seek(self.offset)
         self.pages = [RHKPage(fhandle) for i in range(self.parent.pagecount)]
@@ -330,9 +330,7 @@ class RHKPageIndexArray:  # Object Id: 2
 
 
 class RHKPageHeader:  # Object id: 3
-    """.. py::class:: RHKPageHeader
-
-    Class for RHK Page Header. (RHK object id : 3)
+    """Class for RHK Page Header. (RHK object id : 3)
 
     Attributes
     -----------
@@ -432,21 +430,20 @@ class RHKPageHeader:  # Object id: 3
     objcount: int
         The count of objects after page header.
 
+    See Also
+    ------------
+    rhk_sm4_read_page_header in rhk-sm4.c
 
-    .. seealso::
-
-       rhk_sm4_read_page_header in rhk-sm4.c
-"""
+    """
 
     packer = ExtStruct("<2H3I7iI2i11f3iI64B")
     """format is '<2H3I7iI2i11f3iI64B'
 """
 
     def read(self, fhandle):
-        """.. py:method:: read(file)
+        """Reader for Page Header.
 
-        Reader for Page Header.  This method should not be directly by
-        the user
+        This method should not be directly by the user.
 
         Parameters
         ------------
@@ -502,27 +499,28 @@ class RHKPageHeader:  # Object id: 3
 
 
 class RHKPageData:
-    """ .. py::class:: RHKPageData
+    """Class for RHK Page data.
 
-     Class for RHK Page data.
-     the most important information (Mapping data, spectral data)
+    The most important information (Mapping data, spectral data)
 
     Attributes
     -----------
     data: tuple
         The matrix data. Note that the item is int for STM/QPI image
-"""
+
+    """
 
     def read(self, fhandle):
-        """.. py:method:: read(file)
+        """Reader for Page Data.
 
-        Reader for Page Data.  This method should not be directly by the user
+        This method should not be directly by the user
 
         Parameters
         ------------
         fhandle: io.IOBase
             file handle
-"""
+
+        """
         if self.parent.datatype == 0:
             packstr = "<" + str(self.size // 4) + "l"
             RHKPageData.packer = ExtStruct(packstr)
@@ -536,25 +534,23 @@ class RHKPageData:
 
 
 class RHKStringData:  # Object id: 10
-    """.. py:class:: RHKStringData
-
-    Class for RHK string. (RHK object id : 10)
-"""
+    """Class for RHK string. (RHK object id : 10)."""
 
     packer = ExtStruct("<H")
     """format is '<H'
 """
 
     def read(self, fhandle):
-        """.. py:method:: read(file)
+        """Reader for String Data.
 
-        Reader for String Data.  This method should not be directly by the user
+        This method should not be directly by the user.
 
         Parameters
         ------------
         fhandle: io.IOBase
-            file handle
-"""
+          file handle
+
+        """
         fhandle.seek(self.offset)
         self.strings = []
         for ins in range(self.parent.strcount):
@@ -568,25 +564,23 @@ class RHKStringData:  # Object id: 10
 
 
 class RHKPRMHeader:  # Object id: 15
-    """.. py:class::RHKPRMHeader
-
-    Class for RHK PRM Header. (RHK object id : 15)
-"""
+    """Class for RHK PRM Header. (RHK object id : 15)."""
 
     packer = ExtStruct("<3I")
     """format is '<3I'
 """
 
     def read(self, fhandle):
-        """.. py:method:read(file)
+        """Reader for PRM Header.
 
-        Reader for PRM Header.  This method should not be directly by the user
+        This method should not be directly by the user Parameters.
 
         Parameters
         ------------
         fhandle: io.IOBase
-            file handle
-"""
+          file handle
+
+        """
         fhandle.seek(self.offset)
         self.header = RHKThumbnailHeader.packer.unpack_from_file(fhandle)
         self.compression = self.header[0]
@@ -598,9 +592,7 @@ class RHKPRMHeader:  # Object id: 15
 
 
 class RHKThumbnailHeader:  # Object id: 16
-    """.. py:class::RHKThumbnailHeader
-
-    Class for RHK Thumbnail header. (RHK object id : 16)
+    """Class for RHK Thumbnail header. (RHK object id : 16)
 
     Attributes
     --------------
@@ -617,16 +609,16 @@ class RHKThumbnailHeader:  # Object id: 16
     """
 
     def read(self, fhandle):
-        """.. py:method:read(file)
+        """Reader for Thumbnail header.
 
-        Reader for Thumbnail header.  This method should not be
-        directly by the user
+        This method should not be directly by the user
 
         Parameters
         ------------
         fhandle: io.IOBase
-            file handle
-"""
+          file handle
+
+        """
         fhandle.seek(self.offset)
         self.header = RHKThumbnailHeader.packer.unpack_from_file(fhandle)
         self.width = self.header[0]
@@ -658,7 +650,7 @@ RHKObject.registObjType(16, RHKThumbnailHeader)
 class SM4File:
     """Class for loading SM4 file.
 
-    Paramters
+    Parameters
     ----------
     filename: str, io.IObase
       File name or file handle of 'SM4'
@@ -678,6 +670,7 @@ class SM4File:
 
     reserved: int
         0   (Not used, just prepared for future by RHK)
+
     ndata: int
 
     """
