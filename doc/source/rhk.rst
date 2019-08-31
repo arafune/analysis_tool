@@ -1,1 +1,0 @@
-../../rhk/docs/rhk.rst

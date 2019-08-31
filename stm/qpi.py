@@ -9,7 +9,7 @@ import os.path
 import numpy as np
 
 
-class QPI(object):
+class QPI():
     """Class for QPI data.
 
     Attributes
@@ -24,7 +24,6 @@ class QPI(object):
        The tunneling current in nA unit.
 
     """
-
     def __init__(self, data, physical_size=0, bias=0, current=0, dataname=""):
         """Initialization."""
         self.data = np.array(data, dtype=np.float_)

@@ -8,35 +8,81 @@ Analysis_tool's documentation!
 
 .. Contents:
 
+=====================
+General description
+=====================
+
 .. toctree::
-   :maxdepth:4 
+   :maxdepth: 4
 
    README.md
 
-
-
-
-
 =============
-RHK module
-==============
+STM Package
+=============
+
+.. toctree::
+   :maxdepth: 2
+
+RHK
+---------
+
+.. automodule:: stm.rhksm4
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+QPI
+-------
+
+.. automodule:: stm.qpi
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+
+========================
+Pulselaser Package
+========================
+
+.. toctree::
+   :maxdepth: 4
+
+pulselaser.sellmeier module
+---------------------------
+
+.. automodule:: pulselaser.sellmeier
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+=================
+PES Package
+=================
+
+
+
+Two modules included.
+
+* pes.splab: Load SPecsLab2 data
+* pes.arpes: Analyze ARPES data
 
 .. toctree::
    :maxdepth: 2
 
 
-.. include:: rhk.rst
+.. automodule:: pes.splab
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 
-=============
-QPI module
-==============
-
-.. toctree::
-   :maxdepth: 2
-
-
-.. include:: qpi.rst
+.. automodule:: pes.arpes
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 Indices and tables
 ==================
@@ -44,4 +90,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

@@ -10,9 +10,8 @@ def air(lambda_micron):
     https://refractiveindex.info/?shelf=other&book=air&page=Ciddor
 
     """
-    return (1 + 0.05792105
-            / (238.0185 - lambda_micron ** (-2))
-            + 0.00167917 / (57.362 - lambda_micron ** (-2)))
+    return (1 + 0.05792105 / (238.0185 - lambda_micron**(-2)) + 0.00167917 /
+            (57.362 - lambda_micron**(-2)))
 
 
 def alphaBBO(lambda_micron):
@@ -28,23 +27,11 @@ def alphaBBO(lambda_micron):
         (n_o, n_e)
     """
     return (
-        np.sqrt(
-            2.67579
-            + 0.02099 / (lambda_micron ** 2 - 0.00470)
-            - 0.00528 * lambda_micron ** 2
-        ),
-        np.sqrt(
-            2.31197
-            + 0.01184 / (lambda_micron ** 2 - 0.01607)
-            - 0.00400 * lambda_micron ** 2
-        ),
+        np.sqrt(2.67579 + 0.02099 / (lambda_micron**2 - 0.00470) -
+                0.00528 * lambda_micron**2),
+        np.sqrt(2.31197 + 0.01184 / (lambda_micron**2 - 0.01607) -
+                0.00400 * lambda_micron**2),
     )
-
-    """
-    return (np.sqrt(2.67579 + 0.02099 / (lambda_micron**2 - 0.00470)
-                    - 0.00528 * lambda_micron**2),
-            np.sqrt(2.31197 + 0.01184 / (lambda_micron**2 - 0.01607)
-                    - 0.00400 * lambda_micron**2))
 
 
 def betaBBO(lambda_micron):
@@ -59,10 +46,10 @@ def betaBBO(lambda_micron):
     tuple:  :math:`n_o` and :math:`n_e`
 
     """
-    return (np.sqrt(2.7359 + 0.01878 / (lambda_micron**2 - 0.01822)
-                    - 0.01354 * lambda_micron**2),
-            np.sqrt(2.3753 + 0.01224 / (lambda_micron**2 - 0.01667)
-                    - 0.01516 * lambda_micron**2))
+    return (np.sqrt(2.7359 + 0.01878 / (lambda_micron**2 - 0.01822) -
+                    0.01354 * lambda_micron**2),
+            np.sqrt(2.3753 + 0.01224 / (lambda_micron**2 - 0.01667) -
+                    0.01516 * lambda_micron**2))
 
 
 def quartz(lambda_micron):
@@ -75,14 +62,12 @@ def quartz(lambda_micron):
     tuple:  :math:`n_o` and :math:`n_e`
 
     """
-    return (np.sqrt(1.28604141 + 1.07044083 * lambda_micron**2
-                    / (lambda_micron**2 - 1.00585997 * 1E-2)
-                    + 1.10202242 * lambda_micron**2
-                    / (lambda_micron**2 - 100)),
-            np.sqrt(1.28851804 + 1.09509924 * lambda_micron**2
-                    / (lambda_micron**2 - 1.02101864 * 1E-2)
-                    + 1.15662475 * lambda_micron**2
-                    / (lambda_micron**2 - 100)))
+    return (np.sqrt(1.28604141 + 1.07044083 * lambda_micron**2 /
+                    (lambda_micron**2 - 1.00585997 * 1E-2) +
+                    1.10202242 * lambda_micron**2 / (lambda_micron**2 - 100)),
+            np.sqrt(1.28851804 + 1.09509924 * lambda_micron**2 /
+                    (lambda_micron**2 - 1.02101864 * 1E-2) +
+                    1.15662475 * lambda_micron**2 / (lambda_micron**2 - 100)))
 
 
 def calcite(lambda_micron):
@@ -98,18 +83,10 @@ def calcite(lambda_micron):
 
     """
     return (
-        np.sqrt(
-            1.28604141
-            + 1.07044083
-            * lambda_micron ** 2
-            / (lambda_micron ** 2 - 1.00585997 * 1e-2)
-            + 1.10202242 * lambda_micron ** 2 / (lambda_micron ** 2 - 100)
-        ),
-        np.sqrt(
-            1.28851804
-            + 1.09509924
-            * lambda_micron ** 2
-            / (lambda_micron ** 2 - 1.02101864 * 1e-2)
-            + 1.15662475 * lambda_micron ** 2 / (lambda_micron ** 2 - 100)
-        ),
+        np.sqrt(1.28604141 + 1.07044083 * lambda_micron**2 /
+                (lambda_micron**2 - 1.00585997 * 1e-2) +
+                1.10202242 * lambda_micron**2 / (lambda_micron**2 - 100)),
+        np.sqrt(1.28851804 + 1.09509924 * lambda_micron**2 /
+                (lambda_micron**2 - 1.02101864 * 1e-2) +
+                1.15662475 * lambda_micron**2 / (lambda_micron**2 - 100)),
     )
