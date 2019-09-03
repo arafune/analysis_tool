@@ -1,18 +1,19 @@
 #! /usr/bin/env python3
+"""Band calculation for honeycomb 2D-lattice by tight binding model."""
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 a_size = 1000
 #
-k_vec_gm = np.zeros((2, a_size))
-k_vec_mk = np.zeros((2, int(a_size / np.ceil(a_size))))
-k_vec_kg = np.zeros((2, a_size))
-#
 lattice = 1.5
 eps_en_1 = 4
 eps_en_2 = 2
 t = 1.0
+#
+k_vec_gm = np.zeros((2, a_size))
+k_vec_mk = np.zeros((2, int(a_size / np.ceil(a_size))))
+k_vec_kg = np.zeros((2, a_size))
 #
 k_vec_gm[0] = np.linspace(0, 2 * np.pi / (lattice * np.sqrt(3)), a_size)
 k_vec_mk[0] = k_vec_gm[0][-1]
