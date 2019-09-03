@@ -168,7 +168,7 @@ class ARPESband(ARPESdata):
         Emission angle axis.
     energies: list
         Kinetic Energy axis.  (Must be Kinetic energy: Measured from Ev.)
-    intensities:
+    intensities: list
         Photoemission intensity values
 
     Attributes
