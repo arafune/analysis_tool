@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 """Tight binding calculation for h-BN type honeycomb structure"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -9,7 +10,10 @@ k_vec_gm = np.zeros((2, a_size))
 k_vec_mk = np.zeros((2, int(a_size / np.ceil(a_size))))
 k_vec_kg = np.zeros((2, a_size))
 #
-lattice = 1.4
+lattice = 1.5
+eps_en_1 = 4
+eps_en_2 = 2
+t = 1.0
 #
 k_vec_gm[0] = np.linspace(0, 2 * np.pi / (lattice * np.sqrt(3)), a_size)
 k_vec_mk[0] = k_vec_gm[0][-1]
@@ -19,7 +23,7 @@ k_vec_kg[0] = np.linspace(2 * np.pi / (lattice * np.sqrt(3)), 0, a_size)
 k_vec_kg[1] = np.linspace(2 * np.pi / (lattice * 3), 0, a_size)
 
 
-def energy(kx, ky, eps_1=4, eps_2=2.1, t=1.0, lattice=1.4):
+def energy(kx, ky, eps_1=eps_en_1, eps_2=eps_en_2, t=t, lattice=lattice):
     """Return the energy from the tight binding method.
 
     Parameters
@@ -28,13 +32,13 @@ def energy(kx, ky, eps_1=4, eps_2=2.1, t=1.0, lattice=1.4):
         kx, (2, D)-shape array
     ky: numpy.ndarray
         ky, (2, D)-shape array
-    eps_1: float
+    eps_1: float, default 4
         Energy of the 1st kind of atom in the unit cell ('B' for example)
-    eps_2: float
+    eps_2: float, default 2
         Energy of the 2nd kind of atom in the unit cell ('N' for example)
-    t: float
+    t: float, default 1
         Overlapping integral
-    lattice: float
+    lattice: float, default 1.5
         lattice constant
 
     Returns
