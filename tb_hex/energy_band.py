@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
-
-import numpy as np
+"""Tight binding calculation for h-BN type honeycomb structure"""
 import matplotlib.pyplot as plt
+import numpy as np
 
 a_size = 1000
 #
