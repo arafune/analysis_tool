@@ -76,6 +76,19 @@ Two modules included.
     :undoc-members:
     :show-inheritance:
 
+
+
+=================
+EBAND Package
+=================
+
+
+.. automodule:: eband.tb_hex
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Indices and tables
 ==================
 
