@@ -35,7 +35,7 @@ def distance(kdata):
 def energy(kx, ky, eps_1=eps_en_1, eps_2=eps_en_2, t=t, lattice=lattice):
     r"""Return the energy from the tight binding method.
 
-    :math:`\frac{\epsilon_1 + \epsilon_2}{2} \pm \sqrt{ \frac{(\epsilon_1 - \epsilon_2)^2}{4} + 4t^2 \left( \frac{1}{4} + \cos\left(\frac{\sqrt{3}k_x}{2} a \right)  \cos\left(\frac{k_y}{2} a  \right) + \cos ^2\left( \frac{k_y}{2} a \right) \right)}`
+    :math:`E(k_x, k_y)=\frac{\epsilon_1 + \epsilon_2}{2} \pm \sqrt{ \frac{(\epsilon_1 - \epsilon_2)^2}{4} + 4t^2 \left( \frac{1}{4} + \cos\left(\frac{\sqrt{3}k_x}{2} a \right)  \cos\left(\frac{k_y}{2} a  \right) + \cos ^2\left( \frac{k_y}{2} a \right) \right)}`
 
     Parameters
     -----------

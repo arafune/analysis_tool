@@ -13,6 +13,6 @@ class Test_TightBinding(object):
     def setup(self):
         pass
 
-
-    def test_EnergyBand(axis)
+    @with_setup(setup=setup)
+    def test_EnergyBand(axis):
         pass
