@@ -23,24 +23,8 @@ k_vec_kg[0] = np.linspace(2 * np.pi / (lattice * np.sqrt(3)), 0, a_size)
 k_vec_kg[1] = np.linspace(2 * np.pi / (lattice * 3), 0, a_size)
 
 
-<<<<<<< HEAD
-def distance(kdata):
-    """Return the distace."""
-    dist = np.linspace(
-        0,
-        np.sqrt((kdata[0][0] - kdata[0][-1])**2 +
-                (kdata[1][0] - kdata[1][-1])**2), kdata.shape[1])
-    return dist
-
-
-def energy(kx, ky, eps_1=eps_en_1, eps_2=eps_en_2, t=t, lattice=lattice):
-    r"""Return the energy from the tight binding method.
-
-    :math:`E(k_x, k_y)=\frac{\epsilon_1 + \epsilon_2}{2} \pm \sqrt{ \frac{(\epsilon_1 - \epsilon_2)^2}{4} + 4t^2 \left( \frac{1}{4} + \cos\left(\frac{\sqrt{3}k_x}{2} a \right)  \cos\left(\frac{k_y}{2} a  \right) + \cos ^2\left( \frac{k_y}{2} a \right) \right)}`
-=======
 class Band:
     """Band structure
->>>>>>> fb5ec84ebb9e228ec95e3acc5ff00176375b41d6
 
     Parameters
     -----------
