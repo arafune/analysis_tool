@@ -53,7 +53,7 @@ class SACObject:
             self.current.append(struct.unpack("@f", sac_data.read(4))[0])
 
     @property
-    def massnum(self):
+    def mass_amu(self):
         """Return the axis-x."""
         return np.linspace(self.firstmass, self.firstmass + self.scanwidth,
                            self.anz)
