@@ -4,11 +4,11 @@
 
 import struct
 from datetime import datetime
-from logging import DEBUG, Formatter, StreamHandler, getLogger
+from logging import DEBUG, INFO, Formatter, StreamHandler, getLogger
 
 import numpy as np
 
-LOGLEVEL = DEBUG
+LOGLEVEL = INFO
 logger = getLogger(__name__)
 fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
 formatter = Formatter(fmt)
@@ -34,61 +34,44 @@ class SACObject:
         sac_data = open(fhandle, "rb")
         sac_data.seek(100, 0)
         self.n_cyc = struct.unpack("@i", sac_data.read(4))[0]
-        self.n_dbc = struct.unpack("@h", sac_data.read(2))[0]
-        self.cycle_length = struct.unpack("@i", sac_data.read(4))[0]
         logger.debug('n_cyc: {}'.format(self.n_cyc))
-        logger.debug('n_dbc: {}'.format(self.n_dbc))
-        logger.debug('cycle_length {}'.format(self.cycle_length))
+        sac_data.seek(345, 0)
+        self.scan_width = struct.unpack("@h", sac_data.read(2))[0]
+        logger.debug('scan_width: {}'.format(self.scan_width))
+        sac_data.seek(341, 0)
+        self.firstmass = struct.unpack("@f", sac_data.read(4))[0]
+        sac_data.seek(348, 0)
+        self.mass_start = struct.unpack("@f", sac_data.read(4))[0]
+        self.mass_end = struct.unpack("@f", sac_data.read(4))[0]
+
+        logger.debug('first-, start-, end-mass: {0}, {1}, {2}'.format(
+            self.firstmass, self.mass_start, self.mass_end))
         sac_data.seek(194, 0)
         self.start_time = struct.unpack("@I", sac_data.read(4))[0]
-        logger.debug('start time(unixtime): {}'.format(self.start_time))
-        logger.debug('start time(UTC): {}'.format(
-            datetime.fromtimestamp(self.start_time)))
+        logger.debug('start_time: {0}'.format(self.start_time))
+        sac_data.seek(347, 0)
+        self.n_m = struct.unpack(
+            "@B", sac_data.read(1))[0]  # number of measurements for each mass
+        logger.debug('N of measurements for each mass: {0}'.format(self.n_m))
+        self.data = []
         #
-        for i in range(self.n_cyc):
-            sac_data.seek(200 + i * 9, 0)
-            self.cyc_type = struct.unpack("@b", sac_data.read(1))[0]
-            logger.debug("cyc_type {}".format(self.cyc_type))
-            self.hpos = struct.unpack("@i", sac_data.read(4))[0]
-            logger.debug("hpos {}".format(self.hpos))
-            self.dpos = struct.unpack("@i", sac_data.read(4))[0]
-            logger.debug("dpos {}".format(self.dpos))
-            if self.cyc_type == 17:
-                break
-        #
-        sac_data.seek(self.hpos, 0)
-        self.df = struct.unpack("@b", sac_data.read(1))[0]
-        self.did = struct.unpack("@b", sac_data.read(1))[0]
-        logger.debug('df, did: {0}, {1}'.format(self.df, self.did))
+        DATA_START_ADD = 392
+        sac_data.seek(DATA_START_ADD - 12, 0)
+        total_n_points = round((self.mass_end - self.mass_start) * self.n_m)
+        for cycle in range(self.n_cyc):
+            sac_data.seek(12, 1)
+            tmp = []
+            for mass_index in range(total_n_points):
+                tmp.append(struct.unpack("@f", sac_data.read(4))[0])
+            self.data.append(tmp)
+        logger.debug("len of data {}".format(len(self.data)))
+        self.mass_amu = np.linspace(self.mass_start,
+                                    self.mass_end,
+                                    total_n_points,
+                                    endpoint=False)
+        logger.debug('First mass value {}'.format(self.mass_amu[0]))
+        logger.debug('Last mass value {}'.format(self.mass_amu[-1]))
 
-        sac_data.seek(self.hpos + 28, 0)
-        self.sid = struct.unpack("@b", sac_data.read(1))[0]
-        sac_data.seek(self.hpos + 123, 0)
-        self.firstmass = struct.unpack("@i", sac_data.read(4))[0]
-        self.scanwidth = struct.unpack("@h", sac_data.read(2))[0]
-        logger.debug('1stMass, scanwidth: {0} {1}'.format(
-            self.firstmass, self.scanwidth))
-        self.n_m = struct.unpack("@i", sac_data.read(4))[0]
-        logger.debug("number of measurements per mass {}".format(self.n_m))
-        #
-        sac_data.seek(self.dpos + 6, 0)
-        self.anz = struct.unpack("@i", sac_data.read(4))[0]
-        self.range = struct.unpack("@h", sac_data.read(2))[0]
-        logger.debug("anz, range {0}, {1}".format(self.anz, self.range))
-        #
-        self.current = []
-        sac_data.seek(self.dpos + 12, 0)
-        for i in range(self.anz):
-            self.current.append(struct.unpack("@f", sac_data.read(4))[0])
-
-
-#            logger.debug('num of i: {}'.format(i))
-
-    @property
-    def mass_amu(self):
-        """Return the axis-x."""
-        return np.linspace(self.firstmass, self.firstmass + self.scanwidth,
-                           self.anz)
 
 if __name__ == "__main__":
     import sys
