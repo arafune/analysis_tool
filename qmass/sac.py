@@ -27,6 +27,22 @@ class SACObject:
     -------------
     n_cyc: int
        Number of cycles
+    scan_width: int
+       scan width
+    first_mass: float
+       first mass
+    mass_start: float
+       mass start (Essentially same as first mass?)
+    mass_end: float
+       mass end
+    start_time: int
+       Unix time for record
+    n_m: int
+       number of measurements for each mass
+    data: 2D-array
+       mass data
+    mass_amu: 1D-array
+       X-axis data for QMS
 
     """
     def __init__(self, fhandle):
