@@ -73,7 +73,7 @@ class SACObject:
         #
         DATA_START_ADD = 392
         sac_data.seek(DATA_START_ADD - 12, 0)
-        total_n_points = round((self.mass_end - self.mass_start) * self.n_m)
+        total_n_points = round(self.scan_width * self.n_m)
         for cycle in range(self.n_cyc):
             sac_data.seek(12, 1)
             tmp = []
@@ -82,7 +82,7 @@ class SACObject:
             self.data.append(tmp)
         logger.debug("len of data {}".format(len(self.data)))
         self.mass_amu = np.linspace(self.mass_start,
-                                    self.mass_end,
+                                    self.mass_start + self.scan_width,
                                     total_n_points,
                                     endpoint=False)
         logger.debug('First mass value {}'.format(self.mass_amu[0]))
