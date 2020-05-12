@@ -13,7 +13,7 @@ class Calib1d:
     
     """
 
-    def __init__(seflf, file_name=None):
+    def __init__(self, file_name=None):
         """Initialization.
         
         Parameters
@@ -21,5 +21,26 @@ class Calib1d:
         file_name: str
             calib1d data file name.  Suffix is .calib1d.
         """
-
-        data = []
+        self.positions = []
+        self.shifts = []
+        self.header = []
+        if file_name is None:
+            self.creation_data = ""
+            self.sl_version = ""
+            self.sl_build_data = ""
+            self.source = ""
+            self.Comment = ""
+            #
+            self.lensmode = ""
+            self.slit = ""
+            self.analyzerconfig = ""
+        else:
+            with open(file_name, "r") as fileread:
+                for line in fileread:
+                    if line[0] == "#":
+                        self.header.append(line)
+                    else:
+                        line.strip()
+                        data = line.split(" ")
+                        self.positions.append(float(data[0]))
+                        self.shifts.append(float(data[1]))
