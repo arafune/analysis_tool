@@ -44,3 +44,5 @@ class Calib1d:
                         data = line.split(" ")
                         self.positions.append(float(data[0]))
                         self.shifts.append(float(data[1]))
+                self.positions = np.array(self.positions)
+                self.shifts = np.array(self.shifts)
