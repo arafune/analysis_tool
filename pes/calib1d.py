@@ -4,15 +4,15 @@
 import numpy as np
 from collections import OrderedDict
 from datetime import datetime
-from scipy import interpolate
 
 
 class Calib1d:
     """Class for .calib1d file
-    
+
     Attributes
     --------------
-    
+    file_name: str
+        file name for read
     """
 
     SL_Version = "4.57.1-r83491"
@@ -20,7 +20,7 @@ class Calib1d:
 
     def __init__(self, file_name=None):
         """Initialization.
-        
+
         Parameters
         ------------
         file_name: str
@@ -43,6 +43,8 @@ class Calib1d:
             with open(file_name, "r") as fileread:
                 for line in fileread:
                     if line[0] == "#":
+                        if "##" in line:
+                            line = "#\n" + line
                         self.read_header(line)
                     else:
                         data = line.split(" ")
@@ -52,7 +54,13 @@ class Calib1d:
                 self.shifts = np.array(self.shifts)
 
     def read_header(self, line):
-        """Read header."""
+        """Read header.
+
+        Attributes
+        -------------
+        line: str
+            line for read, begin with "#"
+        """
         if "=" in line:
             item, value = line.split("=")
             self.header[item] = value
@@ -61,15 +69,40 @@ class Calib1d:
 
     def write_header(self):
         """Build header."""
-        self.header["# Creation Date "] = ' "{}"'.format(
+        output_header = ""
+        self.header["# Creation Date "] = ' "{}"\n'.format(
             datetime.strftime(datetime.utcnow(), "%Y-%m-%d %H:%M:%S UTC")
         )
         for k, v in self.header.items():
             if v is None:
-                print(k)
+                output_header += k
             else:
-                v.strip()
-                print(k + "=" + v)
+                output_header += k + "=" + v
+        return output_header
+
+    def comment(self, text_str):
+        """Add comment in header
+
+        Attributes
+        -----------
+        text_str: str
+            string for comment
+        """
+        self.header["# Comment       "] = '"{}"\n'.format("text_str")
 
     def save(self, filename):
-        pass
+        with open(filename, mode="w") as f:
+            f.write(self.write_header())
+            for p, s in zip(self.positions, self.shifts):
+                f.write("{:.5f} {:.7f} 1\n".format(p, s))
+
+    def linearlization(self):
+        """Correct the calibration by linear function.
+
+        The calibration file is not linear file.
+        This deviation from the linear function may be due to the fitting process,
+        which depends on the spectrum used for calibration.
+        By using this method, the calibration data becomes strict linear function.
+        """
+        func = np.poly1d(np.polyfit(self.positions, self.shifts, 1))
+        self.shifts = func(self.positions)
