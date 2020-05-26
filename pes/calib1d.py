@@ -88,7 +88,7 @@ class Calib1d:
         text_str: str
             string for comment
         """
-        self.header["# Comment       "] = '"{}"\n'.format("text_str")
+        self.header["# Comment       "] = ' "{}"\n'.format(text_str)
 
     def save(self, filename):
         with open(filename, mode="w") as f:
