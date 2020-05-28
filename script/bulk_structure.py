@@ -141,7 +141,7 @@ if __name__ == "__main__":
             energy = fetch_total_energy(current_axes[0], current_axes[1])
             data[(current_axes[0], current_axes[1])] = energy
             try:
-                if energy < min(current_data):
+                if energy < min(current_data.values()):
                     axis_1 = current_axes[0]
                     axis_2 = current_axes[1]
                     continue
