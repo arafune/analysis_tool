@@ -144,7 +144,7 @@ if __name__ == "__main__":
                 if energy < min(current_data.values()):
                     axis_1 = current_axes[0]
                     axis_2 = current_axes[1]
-                    continue
+                    break
                 else:
                     current_data[(current_axes[0], current_axes[1])] = energy
             except ValueError:
