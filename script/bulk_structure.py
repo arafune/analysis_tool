@@ -119,7 +119,7 @@ if __name__ == "__main__":
         float(sys.argv[4]),
         int(sys.argv[5]),
     )
-    results = pathlib.Path("result.txt")
+    results = pathlib.Path("results.txt")
     if results.exists():
         data = load_results(results)
         lowest_key = min(data, key=data.get)
