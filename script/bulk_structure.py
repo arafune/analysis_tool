@@ -18,6 +18,8 @@ def fetch_total_energy():
 
 def generate_poscar(a_axis, c_axis):
     "Generate POSCAR for MoS2."
+    a_axis = float(a_axis)
+    c_axis = float(c_axis)
     system_name = "MoS2"
     mag = 1.0
     axis1 = "  {:8f}  {:.8f}  {:.8f}".format(a_axis, 0, 0)
@@ -48,11 +50,11 @@ def generate_poscar(a_axis, c_axis):
 
 
 axis_1, step_1, axis_2, step_2, num_i = (
-    sys.argv[1],
-    sys.argv[2],
-    sys.argv[3],
-    sys.argv[4],
-    sys.argv[5],
+    float(sys.argv[1]),
+    float(sys.argv[2]),
+    float(sys.argv[3]),
+    float(sys.argv[4]),
+    int(sys.argv[5]),
 )
 
 # find the last iteration number
@@ -68,14 +70,18 @@ data = {}
 if results.exists():
     with results.open(mode="r") as f:
         for s_line in f:
+            s_line = s_line.strip().split()
             data[(float(s_line[0]), float(s_line[1]))] = float(s_line[2])
             axis_1 = float(s_line[0])
             axis_2 = float(s_line[1])
-        lowest = min(data.values())
+        lowest_key = min(data, key=data.get)
+        axis_1 = lowest_key[0]
+        axis_2 = lowest_key[1]
+        lowest = data[lowest_key]
 else:
     generate_poscar(axis_1, axis_2)
     proc = subprocess.run(
-        ["mpijob", "/home/arafune/bin/vasp_gam_5.4.1"],
+        ["mpijob", "/home/arafune/bin/vasp_std_5.4.1"],
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
     )
@@ -90,7 +96,7 @@ for i in range(num_i):
         continue
     generate_poscar(axis_1, axis_2)
     proc = subprocess.run(
-        ["mpijob", "/home/arafune/bin/vasp_gam_5.4.1"],
+        ["mpijob", "/home/arafune/bin/vasp_std_5.4.1"],
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
     )
@@ -98,7 +104,8 @@ for i in range(num_i):
     total_energy = fetch_total_energy()
     os.rename("OSZICAR", "OSZICAR." + str(lastnum + i))
     os.rename("CONTCAR", "CONTCAR." + str(lastnum + i))
-    result = "{ }  { }  { } \n".format(axis_1, axis_2, total_energy)
+    os.rename("OUTCAR", "OUTCAR." + str(lastnum + i))
+    result = "{0}  {1}  {2} \n".format(axis_1, axis_2, total_energy)
     data[(axis_1, axis_2)] = total_energy
     with results.open(mode="a") as f:
         f.write(result)
