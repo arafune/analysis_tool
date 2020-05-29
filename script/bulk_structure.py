@@ -115,13 +115,7 @@ def fetch_total_energy(axes):
 
 # main routine
 if __name__ == "__main__":
-    axis_1, shift_1, axis_2, shift_2, max_i = (
-        float(sys.argv[1]),
-        float(sys.argv[2]),
-        float(sys.argv[3]),
-        float(sys.argv[4]),
-        int(sys.argv[5]),
-    )
+    axis_1, axis_2 = float(sys.argv[1]), float(sys.argv[2])
     results = pathlib.Path("results.txt")
     if results.exists():
         data = load_results(results)
@@ -134,7 +128,7 @@ if __name__ == "__main__":
 
     min_values = minimize(
         fetch_total_energy,
-        [3.165, 13.0],
+        [axis_1, axis_2],
         method="nelder-mead",  # Powell method is tested, too. nelder-mead seems to be better.
         options={"xatol": 0.001},
     )
