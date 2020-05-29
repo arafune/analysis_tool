@@ -10,10 +10,10 @@ import glob
 import subprocess
 
 
-def generate_poscar(a_axis, c_axis):
+def generate_poscar(axes):
     "Generate POSCAR for MoS2."
-    a_axis = float(a_axis)
-    c_axis = float(c_axis)
+    a_axis = float(axes[0])
+    c_axis = float(axes[1])
     system_name = "MoS2"
     mag = 1.0
     axis1 = "  {:8f}  {:.8f}  {:.8f}".format(a_axis, 0, 0)
@@ -67,7 +67,7 @@ def load_results(results="results.txt"):
     return data
 
 
-def fetch_total_energy(axis_1, axis_2, results="results.txt"):
+def fetch_total_energy(axes, results="results.txt"):
     """Return the total energy.
 
     If the calculaation has already performed with the axis_1 and axis_2
@@ -75,11 +75,13 @@ def fetch_total_energy(axis_1, axis_2, results="results.txt"):
 
     IF not, vasp run.
     """
+    axis_1 = axes[0]
+    axis_2 = axes[1]
     try:
-        total_energy = data[(axis_1, axis_2)]
+        total_energy = data[tuple(axes)]
     except KeyError:
         # Generate POSCAR
-        generate_poscar(axis_1, axis_2)
+        generate_poscar(axes)
         # run VASP
         proc = subprocess.run(
             ["mpijob", "/home/arafune/bin/vasp_std_5.4.1"],
@@ -138,7 +140,7 @@ if __name__ == "__main__":
             (axis_1, axis_2 + shift_2),
             (axis_1, axis_2 - shift_2),
         ]:
-            energy = fetch_total_energy(current_axes[0], current_axes[1])
+            energy = fetch_total_energy(current_axes)
             data[(current_axes[0], current_axes[1])] = energy
             try:
                 if energy < min(current_data.values()):
