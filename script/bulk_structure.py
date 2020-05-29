@@ -8,6 +8,7 @@ import math
 import pathlib
 import glob
 import subprocess
+from scipy.optimize import minimize
 
 
 def generate_poscar(axes):
@@ -67,7 +68,7 @@ def load_results(results="results.txt"):
     return data
 
 
-def fetch_total_energy(axes, results="results.txt"):
+def fetch_total_energy(axes):
     """Return the total energy.
 
     If the calculaation has already performed with the axis_1 and axis_2
@@ -106,7 +107,7 @@ def fetch_total_energy(axes, results="results.txt"):
             os.rename("OUTCAR", "OUTCAR.0")
         #
         result = "{0:.6f}  {1:.6f}  {2}\n".format(axis_1, axis_2, total_energy)
-        results = pathlib.Path(results)
+        results = pathlib.Path("results.txt")
         with results.open(mode="a") as f:
             f.write(result)
     return total_energy
@@ -131,23 +132,10 @@ if __name__ == "__main__":
     else:
         lowest = 0
 
-    for i in range(max_i):
-        current_data = {}
-        for current_axes in [
-            (axis_1, axis_2),
-            (axis_1 + shift_1, axis_2),
-            (axis_1 - shift_1, axis_2),
-            (axis_1, axis_2 + shift_2),
-            (axis_1, axis_2 - shift_2),
-        ]:
-            energy = fetch_total_energy(current_axes)
-            data[(current_axes[0], current_axes[1])] = energy
-            try:
-                if energy < min(current_data.values()):
-                    axis_1 = current_axes[0]
-                    axis_2 = current_axes[1]
-                    break
-                else:
-                    current_data[(current_axes[0], current_axes[1])] = energy
-            except ValueError:
-                current_data[(current_axes[0], current_axes[1])] = energy
+    min_values = minimize(
+        fetch_total_energy,
+        [3.165, 13.0],
+        method="nelder-mead",  # Powell method is tested, too. nelder-mead seems to be better.
+        options={"xatol": 0.001},
+    )
+    print(min_values)
