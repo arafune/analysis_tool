@@ -1,6 +1,7 @@
 """HREELS Lens parameter"""
 
 import argparse
+import datetime
 
 
 class Entry:
@@ -8,6 +9,25 @@ class Entry:
 
     def __init__(self):
         pass
+
+
+def label_str(labeltext):
+    """Return tuple of date & time, resolution, intensity from 'Label' string.
+    "2/14/20 7:43:28 PM : +7.48 meV, 192.65 pA"
+
+
+    Example
+    ---------
+    >>> label_str("2/14/20 7:43:28 PM : +7.48 meV, 192.65 pA")
+        (datetime.datetime(2020, 2, 14, 19, 43, 28), 7.48, 192.65)
+    """
+    tmp = labeltext.strip().split()
+    day_time = datetime.datetime.strptime(
+        tmp[0] + " " + tmp[1] + " " + tmp[2], "%m/%d/%y %I:%M:%S %p"
+    )
+    res = float(tmp[4])
+    intensity = float(tmp[6])
+    return day_time, res, intensity
 
 
 def load_els_lens_parameter(filename):
