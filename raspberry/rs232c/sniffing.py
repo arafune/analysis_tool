@@ -5,8 +5,8 @@ import datetime
 import serial
 
 BAUD_RATE = 9600  # whatever baudrate you are listening to
-PORT1 = '/dev/ttyUSB0'  # replace with your first com port path
-PORT2 = '/dev/ttyUSB1'  # replace with your second com port path
+PORT1 = '/dev/ttyUSB1'  # replace with your first com port path
+PORT2 = '/dev/ttyUSB0'  # replace with your second com port path
 READ_TIMEOUT = 0.1          # Read timeout to avoid waiting while
 # there is no data on the buffer
 WRITE_TIMEOUT = None        # Write timeout to avoid waiting in case of
