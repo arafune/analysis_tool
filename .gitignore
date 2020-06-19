@@ -4,3 +4,14 @@ rhk/test/rhk/__pycache__
 rhksm4-checkpoint.ipynb
 *.pyc
 doc/build
+test/pes/data/.ipynb_checkpoints
+raspberry/Motor_control/.ropeproject
+raspberry/LTmeasure/.ipynb_checkpoints
+raspberry/multimonitor/.ropeproject
+raspberry/.ropeproject
+.ropeproject
+docs
+test/pes/htmlcov
+test/pes/cover
+.coverage
+htmlcov

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-'''.. py:module:: rhksm4
+""".. py:module:: rhksm4
 
 Module to read the proprietary files SM4 from RHK technology
 
 For writing the code I used some ideas from the Gwyddion project
 (http://gwyddion.net/) where I found rhk-sm4.c. Some of variable names
 are followed from it.
-'''
+"""
 
 import io
 import struct
@@ -14,28 +14,24 @@ from types import MethodType
 
 
 class ExtStruct(struct.Struct):
-    '''.. py:class:: ExtStruct()
-
-    Helper class to treat pack/unpack smoothly'''
+    """Helper class to treat pack/unpack smoothly."""
 
     def __init__(self, fmt):
         super().__init__(fmt)
 
     def unpack_from_file(self, fhandle):
-        '''.. py:method:: unpack_from_file(fhandle)
-
-        Helper function to unpack from file
+        """Helper function to unpack from file.
 
         Parameters
         ----------
         fhandle: io.IOBase
             The file handle
-        '''
+        """
         return self.unpack(fhandle.read(self.size))
 
 
 def get_objects_from_list(fhandle, n, parent):
-    '''.. py:function:: get_objects_from_list(fhandle, n, parent)
+    """As the method name indicates...
 
     Parameters
     ------------
@@ -49,144 +45,161 @@ def get_objects_from_list(fhandle, n, parent):
     Returns
     ----------
     list
-       Contains RHKObject
-'''
+      Contains RHKObject
+
+    """
     return [RHKObject(fhandle, parent) for i in range(n)]
 
 
 class RHKObject:
-    '''.. py:class:: RHKObject()
+    """Class for RHKObject.
 
-    Class for RHKObject, used as the parent class for the data
-structure defined by RHK.
+    This class is used as the parent class for the data
+    structure defined by RHK.
 
     Attributes
     --------------
     objtype: int
-    
+
     offset: int
-    
+
     size: int
 
-'''
-    packer = ExtStruct('<3I')
-    '''format is '<3I'
-'''
+"""
+
+    packer = ExtStruct("<3I")
+    """format is '<3I'
+"""
 
     classes = {}
 
     @classmethod
     def registObjType(self, obj_id, obj_name):
         RHKObject.classes[obj_id] = obj_name
-        '''.. py:classmethod:: registObjType(parameters)
-
-        Register object whose class is defined.
+        """Register object whose class is defined.
 
         Parameters
         -------------
         obj_id: int
             The object id
         obj_name: object
-'''
 
-    objectIds = ['Undefined', 'PageIndexHeader', 'PageIndexArray',  # 0 1 2
-                 'PageHeader', 'PageData', 'ImageDriftHeader',      # 3 4 5
-                 'ImageDrift', 'SpecDriftHeader', 'SpecDriftData',  # 6 7 8
-                 'ColorInfo', 'StringData', 'TipTrackHeader',       # 9 10 11
-                 'TipTrackData', 'PRM', 'Thumbnail',                # 12 13 14
-                 'PRMHeader', 'ThumbnailHeader', 'AppInfo']         # 15 16 17
-    '''list for object id defined by RHK'''
+"""
+
+    objectIds = [
+        "Undefined",
+        "PageIndexHeader",
+        "PageIndexArray",  # 0 1 2
+        "PageHeader",
+        "PageData",
+        "ImageDriftHeader",  # 3 4 5
+        "ImageDrift",
+        "SpecDriftHeader",
+        "SpecDriftData",  # 6 7 8
+        "ColorInfo",
+        "StringData",
+        "TipTrackHeader",  # 9 10 11
+        "TipTrackData",
+        "PRM",
+        "Thumbnail",  # 12 13 14
+        "PRMHeader",
+        "ThumbnailHeader",
+        "AppInfo",
+    ]  # 15 16 17
+    """list for object id defined by RHK"""
 
     def __init__(self, fhandle, parent):
         self.parent = parent
-        self.objtype, self.offset, self.size = \
-            RHKObject.packer.unpack_from_file(fhandle)
+        self.objtype, self.offset, self.size = RHKObject.packer.unpack_from_file(
+            fhandle
+        )
         self.objname = ""
         self.children = []
         if self.objtype in RHKObject.classes:
             self.objname = RHKObject.objectIds[self.objtype]
             objclass = RHKObject.classes[self.objtype]
-            if hasattr(objclass, 'read'):
+            if hasattr(objclass, "read"):
                 self.read = MethodType(objclass.read, self)
-            if hasattr(objclass, '__str__'):
+            if hasattr(objclass, "__str__"):
                 self.__str__ = MethodType(objclass.__str__, self)
 
     def __str__(self):
         if self.objtype in RHKObject.classes:
             return RHKObject.classes[self.objtype].__str__(self)
 
-        this = 'RHKObject of type {0.objtype} @ {0.offset} x {0.size}'.\
-               format(self)
+        this = "RHKObject of type {0.objtype} @ {0.offset} x {0.size}".format(
+            self
+        )
         if self.children:
             return this + "\n" + "\n".join(str(c) for c in self.children)
         else:
             return this
 
     def read(self, fhandle):
-        '''.. py:method:: read(fhandle)
+        """.. py:method:: read(fhandle)
 
         Attributes
         ----------
         fhandle: io.IOBase
             File handle
-'''
+"""
         fhandle.seek(self.offset)
         self.contents = fhandle.read(self.size)
 
     def read_children(self, fhandle):
-        '''.. py:method:: read_children(fhandle)
+        """Read child data.
 
-        Attributes
+        Parameters
         -----------
         fhandle: io.IOBase
             File handle
-'''
+
+        """
         for child in self.children:
             #            print(self.offset, child.objtype, child.size)
             child.read(fhandle)
 
 
 class RHKPageIndexHeader:  # Object Id: 1
-    '''.. py::class:: RHKPageIndexHeader
-
-    Class for RHK Page Index Header
+    """Class for RHK Page Index Header.
 
     The page index header stores the details of page index array,
-which contains the array of page offsets and other info.  Using the
-index array we can locate the required page data, thumbnail data for
-the respective page, etc without reading th eentire SM4 file
+    which contains the array of page offsets and other info.  Using the
+    index array we can locate the required page data, thumbnail data for
+    the respective page, etc without reading the entire SM4 file
 
-
-    .. seealso::
-
+    See Also
+    ---------
     rhk_sm4_read_page_index_header in rhk-sm4.c
 
     Attributes
     ----------------
     pagecount: int
-        The number of pages
+      The number of pages
     children: list
-        list object that contains following child objects
+      list object that contains following child objects
 
-        1. Page Index Array
+      1. Page Index Array
     reserved: int
-        0   (Not used, just prepared for future by RHK)
-    '''
-    packer = ExtStruct('<4I')
-    '''format is '<4I'
-'''
+      0   (Not used, just prepared for future by RHK)
+
+    """
+
+    packer = ExtStruct("<4I")
+    """format is '<4I'
+"""
 
     def read(self, fhandle):
-        '''.. py:method:read(file)
+        """Reader for Page Index Header.
 
-        Reader for Page Index Header. This method should not be
-        directly by the user
+        This method should not be directly by the user
 
         Parameters
         ------------
         fhandle: io.IOBase
             file handle
-'''
+
+        """
         fhandle.seek(self.offset)
         header = RHKPageIndexHeader.packer.unpack_from_file(fhandle)
         self.pagecount = header[0]
@@ -195,14 +208,19 @@ the respective page, etc without reading th eentire SM4 file
         self.read_children(fhandle)
 
     def __str__(self):
-        return 'RHKPageIndexHeader:@{0.offset} x {0.size}\n  '.format(self) + \
-            "\n".join(str(child) for child in self.children)
+        return "RHKPageIndexHeader:@{0.offset} x {0.size}\n  ".format(
+            self
+        ) + "\n".join(str(child) for child in self.children)
 
 
 class RHKPage:
-    '''.. class:py::RHKPage
+    """Class for RHK Page.
 
-    Class for RHK Page
+    Parameters
+    ----------
+    fhandle: str
+       file handle
+
 
     Attributes
     ----------------
@@ -231,65 +249,74 @@ class RHKPage:
     reserved: int
        0  (Not used, just prepared for future by RHK)
 
-'''
+"""
 
-    packer = ExtStruct('<16s4I')
-    '''format is '<16s4I'
-'''
+    packer = ExtStruct("<16s4I")
+    """format is '<16s4I'
+"""
 
     def __init__(self, fhandle):
-        datatypes = ['image data', 'line/spectra data', 'xy_data',
-                     'annoted line/spectral data', 'text_data',
-                     'text_annotate', 'Sequential_data']
-        sourcetypes = ['raw page', 'processed page',
-                       'calculated page', 'imported page']
-        self.page_id, self.datatype, self.sourcetype, \
-            self.objcount, self.minorversion \
-            = RHKPage.packer.unpack_from_file(fhandle)
+        datatypes = [
+            "image data",
+            "line/spectra data",
+            "xy_data",
+            "annoted line/spectral data",
+            "text_data",
+            "text_annotate",
+            "Sequential_data",
+        ]
+        sourcetypes = [
+            "raw page",
+            "processed page",
+            "calculated page",
+            "imported page",
+        ]
+        self.page_id, self.datatype, self.sourcetype, self.objcount, self.minorversion = RHKPage.packer.unpack_from_file(
+            fhandle
+        )
         self.datatype_name = datatypes[self.datatype]
         self.sourcetype_name = sourcetypes[self.sourcetype]
         self.children = get_objects_from_list(fhandle, self.objcount, self)
 
     def read(self, fhandle):
-        '''.. py:method:: read(fhandle)
+        """Reader for Page Index Array.
 
-        Reader for Page Index Array.  This method should not be
-        directly by the user
+        This method should not be directly by the user.
 
-        Attributes
+        Parameters
         -----------
         fhandle: io.IOBase
             file handle
-'''
+
+        """
         for child in self.children:
             child.read(fhandle)
 
     def __str__(self):
-        return "RHKPage:\n"+"\n".join(str(child) for child in self.children)
+        return "RHKPage:\n" + "\n".join(str(child) for child in self.children)
 
 
 class RHKPageIndexArray:  # Object Id: 2
-    '''.. py:class:: RHKPageIndexArray
-
-    Class for RHK Page Index Array (RHK object id: 2)
+    """Class for RHK Page Index Array (RHK object id: 2)
 
     Attributes
     -----------
     pages: list
         List for storing RHKPage objects
-'''
+
+    """
 
     def read(self, fhandle):
-        '''.. py:method:: read(file)
+        """Reader for Page Index Array.
 
-        Reader for Page Index Array.  This method should not be
-        directly by the user
+        This method should not be directly by the user
 
         Parameters
         ------------
         fhandle: io.IOBase
             file handle
-'''
+
+        """
 
         fhandle.seek(self.offset)
         self.pages = [RHKPage(fhandle) for i in range(self.parent.pagecount)]
@@ -297,15 +324,13 @@ class RHKPageIndexArray:  # Object Id: 2
             page.read(fhandle)
 
     def __str__(self):
-        this = 'RHKPageIndexArray @ {0.offset} x {0.size}'.format(self)
-        that = '\n'.join(str(page) for page in self.pages)
+        this = "RHKPageIndexArray @ {0.offset} x {0.size}".format(self)
+        that = "\n".join(str(page) for page in self.pages)
         return this + "\n" + that
 
 
 class RHKPageHeader:  # Object id: 3
-    '''.. py::class:: RHKPageHeader
-
-    Class for RHK Page Header. (RHK object id : 3)
+    """Class for RHK Page Header. (RHK object id : 3)
 
     Attributes
     -----------
@@ -405,28 +430,27 @@ class RHKPageHeader:  # Object id: 3
     objcount: int
         The count of objects after page header.
 
+    See Also
+    ------------
+    rhk_sm4_read_page_header in rhk-sm4.c
 
-    .. seealso::
+    """
 
-       rhk_sm4_read_page_header in rhk-sm4.c
-'''
-
-    packer = ExtStruct('<2H3I7iI2i11f3iI64B')
-    '''format is '<2H3I7iI2i11f3iI64B'
-'''
+    packer = ExtStruct("<2H3I7iI2i11f3iI64B")
+    """format is '<2H3I7iI2i11f3iI64B'
+"""
 
     def read(self, fhandle):
-        '''.. py:method:: read(file)
+        """Reader for Page Header.
 
-        Reader for Page Header.  This method should not be directly by
-        the user
+        This method should not be directly by the user.
 
         Parameters
         ------------
         fhandle: io.IOBase
             file handle
 
-        '''
+        """
         fhandle.seek(self.offset)
         self.header = RHKPageHeader.packer.unpack_from_file(fhandle)
         self.fieldsize = self.header[0]
@@ -469,32 +493,34 @@ class RHKPageHeader:  # Object id: 3
         self.read_children(fhandle)
 
     def __str__(self):
-        return 'RHKPageHeader @ {0.offset} x {0.size}\n  '.format(self) + \
-            '\n  '.join(str(child) for child in self.children)
+        return "RHKPageHeader @ {0.offset} x {0.size}\n  ".format(
+            self
+        ) + "\n  ".join(str(child) for child in self.children)
 
 
 class RHKPageData:
-    ''' .. py::class:: RHKPageData
+    """Class for RHK Page data.
 
-     Class for RHK Page data.
-     the most important information (Mapping data, spectral data)
+    The most important information (Mapping data, spectral data)
 
     Attributes
     -----------
     data: tuple
         The matrix data. Note that the item is int for STM/QPI image
-'''
+
+    """
 
     def read(self, fhandle):
-        '''.. py:method:: read(file)
+        """Reader for Page Data.
 
-        Reader for Page Data.  This method should not be directly by the user
+        This method should not be directly by the user
 
         Parameters
         ------------
         fhandle: io.IOBase
             file handle
-'''
+
+        """
         if self.parent.datatype == 0:
             packstr = "<" + str(self.size // 4) + "l"
             RHKPageData.packer = ExtStruct(packstr)
@@ -504,60 +530,57 @@ class RHKPageData:
             pass  # not implemented for spectrum
 
     def __str__(self):
-        return 'RHKPageData: @{0.offset} x {0.size}\n  '.format(self)
+        return "RHKPageData: @{0.offset} x {0.size}\n  ".format(self)
 
 
-class RHKStringData:    # Object id: 10
-    '''.. py:class:: RHKStringData
+class RHKStringData:  # Object id: 10
+    """Class for RHK string. (RHK object id : 10)."""
 
-    Class for RHK string. (RHK object id : 10)
-'''
-
-    packer = ExtStruct('<H')
-    '''format is '<H'
-'''
+    packer = ExtStruct("<H")
+    """format is '<H'
+"""
 
     def read(self, fhandle):
-        '''.. py:method:: read(file)
+        """Reader for String Data.
 
-        Reader for String Data.  This method should not be directly by the user
+        This method should not be directly by the user.
 
         Parameters
         ------------
         fhandle: io.IOBase
-            file handle
-'''
+          file handle
+
+        """
         fhandle.seek(self.offset)
         self.strings = []
         for ins in range(self.parent.strcount):
             strlen = RHKStringData.packer.unpack_from_file(fhandle)[0]
-            self.strings.append(fhandle.read(strlen*2).decode("utf-16"))
+            self.strings.append(fhandle.read(strlen * 2).decode("utf-16"))
 
     def __str__(self):
-        return "RHKStringData @ {0.offset} x {0.size}\n ".format(self) +\
-            "\n ".join(self.strings)
+        return "RHKStringData @ {0.offset} x {0.size}\n ".format(
+            self
+        ) + "\n ".join(self.strings)
 
 
 class RHKPRMHeader:  # Object id: 15
-    '''.. py:class::RHKPRMHeader
+    """Class for RHK PRM Header. (RHK object id : 15)."""
 
-    Class for RHK PRM Header. (RHK object id : 15)
-'''
-
-    packer = ExtStruct('<3I')
-    '''format is '<3I'
-'''
+    packer = ExtStruct("<3I")
+    """format is '<3I'
+"""
 
     def read(self, fhandle):
-        '''.. py:method:read(file)
+        """Reader for PRM Header.
 
-        Reader for PRM Header.  This method should not be directly by the user
+        This method should not be directly by the user Parameters.
 
         Parameters
         ------------
         fhandle: io.IOBase
-            file handle
-'''
+          file handle
+
+        """
         fhandle.seek(self.offset)
         self.header = RHKThumbnailHeader.packer.unpack_from_file(fhandle)
         self.compression = self.header[0]
@@ -565,13 +588,11 @@ class RHKPRMHeader:  # Object id: 15
         self.compressionsize = self.header[2]
 
     def __str__(self):
-        return 'RHKPRMHeader @ {0.offset} x {0.size}\n '.format(self)
+        return "RHKPRMHeader @ {0.offset} x {0.size}\n ".format(self)
 
 
 class RHKThumbnailHeader:  # Object id: 16
-    '''.. py:class::RHKThumbnailHeader
-
-    Class for RHK Thumbnail header. (RHK object id : 16)
+    """Class for RHK Thumbnail header. (RHK object id : 16)
 
     Attributes
     --------------
@@ -581,23 +602,23 @@ class RHKThumbnailHeader:  # Object id: 16
        Lines per frame
     nformat:int
        0 (= Raw data)
-'''
+"""
 
-    packer = ExtStruct('<3I')
-    '''format is '<3I'
-    '''
+    packer = ExtStruct("<3I")
+    """format is '<3I'
+    """
 
     def read(self, fhandle):
-        '''.. py:method:read(file)
+        """Reader for Thumbnail header.
 
-        Reader for Thumbnail header.  This method should not be
-        directly by the user
+        This method should not be directly by the user
 
         Parameters
         ------------
         fhandle: io.IOBase
-            file handle
-'''
+          file handle
+
+        """
         fhandle.seek(self.offset)
         self.header = RHKThumbnailHeader.packer.unpack_from_file(fhandle)
         self.width = self.header[0]
@@ -627,50 +648,50 @@ RHKObject.registObjType(16, RHKThumbnailHeader)
 
 
 class SM4File:
-    '''.. py:class:: SM4File(file)
+    """Class for loading SM4 file.
 
-    Class for Loading SM4 file
+    Parameters
+    ----------
+    filename: str, io.IObase
+      File name or file handle of 'SM4'
 
     Attributes
     -------------
     signature: str
 
-    pagecount:int
-       The total pages in the file
-    children:list
-       The list contains the child objects.
+    pagecount: int
+        The total pages in the file
+    children: list
+        The list contains the child objects:
 
-       1. Page index Header
-       2. PRM Data
-       3. PRM Header
+        1. Page index Header
+        2. PRM Data
+        3. PRM Header
 
-    reserved:int
+    reserved: int
         0   (Not used, just prepared for future by RHK)
+
     ndata: int
 
+    """
 
-    Paramters
-    ----------
-    file: str or io.IObase
-        File name or file handle of 'SM4'
-    '''
-
-    packer = ExtStruct('<36s5I')
-    '''format is '<36s5I'
-'''
+    packer = ExtStruct("<36s5I")
+    """format is '<36s5I'"""
 
     def __init__(self, filename):
+        """Initialization."""
         if isinstance(filename, str):
-            fhandle = open(filename, 'rb')
+            fhandle = open(filename, "rb")
         elif isinstance(filename, io.IOBase):
             fhandle = filename
         with fhandle:
             fhandle.seek(0)
-            headersize = struct.unpack('H', fhandle.read(2))[0]
+            headersize = struct.unpack("H", fhandle.read(2))[0]
             header = SM4File.packer.unpack_from_file(fhandle)
             if headersize > SM4File.packer.size:
-                self.header_pad = fhandle.read(headersize -
-                                               SM4File.packer.size)
+                self.header_pad = fhandle.read(
+                    headersize - SM4File.packer.size
+                )
             self.signature = header[0]
             self.pagecount = header[1]
             self.children = get_objects_from_list(fhandle, header[2], self)
@@ -681,6 +702,7 @@ class SM4File:
 
 if __name__ == "__main__":
     import sys
+
     filename = sys.argv[1]
     SM4 = SM4File(filename)
     for child in SM4.children:

@@ -1,11 +1,29 @@
 # Analys_tool #
 
-Python scripts for analyze the experimental data.  At present, the following two modules are provided.
+Python scripts for analyze the experimental data.  At present, the following 3 Packages are provided.
 
-1. QPI
-    * Analyze QPI data.
-1. RHK
-    * Load RHK (*.sm4) file.
+## stm
+
+  For analyzing STM (RHK) data. It contains two modules.
+
+    * qpi
+      * Analyze QPI data.
+    * rhksm4
+      * Load RHK (\*.sm4) file.
+
+## pes
+
+  For analyzing the ARPES (SpecsLab2) data.  It contains following two modules.
+
+    * splab
+    * arpes
+
+## pulselaser
+
+  At present, the sellmeier's equation for several laser materials
+
+    * sellmeier
+
 
 ### What is this repository for? ###
 
