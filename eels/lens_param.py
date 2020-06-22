@@ -4,6 +4,16 @@ import argparse
 import datetime
 
 
+filament = ["IK", "PsiK", "R"]
+Alens = ["A1", "DeltaA1", "A2", "DeltaA2", "A3", "DeltaA3"]
+PreMono = ["EVM", "UVM", "DeltaVM", "DVM", "DeltaDVM"]
+Mono = ["UM", "DeltaM", "DM", "DeltaDM"]
+Blens = ["B1", "DeltaB1", "B2", "B3", "B4", "DeltaB4"]
+Ana = ["UA", "DeltaA", "DA", "DeltaDA"]
+Clens = ["C1", "DeltaC1", "C2", "C3", "DeltaC3"]
+Linked = ["UA", "DA", "B1" "B2", "B3", "B4", "UM", "DM", "HM", "EVM", "UVM", "DVM"]
+
+
 class Entry:
     """Class for an entry."""
 
@@ -28,6 +38,48 @@ def label_str(labeltext):
     res = float(tmp[4])
     intensity = float(tmp[6])
     return day_time, res, intensity
+
+def _to_list(params, *show_values = None):
+    """Return List of the EELS parameter.
+    
+    
+    Parameters
+    -------------
+    params: dict
+        EELS lens parameter data
+    
+    show_values: tuple
+        item names for store list.
+
+    Returns
+    ---------
+        list
+    """
+    output = []
+    for entry in params:
+        tmp = []
+        for i in show_values:
+            tmp.appeend(entry[i])
+        output.append(tmp)
+    return output
+
+
+def _md_table(lst):
+    """Output table format from list
+    
+    Parameters
+    ------------
+    lst: list
+        input list (list of list)
+
+    Returns
+    ---------
+    str
+    """
+    output = ""
+    for i in lst:
+        output += "|" + "|".join(i) + "|\n"
+    return output
 
 
 def load_els_lens_parameter(filename):
@@ -61,13 +113,8 @@ if __name__ == "__main__":
         description="HREELS parameter analyzer",
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    parser.add_argument(
-        "prms", nargs="+", metavar="EELS_lens_parameter_file(s)", type=str
-    )
 
     args = parser.parse_args()
     container = []
     for filename in args.prms:
         container.extend(load_els_lens_parameter(filename))
-
-    print(container)
