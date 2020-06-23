@@ -39,17 +39,18 @@ def label_str(labeltext):
     intensity = float(tmp[6])
     return day_time, res, intensity
 
-def _to_list(params, *show_values = None):
+
+def _to_list(params, *show_values):
     """Return List of the EELS parameter.
-    
-    
+
+
     Parameters
     -------------
     params: dict
         EELS lens parameter data
-    
+
     show_values: tuple
-        item names for store list.
+        item names to store value.
 
     Returns
     ---------
@@ -66,7 +67,7 @@ def _to_list(params, *show_values = None):
 
 def _md_table(lst):
     """Output table format from list
-    
+
     Parameters
     ------------
     lst: list
