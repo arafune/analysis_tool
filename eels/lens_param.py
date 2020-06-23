@@ -2,6 +2,7 @@
 
 import argparse
 import datetime
+import itertools
 
 
 filament = ["IK", "PsiK", "R"]
@@ -31,13 +32,25 @@ def label_str(labeltext):
     >>> label_str("2/14/20 7:43:28 PM : +7.48 meV, 192.65 pA")
         (datetime.datetime(2020, 2, 14, 19, 43, 28), 7.48, 192.65)
     """
-    tmp = labeltext.strip().split()
-    day_time = datetime.datetime.strptime(
-        tmp[0] + " " + tmp[1] + " " + tmp[2], "%m/%d/%y %I:%M:%S %p"
-    )
+    tmp = labeltext.strip()[1:-1].split()
+    try:
+        day_time = datetime.datetime.strptime(
+            tmp[0] + " " + tmp[1] + " " + tmp[2], "%m/%d/%y %I:%M:%S %p"
+        )
+    except IndexError:
+        return None, None, None
     res = float(tmp[4])
     intensity = float(tmp[6])
     return day_time, res, intensity
+
+
+def _label_str_to_date(params):
+    for entry in params:
+        day_time, res, intensity = label_str(entry["Label"])
+        entry["Date"] = day_time
+        entry["Res"] = res
+        entry["intensity"] = intensity
+    return params
 
 
 def _to_list(params, *show_values):
@@ -59,8 +72,8 @@ def _to_list(params, *show_values):
     output = []
     for entry in params:
         tmp = []
-        for i in show_values:
-            tmp.appeend(entry[i])
+        for i in itertools.chain.from_iterable(show_values):
+            tmp.append(entry[i])
         output.append(tmp)
     return output
 
