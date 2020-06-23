@@ -53,7 +53,7 @@ def _label_str_to_date(params):
     return params
 
 
-def _to_list(params, *show_values):
+def _to_list(params, *show_values, the_date=datetime.datetime(1970, 1, 1, 0, 0, 0)):
     """Return List of the EELS parameter.
 
 
@@ -73,8 +73,18 @@ def _to_list(params, *show_values):
     for entry in params:
         tmp = []
         for i in itertools.chain.from_iterable(show_values):
-            tmp.append(entry[i])
-        output.append(tmp)
+            if i == "Date":
+                try:
+                    if entry[i] > the_date:
+                        tmp.append(entry[i].strftime("%m/%d %H:%M:%S"))
+                    else:
+                        break
+                except TypeError:
+                    break
+            else:
+                tmp.append(entry[i])
+        if tmp:
+            output.append(tmp)
     return output
 
 
