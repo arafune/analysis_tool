@@ -3,9 +3,9 @@
 import argparse
 import datetime
 import itertools
+from typing import Tuple, Dict, List, Iterable, Union, Any
 
-
-filament = ["IK", "PsiK", "R"]
+filament: List = ["IK", "PsiK", "R"]
 Alens = ["A1", "DeltaA1", "A2", "DeltaA2", "A3", "DeltaA3"]
 PreMono = ["EVM", "UVM", "DeltaVM", "DVM", "DeltaDVM"]
 Mono = ["UM", "DeltaM", "DM", "DeltaDM"]
@@ -18,11 +18,13 @@ Linked = ["UA", "DA", "B1" "B2", "B3", "B4", "UM", "DM", "HM", "EVM", "UVM", "DV
 class Entry:
     """Class for an entry."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
 
-def label_str(labeltext):
+def label_str(
+    labeltext: str,
+) -> Union[Tuple[datetime.datetime, float, float], Tuple[None, None, None]]:
     """Return tuple of date & time, resolution, intensity from 'Label' string.
     "2/14/20 7:43:28 PM : +7.48 meV, 192.65 pA"
 
@@ -37,14 +39,14 @@ def label_str(labeltext):
         day_time = datetime.datetime.strptime(
             tmp[0] + " " + tmp[1] + " " + tmp[2], "%m/%d/%y %I:%M:%S %p"
         )
+        return day_time, float(tmp[4]), float(tmp[6])
     except IndexError:
         return None, None, None
-    res = float(tmp[4])
-    intensity = float(tmp[6])
-    return day_time, res, intensity
 
 
-def _label_str_to_date(params):
+def _label_str_to_date(
+    params: List[Dict[str, str]],
+) -> Dict[str, Union[float, datetime.datetime]]:
     for entry in params:
         day_time, res, intensity = label_str(entry["Label"])
         entry["Date"] = day_time
@@ -53,9 +55,12 @@ def _label_str_to_date(params):
     return params
 
 
-def _to_list(params, *show_values, the_date=datetime.datetime(1970, 1, 1, 0, 0, 0)):
+def _to_list(
+    params: Dict,
+    *show_values: Tuple,
+    the_date: datetime.datetime = datetime.datetime(1970, 1, 1, 0, 0, 0)
+) -> List:
     """Return List of the EELS parameter.
-
 
     Parameters
     -------------
@@ -88,7 +93,7 @@ def _to_list(params, *show_values, the_date=datetime.datetime(1970, 1, 1, 0, 0, 
     return output
 
 
-def _md_table(lst):
+def _md_table(lst: Iterable) -> str:
     """Output table format from list
 
     Parameters
@@ -106,8 +111,9 @@ def _md_table(lst):
     return output
 
 
-def load_els_lens_parameter(filename):
+def load_els_lens_parameter(filename: str) -> List[Dict[str, Union[str, float]]]:
     container = []
+    an_entry: Dict[str, Union[str, float]]
     with open(filename, "r") as f:
         for line in f:
             if "<D" in line[0:2]:
@@ -122,7 +128,7 @@ def load_els_lens_parameter(filename):
                 continue
             else:
                 try:
-                    value = int(line.strip().split("\t")[2])
+                    value: Union[int, float, str] = int(line.strip().split("\t")[2])
                 except ValueError:
                     try:
                         value = float(line.strip().split("\t")[2])
