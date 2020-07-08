@@ -191,9 +191,7 @@ class ARPESband(ARPESdata):
         self.data[0] = np.tile(angles, (len(energies), 1)).T.flatten()
         self.data[1] = np.tile(energies, len(angles))
         self.data[0] = (
-            0.512410908328
-            * np.sqrt(self.data[1])
-            * np.sin(self.data[0] * degrees)
+            0.512410908328 * np.sqrt(self.data[1]) * np.sin(self.data[0] * degrees)
         )
         self.data[2] = intensities.ravel()
         assert len(self.data[0]) == len(self.data[1]) == len(self.data[2])
@@ -220,9 +218,7 @@ class ARPESband(ARPESdata):
         return self.second_axis
 
 
-def make_arpesband(
-    angles, energies, intensities, angle_shift=0, energy_shift=0
-):
+def make_arpesband(angles, energies, intensities, angle_shift=0, energy_shift=0):
     """Make ARPES Band object.
 
     Parameters

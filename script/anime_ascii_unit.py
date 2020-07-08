@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+
+# anime.ascii の振動エネルギーは THz単位らしい。
+# でこれを meV単位にしたい。
+
 output: str = ""
 with open("anime.ascii", "r") as f:
     for line in f:
