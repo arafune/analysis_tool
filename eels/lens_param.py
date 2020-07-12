@@ -4,6 +4,7 @@ import argparse
 import datetime
 import itertools
 from typing import Tuple, Dict, List, Iterable, Union, Any
+import pathlib
 
 filament: List = ["IK", "PsiK", "R"]
 Alens = ["A1", "DeltaA1", "A2", "DeltaA2", "A3", "DeltaA3"]
@@ -111,7 +112,9 @@ def _md_table(lst: Iterable) -> str:
     return output
 
 
-def load_els_lens_parameter(filename: str) -> List[Dict[str, Union[str, float]]]:
+def load_els_lens_parameter(
+    filename: Union[str, pathlib.Path]
+) -> List[Dict[str, Union[str, float]]]:
     container = []
     an_entry: Dict[str, Union[str, float]]
     with open(filename, "r") as f:

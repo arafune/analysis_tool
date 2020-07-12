@@ -3,7 +3,6 @@
 import os
 
 import numpy as np
-from nose.tools import eq_, ok_
 
 try:
     import pes.splab as splab
@@ -17,24 +16,20 @@ class TestSPLab(object):
         self.splab041 = splab.load(datadir + "SPLab-041.xml")
 
     def test_param(self):
-        eq_("Region1", self.splab041.groups[0].regions[0].name)
-        eq_(1, self.splab041.groups[0].regions[0].param['num_scans'])
-        eq_(1, self.splab041.groups[0].regions[0].param['dwell_time'])
-        eq_('FixedAnalyzerTransmission',
-            self.splab041.groups[0].regions[0].param['scan_mode'])
-        eq_(1, self.splab041.groups[0].regions[0].param['pass_energy'])
-        eq_(4.414,
-            self.splab041.groups[0].regions[0].param['effective_workfunction'])
-        eq_(1350, self.splab041.groups[0].regions[0].param['detector_voltage'])
-        eq_(0.01, self.splab041.groups[0].regions[0].param['scan_delta'])
-        eq_(5.092,
-            self.splab041.groups[0].regions[0].param['excitation_energy'])
-        eq_(5.1, self.splab041.groups[0].regions[0].param['kinetic_energy'])
-        eq_((8, 8), self.splab041.groups[0].regions[0].mcd_head_tail)
+        assert "Region1" == self.splab041.groups[0].regions[0].name
+        assert 1 == self.splab041.groups[0].regions[0].param['num_scans']
+        assert 1, self.splab041.groups[0].regions[0].param['dwell_time']
+        assert 'FixedAnalyzerTransmission' ==  self.splab041.groups[0].regions[0].param['scan_mode']
+        assert 1 == self.splab041.groups[0].regions[0].param['pass_energy']
+        assert 4.414 == self.splab041.groups[0].regions[0].param['effective_workfunction']
+        assert 1350 == self.splab041.groups[0].regions[0].param['detector_voltage']
+        assert 0.01 == self.splab041.groups[0].regions[0].param['scan_delta']
+        assert 5.092 == self.splab041.groups[0].regions[0].param['excitation_energy']
+        assert 5.1 == self.splab041.groups[0].regions[0].param['kinetic_energy']
+        assert (8, 8) == self.splab041.groups[0].regions[0].mcd_head_tail
 
     def test_analyser_info(self):
-        eq_('PHOIBOS HSA3500 CCD 100 R5[HWType 30:13] CCD',
-            self.splab041.groups[0].regions[0].analyzer_info['name'])
+        assert 'PHOIBOS HSA3500 CCD 100 R5[HWType 30:13] CCD' == self.splab041.groups[0].regions[0].analyzer_info['name']
         np.testing.assert_allclose(
             np.array([[-16.6023, -0.0847422, 1], [-15.2091, -0.0770081, 1],
                       [-13.8159, -0.0699468, 1], [-12.4227, -0.0628961, 1],
@@ -51,8 +46,8 @@ class TestSPLab(object):
             self.splab041.groups[0].regions[0].analyzer_info['Detector'])
 
     def test_mcd_head_tail(self):
-        eq_(self.splab041.groups[0].regions[0].mcd_head_tail[0], 8)
-        eq_(self.splab041.groups[0].regions[0].mcd_head_tail[1], 8)
+        assert self.splab041.groups[0].regions[0].mcd_head_tail[0] == 8
+        assert self.splab041.groups[0].regions[0].mcd_head_tail[1] == 8
 
     def test_energy_axis(self):
         """Test for energy axis including channel separated energy axis."""
