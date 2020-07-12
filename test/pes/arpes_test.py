@@ -3,7 +3,7 @@
 import os
 
 import numpy as np
-from nose.tools import eq_, ok_, with_setup
+from nose.tools import eq_, ok_
 
 try:
     import pes.splab as splab
@@ -18,12 +18,11 @@ except ImportError:
 
 
 class TestARPES(object):
-    def setup(self):
+    def setup_method(self, method):
         datadir = os.path.abspath(os.path.dirname(__file__)) + "/data/"
         self.splab041 = splab.load(datadir + "SPLab-041.xml")
         self.arpes041 = self.splab041.groups[0].regions[0].make_arpesmap()
 
-    @with_setup(setup=setup)
     def test_axis(self):
         """Test for ARPES map axis"""
         np.testing.assert_allclose(
@@ -42,7 +41,6 @@ class TestARPES(object):
             self.splab041.groups[0].regions[0].energy_axis,
         )
 
-    @with_setup(setup=setup)
     def test_angle_and_energy_shift(self):
         self.arpes041.angle_shift(4.0)
         np.testing.assert_allclose(
@@ -57,7 +55,6 @@ class TestARPES(object):
             rtol=1e-06,
         )
 
-    @with_setup(setup=setup)
     def test_angle_to_k(self):
         """Test for ARPESmap -> ARPESband method."""
         energymax = np.max(self.arpes041.energy_axis)
@@ -75,7 +72,6 @@ class TestARPES(object):
         eq_(kmax, 0.51293896353914326)
         eq_(kmin, 0)
 
-    @with_setup(setup=setup)
     def test_ARPESband(self):
         """Test for ARPESband object."""
         band = self.arpes041.convert2band()
