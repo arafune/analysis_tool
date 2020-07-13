@@ -7,12 +7,12 @@ import math
 import pathlib
 import glob
 import subprocess
-from typing import Optional, Dict, Tuple
+from typing import Callable, Optional, Dict, Tuple, Union
 from scipy.optimize import minimize
 import argparse
 
 
-def generate_1Dposcar(vars: Tuple[float]) -> None:
+def bianthrone_crystal(vars: Tuple[float]) -> None:
     """Generate POSCAR as a function of the single variable.
     
     Parameters
@@ -126,7 +126,7 @@ Direct
         f.write(output)
 
 
-def generate_poscar(vars: Tuple[float, ...]) -> None:
+def MoS2(vars: Tuple[float, ...]) -> None:
     "Generate POSCAR for MoS2."
     a_axis = float(vars[0])
     c_axis = float(vars[1])
@@ -156,6 +156,12 @@ def generate_poscar(vars: Tuple[float, ...]) -> None:
     #
     with open("POSCAR", "w") as f:
         f.write(output)
+
+
+def generate_poscar(
+    poscar_template: Callable[[Tuple[float, ...]], None], coords: Tuple[float, ...]
+):
+    return poscar_template(coords)
 
 
 # -----------
@@ -192,7 +198,7 @@ def load_results(
     return data
 
 
-def fetch_total_energy(coords: Tuple[float, ...]) -> Optional[float]:
+def fetch_total_energy(coords: Union[Tuple[float, ...], np.ndarray]) -> Optional[float]:
     """Return the total energy.
 
     If the calculaation has already performed with the axis_1 and axis_2
@@ -202,10 +208,10 @@ def fetch_total_energy(coords: Tuple[float, ...]) -> Optional[float]:
     """
 
     try:
-        total_energy = data[coords]
+        total_energy = data[tuple(coords)]
     except KeyError:
         # Generate POSCAR
-        generate_poscar(coords)
+        generate_poscar(bianthrone_crystal, coords)
         # run VASP
         proc = subprocess.run(
             ["mpijob", "/home/arafune/bin/vasp_std_5.4.1"],
