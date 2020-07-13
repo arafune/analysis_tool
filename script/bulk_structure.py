@@ -8,10 +8,11 @@ import math
 import pathlib
 import glob
 import subprocess
+from typing import Optional, Sequence, Dict, Tuple
 from scipy.optimize import minimize
 
 
-def generate_poscar(axes):
+def generate_poscar(axes: Sequence[float]) -> None:
     "Generate POSCAR for MoS2."
     a_axis = float(axes[0])
     c_axis = float(axes[1])
@@ -48,7 +49,9 @@ def generate_poscar(axes):
 data = {}
 
 
-def load_results(results="results.txt"):
+def load_results(
+    results: pathlib.Path = pathlib.Path("results.txt"),
+) -> Dict[Tuple[float, float], float]:
     """Load data from "results.txt".
 
     results.txt
@@ -68,7 +71,7 @@ def load_results(results="results.txt"):
     return data
 
 
-def fetch_total_energy(axes):
+def fetch_total_energy(axes: Tuple[float, float]) -> Optional[float]:
     """Return the total energy.
 
     If the calculaation has already performed with the axis_1 and axis_2
