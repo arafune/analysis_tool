@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """Module to analyze and show SPECS calib1d data."""
 
-from typing import Union, Optional, List, Any
-from nptyping import NDArray
+from typing import Union, Optional, List
 import numpy as np
 from collections import OrderedDict
 from datetime import datetime
@@ -28,8 +27,8 @@ class Calib1d:
         file_name: str
             calib1d data file name.  Suffix is .calib1d.
         """
-        self.positions: Union[List[float], NDArray[(Any,), float]] = []
-        self.shifts: Union[List[float], NDArray[(Any,), float]] = []
+        self.positions: Union[List[float], np.ndarray] = []
+        self.shifts: Union[List[float], np.ndarray] = []
         self.header: OrderedDict[str, Optional[str]] = OrderedDict()
         if file_name is None:
             self.creation_data = ""
