@@ -3,13 +3,13 @@
 """Search for optimized bulk structure in vasp"""
 
 import os
-import sys
 import math
 import pathlib
 import glob
 import subprocess
-from typing import Optional, Sequence, Dict, Tuple
+from typing import Optional, Dict, Tuple
 from scipy.optimize import minimize
+import argparse
 
 
 def generate_1Dposcar(vars: Tuple[float]) -> None:
@@ -126,7 +126,7 @@ Direct
         f.write(output)
 
 
-def generate_poscar(vars: Sequence[float]) -> None:
+def generate_poscar(vars: Tuple[float, ...]) -> None:
     "Generate POSCAR for MoS2."
     a_axis = float(vars[0])
     c_axis = float(vars[1])
@@ -187,11 +187,12 @@ def load_results(
     with results.open(mode="r") as f:
         for s_line in f:
             s_line = s_line.strip().split()
-            data[(float(s_line[0]), float(s_line[1]))] = float(s_line[2])
+            line_f = tuple([float(x) for x in s_line])
+            data[line_f[:-1]] = line_f[-1]
     return data
 
 
-def fetch_total_energy(axes: Tuple[float, ...]) -> Optional[float]:
+def fetch_total_energy(coords: Tuple[float, ...]) -> Optional[float]:
     """Return the total energy.
 
     If the calculaation has already performed with the axis_1 and axis_2
@@ -199,13 +200,12 @@ def fetch_total_energy(axes: Tuple[float, ...]) -> Optional[float]:
 
     IF not, vasp run.
     """
-    axis_1 = axes[0]
-    axis_2 = axes[1]
+
     try:
-        total_energy = data[axes]
+        total_energy = data[coords]
     except KeyError:
         # Generate POSCAR
-        generate_poscar(axes)
+        generate_poscar(coords)
         # run VASP
         proc = subprocess.run(
             ["mpijob", "/home/arafune/bin/vasp_std_5.4.1"],
@@ -229,7 +229,8 @@ def fetch_total_energy(axes: Tuple[float, ...]) -> Optional[float]:
             os.rename("CONTCAR", "CONTCAR.0")
             os.rename("OUTCAR", "OUTCAR.0")
         #
-        result = "{0:.6f}  {1:.6f}  {2}\n".format(axis_1, axis_2, total_energy)
+        result: str = "".join("{:.6f}  ".format(x) for x in coords)
+        result += "".join("{:.6f}\n".format(total_energy))
         results = pathlib.Path("results.txt")
         with results.open(mode="a") as f:
             f.write(result)
@@ -238,21 +239,25 @@ def fetch_total_energy(axes: Tuple[float, ...]) -> Optional[float]:
 
 # main routine
 if __name__ == "__main__":
-    axis_1, axis_2 = float(sys.argv[1]), float(sys.argv[2])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("variables", type=float, nargs="+")
+    args = parser.parse_args()
+    #
+    coords: Tuple[float, ...] = tuple(args.variables)
     results = pathlib.Path("results.txt")
     if results.exists():
         data = load_results(results)
-        lowest_key: Tuple[float, float] = min(data, key=data.get)
-        axis_1: float = lowest_key[0]
-        axis_2: float = lowest_key[1]
-        lowest = data[lowest_key]
+        lowest_energy_at: Tuple[float, ...] = min(data, key=data.get)
+        coords = lowest_energy_at
+        lowest = data[lowest_energy_at]
     else:
         lowest = 0
 
     min_values = minimize(
         fetch_total_energy,
-        (axis_1, axis_2),
+        coords,
         method="nelder-mead",  # Powell method is tested, too. nelder-mead seems to be better.
         options={"xatol": 0.001},
     )
     print(min_values)
+
