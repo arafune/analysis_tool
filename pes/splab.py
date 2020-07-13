@@ -33,7 +33,7 @@ class SPLab:
 
     """
 
-    def __init__(self, xmlfile):
+    def __init__(self, xmlfile) -> None:
         """Initialization."""
         xml = etree.parse(xmlfile)
         self.root = xml.getroot()
@@ -50,7 +50,7 @@ class SPGroup:
     Parameters
     -------------
     xmlgroup: xml
-       Group data by xml
+        Group data by xml
 
     Attributes
     ------------
@@ -62,7 +62,7 @@ class SPGroup:
 
     """
 
-    def __init__(self, xmlgroup):
+    def __init__(self, xmlgroup) -> None:
         """Initialization."""
         self.name = xmlgroup[0].text
         self.regions = []
@@ -77,7 +77,7 @@ class SPRegion:
     Parameters
     ----------
     xmlregion: xml
-       Region data by xml
+        Region data by xml
 
     Attributes
     -----------
@@ -111,7 +111,7 @@ class SPRegion:
 
     """
 
-    def __init__(self, xmlregion):
+    def __init__(self, xmlregion) -> None:
         """Initialization."""
         self.xmlregion = xmlregion
         self.name = xmlregion[0].text
@@ -180,8 +180,7 @@ class SPRegion:
                 [
                     E1
                     - mcdhead * delta
-                    + self.analyzer_info["Detector"][i][1]
-                    * self.param["pass_energy"]
+                    + self.analyzer_info["Detector"][i][1] * self.param["pass_energy"]
                     + delta * j
                     for j in range(
                         self.param["values_per_curve"]
@@ -236,7 +235,7 @@ class SPRegion:
         return arpes_data
 
 
-def load(splab_xml):
+def load(splab_xml: str) -> SPLab:
     """Load Splab xml file to make SPLab object.
 
     Parameters
