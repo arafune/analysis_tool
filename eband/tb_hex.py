@@ -17,8 +17,9 @@ t = 1.0
 #
 k_vec_gm[0] = np.linspace(0, 2 * np.pi / (lattice * np.sqrt(3)), a_size)
 k_vec_mk[0] = k_vec_gm[0][-1]
-k_vec_mk[1] = np.linspace(0, 2 * np.pi / (lattice * 3.0),
-                          int(np.ceil(a_size / np.sqrt(3))))
+k_vec_mk[1] = np.linspace(
+    0, 2 * np.pi / (lattice * 3.0), int(np.ceil(a_size / np.sqrt(3)))
+)
 k_vec_kg[0] = np.linspace(2 * np.pi / (lattice * np.sqrt(3)), 0, a_size)
 k_vec_kg[1] = np.linspace(2 * np.pi / (lattice * 3), 0, a_size)
 
@@ -34,6 +35,7 @@ class Band:
         division number for k path.
 
     """
+
     def __init__(self, lattice=lattice, N=a_size):
         """Initialization."""
         self.lattice = lattice
@@ -43,8 +45,9 @@ class Band:
         #
         self.gm[0] = np.linspace(0, 2 * np.pi / (lattice * np.sqrt(3)), N)
         self.mk[0] = self.gm[0][-1]
-        self.mk[1] = np.linspace(0, 2 * np.pi / (lattice * 3.0),
-                                 int(np.ceil(N / np.sqrt(3))))
+        self.mk[1] = np.linspace(
+            0, 2 * np.pi / (lattice * 3.0), int(np.ceil(N / np.sqrt(3)))
+        )
         self.kg[0] = np.linspace(2 * np.pi / (lattice * np.sqrt(3)), 0, N)
         self.kg[1] = np.linspace(2 * np.pi / (lattice * 3), 0, N)
 
@@ -75,10 +78,16 @@ class Band:
 
         """
         root_part = np.sqrt(
-            ((eps_1 - eps_2)**2) / 4.0 + 4.0 * t**2 *
-            (1 / 4 + np.cos(kx * self.lattice * np.sqrt(3) / 2) *
-             np.cos(ky * self.lattice / 2) +
-             (np.cos(ky * self.lattice / 2))**2))
+            ((eps_1 - eps_2) ** 2) / 4.0
+            + 4.0
+            * t ** 2
+            * (
+                1 / 4
+                + np.cos(kx * self.lattice * np.sqrt(3) / 2)
+                * np.cos(ky * self.lattice / 2)
+                + (np.cos(ky * self.lattice / 2)) ** 2
+            )
+        )
         return (eps_1 + eps_2) / 2 + root_part, (eps_1 + eps_2) / 2 - root_part
 
 
@@ -92,5 +101,6 @@ def distance(kdata):
 
     """
     dist = np.concatenate(
-        (np.array([0.]), np.cumsum(np.linalg.norm(np.diff(kdata), axis=0))))
+        (np.array([0.0]), np.cumsum(np.linalg.norm(np.diff(kdata), axis=0)))
+    )
     return dist

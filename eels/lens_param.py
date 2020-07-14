@@ -62,7 +62,7 @@ def label_str(
 
 def _label_str_to_date(
     params: List[Dict[str, str]],
-) -> Union[Dict[str, Union[float, datetime.datetime]], Dict[str, Nono]]:
+) -> Union[Dict[str, Union[float, datetime.datetime]], Dict[str, None]]:
     for entry in params:
         day_time, res, intensity = label_str(entry["Label"])
         entry["Date"] = day_time
@@ -131,7 +131,7 @@ def _md_table(lst: Iterable) -> str:
 def load_els_lens_parameter(
     filename: Union[str, pathlib.Path]
 ) -> List[Dict[str, Union[str, float]]]:
-    """Parse lens_parameter 
+    """Parse lens parameter file.
 
     Parameters
     -------------
