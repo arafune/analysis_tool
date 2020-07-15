@@ -211,6 +211,22 @@ def load_results(
     return data
 
 
+def run_vasp() -> str:
+    """Run vasp in NIMS super computer.
+    
+    Returns
+    ---------
+    str
+        STDOUT of vasp run
+    """
+    proc: subprocess.CompletedProcess[bytes] = subprocess.run(
+        ["mpijob", "/home/arafune/bin/vasp_std_5.4.1"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+    )
+    return proc.stdout.decode("utf-8")
+
+
 def fetch_total_energy(coords: Union[Tuple[float, ...], np.ndarray]) -> Optional[float]:
     """Return the total energy.
 
@@ -223,15 +239,9 @@ def fetch_total_energy(coords: Union[Tuple[float, ...], np.ndarray]) -> Optional
     try:
         total_energy = data[tuple(coords)]
     except KeyError:
-        # Generate POSCAR
         generate_poscar(bianthrone_crystal, coords)
-        # run VASP
-        proc = subprocess.run(
-            ["mpijob", "/home/arafune/bin/vasp_std_5.4.1"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-        )
-        print(proc.stdout.decode("utf8"))
+        vasp_stdout = run_vasp()
+        print(vasp_stdout)
         # load OSZICAR
         with open("OSZICAR", "r") as f:
             lines = f.readlines()
@@ -279,4 +289,3 @@ if __name__ == "__main__":
         options={"xatol": 0.001},
     )
     print(min_values)
-

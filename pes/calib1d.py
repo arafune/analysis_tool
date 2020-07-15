@@ -5,6 +5,7 @@ from typing import Union, Optional, List
 import numpy as np
 from collections import OrderedDict
 from datetime import datetime
+from pathlib import Path
 
 
 class Calib1d:
@@ -19,7 +20,7 @@ class Calib1d:
     SL_Version: str = "4.57.1-r83491"
     SL_Build_Date: str = "2019-06-19 10:39:02 UTC"
 
-    def __init__(self, file_name: Optional[str] = None) -> None:
+    def __init__(self, file_name: Union[str, Path, None] = None) -> None:
         """Initialization.
 
         Parameters
@@ -31,22 +32,16 @@ class Calib1d:
         self.shifts: Union[List[float], np.ndarray] = []
         self.header: OrderedDict[str, Optional[str]] = OrderedDict()
         if file_name is None:
-            self.creation_data = ""
-            self.sl_version = ""
-            self.sl_build_data = ""
-            self.source = ""
-            self.Comment = ""
-            #
-            self.lensmode = ""
-            self.slit = ""
-            self.analyzerconfig = ""
+            self.header = {}
+            self.positions = np.array([])
+            self.shifts = np.array([])
         else:
             with open(file_name, "r") as fileread:
                 for line in fileread:
                     if line[0] == "#":
                         if "##" in line:
                             line = "#\n" + line
-                        self.read_header(line)
+                        self._read_header(line)
                     else:
                         data: List[str] = line.split(" ")
                         self.positions.append(float(data[0]))
@@ -54,7 +49,7 @@ class Calib1d:
                 self.positions = np.array(self.positions)
                 self.shifts = np.array(self.shifts)
 
-    def read_header(self, line: str) -> None:
+    def _read_header(self, line: str) -> None:
         """Read header.
 
         Attributes

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Module to analyze and show ARPES data."""
 
+from typing import Tuple, Union
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interpolate
@@ -18,14 +19,14 @@ class ARPESdata:
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialization."""
-        self.intensities = np.zeros(0)
-        self.energy_axis = np.zeros(0)
-        self.second_axis = np.zeros(0)
+        self.intensities: np.ndarray = np.zeros(0)
+        self.energy_axis: np.ndarray = np.zeros(0)
+        self.second_axis: np.ndarray = np.zeros(0)
         self.second_axis_name = ""
 
-    def energy_start_end(self):
+    def energy_start_end(self) -> Tuple[float, float]:
         """Return start and end energies.
 
         Returns
@@ -35,7 +36,7 @@ class ARPESdata:
         """
         return self.energy_axis[0], self.energy_axis[-1]  # Not tested
 
-    def energy_shift(self, energy):
+    def energy_shift(self, energy: float) -> None:
         """Shift the energy axis by "energy".
 
         Parameters
@@ -44,13 +45,13 @@ class ARPESdata:
             Energy shift
 
         """
-        self.energy_axis = self.energy_axis + energy
+        self.energy_axis += +energy
 
-    def shift_2ndaxis(self, value):
+    def shift_2ndaxis(self, value: float) -> None:
         """Shift the second axis (Usually angle axis) by value."""
         self.second_axis += value
 
-    def show(self, interpolation="nearest"):
+    def show(self, interpolation: str = "nearest") -> plt.Axes:
         """Show the band data."""
         ax = plt.imshow(
             self.intensities.T,
@@ -80,7 +81,7 @@ class ARPESdata:
         ax.axes.set_xlabel(self.second_axis_name)
         return ax  # Not tested
 
-    def showspectra(self, spacing="auto", color="blue"):
+    def showspectra(self, spacing: str = "auto", color: str = "blue"):
         """Show the waterfall view.
 
         Parameters
@@ -113,16 +114,16 @@ class ARPESmap(ARPESdata):
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialization."""
         super(ARPESmap, self).__init__()
 
     @property
-    def angle_degs(self):
+    def angle_degs(self) -> np.ndarray:
         """Alias of second_axis."""
         return self.second_axis
 
-    def angle_shift(self, degree):
+    def angle_shift(self, degree: float):
         """Shift the angle axis by "degree".
 
         Parameters
@@ -133,7 +134,9 @@ class ARPESmap(ARPESdata):
         """
         self.shift_2ndaxis(degree)
 
-    def convert2band(self, angle_shift=0, energy_shift=0):
+    def convert2band(
+        self, angle_shift: float = 0, energy_shift: float = 0
+    ) -> "ARPESband":
         """Return ARPESband object (The second axis is momentum).
 
         Parameters
@@ -148,8 +151,8 @@ class ARPESmap(ARPESdata):
         ARPESBand
 
         """
-        angles = self.angle_degs + angle_shift
-        energies = self.energy_axis + energy_shift
+        angles: np.ndarray = self.angle_degs + angle_shift
+        energies: np.ndarray = self.energy_axis + energy_shift
         return ARPESband(angles, energies, self.intensities)
 
 
@@ -185,7 +188,7 @@ class ARPESband(ARPESdata):
     def __init__(self, angles, energies, intensities):
         """Initialization."""
         super(ARPESband, self).__init__()
-        degrees = np.pi / 180
+        degrees: float = np.pi / 180
         self.energy_axis = energies
         self.data = [np.zeros(0), np.zeros(0), np.zeros(0)]
         self.data[0] = np.tile(angles, (len(energies), 1)).T.flatten()
@@ -213,12 +216,14 @@ class ARPESband(ARPESdata):
         )
 
     @property
-    def k_axis(self):
+    def k_axis(self) -> np.ndarray:
         """Alias for self.second_axis."""
         return self.second_axis
 
 
-def make_arpesband(angles, energies, intensities, angle_shift=0, energy_shift=0):
+def make_arpesband(
+    angles, energies, intensities, angle_shift=0, energy_shift=0
+) -> ARPESband:
     """Make ARPES Band object.
 
     Parameters
@@ -242,3 +247,10 @@ def make_arpesband(angles, energies, intensities, angle_shift=0, energy_shift=0)
     angles += angle_shift
     energies += energy_shift
     return ARPESband(angles, energies, intensities)
+
+
+def momentum(
+    energy: Union[float, np.ndarray], angle_deg: Union[float, np.ndarray]
+) -> Union[float, np.ndarray]:
+    degrees: float = np.pi / 180.0
+    return 0.512410908328 * np.sqrt(energy) * np.sin(angle_deg * degrees)
