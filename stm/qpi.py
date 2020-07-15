@@ -7,6 +7,7 @@ Module to extract the line profile data about QPI results.
 import os.path
 
 import numpy as np
+from typing import Sequence
 
 
 class QPI:
@@ -15,19 +16,27 @@ class QPI:
     Attributes
     ------------
     data: tuple, list, numpy.ndarray
-       1D or 2D matrix data.  The size of data should be n**2.
+        1D or 2D matrix data.  The size of data should be n**2.
     physical_size: float
-       The length of the horizontal line.
+        The length of the horizontal line.
     bias: float
-       The bias voltage in V unit.
-    current
-       The tunneling current in nA unit.
+        The bias voltage in V unit.
+    current: float
+        The tunneling current in nA unit.
 
     """
 
-    def __init__(self, data, physical_size=0, bias=0, current=0, dataname=""):
+    def __init__(
+        self,
+        data: Sequence[float],
+        physical_size: float = 0,
+        bias: float = 0,
+        current: float = 0,
+        dataname: str = "",
+    ):
         """Initialization."""
-        self.data = np.array(data, dtype=np.float_)
+        self.data: np.ndarray = np.array(data, dtype=np.float_)
+        self.pixels: int
         if self.data.ndim == 1:
             self.pixels = int(np.sqrt(self.data.shape[0]))
             self.data = self.data.reshape(self.pixels, self.pixels)
@@ -43,7 +52,7 @@ class QPI:
         self.current = current
         self.dataname = dataname
 
-    def cross_section_by_degree(self, angle_deg):
+    def cross_section_by_degree(self, angle_deg: float) -> np.ndarray:
         """Return the intensities along the line tilted by the angle.
 
         Parameters
@@ -70,7 +79,7 @@ class QPI:
             ]
         return np.array([self.data[pos] for pos in position_pixel])
 
-    def ypixel(self, x, angle_deg):
+    def ypixel(self, x: float, angle_deg: float) -> int:
         """Calculate y pixel with quantization-error correction.
 
         Parameters
@@ -81,10 +90,9 @@ class QPI:
                 Cutting angle by degrees
 
         """
-        degree = np.pi / 180.0
+        degree: float = np.pi / 180.0
         y = int(
-            np.tan(angle_deg * degree) * (x - self.pixels / 2.0)
-            + self.pixels / 2.0
+            np.tan(angle_deg * degree) * (x - self.pixels / 2.0) + self.pixels / 2.0
         )
         if y >= self.pixels:
             y = self.pixels - 1
@@ -92,7 +100,7 @@ class QPI:
             y = 0
         return y
 
-    def physical_axis(self, angle_deg):
+    def physical_axis(self, angle_deg: float) -> np.ndarray:
         """Calculate k-value along the line tilted by the angle.
 
         Parameters
@@ -101,36 +109,28 @@ class QPI:
             Cutting angle by degrees
 
         """
-        degree = np.pi / 180.0
+        degree: float = np.pi / 180.0
         if -1.0 <= np.tan(angle_deg * degree) <= 1.0:
             return np.linspace(
-                -self.physical_size
-                / 2.0
-                * np.abs(1 / np.cos(angle_deg * degree)),
-                self.physical_size
-                / 2.0
-                * np.abs(1 / np.cos(angle_deg * degree)),
+                -self.physical_size / 2.0 * np.abs(1 / np.cos(angle_deg * degree)),
+                self.physical_size / 2.0 * np.abs(1 / np.cos(angle_deg * degree)),
                 self.pixels,
             )
         else:
             return np.linspace(
-                -self.physical_size
-                / 2.0
-                * np.abs(1 / np.sin(angle_deg * degree)),
-                self.physical_size
-                / 2.0
-                * np.abs(1 / np.sin(angle_deg * degree)),
+                -self.physical_size / 2.0 * np.abs(1 / np.sin(angle_deg * degree)),
+                self.physical_size / 2.0 * np.abs(1 / np.sin(angle_deg * degree)),
                 self.pixels,
             )
 
 
-def qpidataload(filename):
+def qpidataload(filename: str):
     """Loader for the file converted from SM4.
 
     Parameters
     ----------
     filename: str
-       The file name of SM4-file.
+        The file name of SM4-file.
 
     Returns
     -------
@@ -155,12 +155,10 @@ def qpidataload(filename):
         [next(thefile) for i in range(5)]
         for line in thefile:
             data.append(line.split()[1:])
-    return QPI(
-        data, physical_size=xdim, bias=bias, current=current, dataname=dataname
-    )
+    return QPI(data, physical_size=xdim, bias=bias, current=current, dataname=dataname)
 
 
-def anglestring(angle):
+def anglestring(angle: float) -> str:
     """Return the angle string with 'm' when the angle is negative.
 
     Parameters

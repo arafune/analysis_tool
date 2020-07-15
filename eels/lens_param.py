@@ -3,31 +3,46 @@
 import argparse
 import datetime
 import itertools
-from typing import Tuple, Dict, List, Iterable, Union, Any
+from typing import Tuple, Dict, List, Iterable, Union
 import pathlib
 
-filament: List = ["IK", "PsiK", "R"]
-Alens = ["A1", "DeltaA1", "A2", "DeltaA2", "A3", "DeltaA3"]
-PreMono = ["EVM", "UVM", "DeltaVM", "DVM", "DeltaDVM"]
-Mono = ["UM", "DeltaM", "DM", "DeltaDM"]
-Blens = ["B1", "DeltaB1", "B2", "B3", "B4", "DeltaB4"]
-Ana = ["UA", "DeltaA", "DA", "DeltaDA"]
-Clens = ["C1", "DeltaC1", "C2", "C3", "DeltaC3"]
-Linked = ["UA", "DA", "B1" "B2", "B3", "B4", "UM", "DM", "HM", "EVM", "UVM", "DVM"]
-
-
-class Entry:
-    """Class for an entry."""
-
-    def __init__(self) -> None:
-        pass
+filament: List[str] = ["IK", "PsiK", "R"]
+Alens: List[str] = ["A1", "DeltaA1", "A2", "DeltaA2", "A3", "DeltaA3"]
+PreMono: List[str] = ["EVM", "UVM", "DeltaVM", "DVM", "DeltaDVM"]
+Mono: List[str] = ["UM", "DeltaM", "DM", "DeltaDM"]
+Blens: List[str] = ["B1", "DeltaB1", "B2", "B3", "B4", "DeltaB4"]
+Ana: List[str] = ["UA", "DeltaA", "DA", "DeltaDA"]
+Clens: List[str] = ["C1", "DeltaC1", "C2", "C3", "DeltaC3"]
+Linked: List[str] = [
+    "UA",
+    "DA",
+    "B1" "B2",
+    "B3",
+    "B4",
+    "UM",
+    "DM",
+    "HM",
+    "EVM",
+    "UVM",
+    "DVM",
+]
 
 
 def label_str(
     labeltext: str,
 ) -> Union[Tuple[datetime.datetime, float, float], Tuple[None, None, None]]:
     """Return tuple of date & time, resolution, intensity from 'Label' string.
-    "2/14/20 7:43:28 PM : +7.48 meV, 192.65 pA"
+    
+
+    Parameters
+    --------------
+    labeltext: str
+        String of "Label" item in ELS parameter data, such as "2/14/20 7:43:28 PM : +7.48 meV, 192.65 pA"  
+
+    Returns
+    ----------
+    tuple
+        date&time, resolution, intensity
 
 
     Example
@@ -47,7 +62,7 @@ def label_str(
 
 def _label_str_to_date(
     params: List[Dict[str, str]],
-) -> Dict[str, Union[float, datetime.datetime]]:
+) -> Union[Dict[str, Union[float, datetime.datetime]], Dict[str, None]]:
     for entry in params:
         day_time, res, intensity = label_str(entry["Label"])
         entry["Date"] = day_time
@@ -105,6 +120,7 @@ def _md_table(lst: Iterable) -> str:
     Returns
     ---------
     str
+        text output
     """
     output = ""
     for i in lst:
@@ -115,6 +131,18 @@ def _md_table(lst: Iterable) -> str:
 def load_els_lens_parameter(
     filename: Union[str, pathlib.Path]
 ) -> List[Dict[str, Union[str, float]]]:
+    """Parse lens parameter file.
+
+    Parameters
+    -------------
+    filename: str, pathlib.Path
+        filename of EELS parameter
+    
+    Returns
+    ----------
+    list
+        EELS parameter data
+    """
     container = []
     an_entry: Dict[str, Union[str, float]]
     with open(filename, "r") as f:
