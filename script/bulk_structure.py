@@ -8,6 +8,7 @@ import pathlib
 import glob
 import subprocess
 from typing import Callable, Optional, Dict, Tuple, Union
+import numpy as np
 from scipy.optimize import minimize
 import argparse
 
@@ -160,18 +161,29 @@ def MoS2(vars: Tuple[float, ...]) -> None:
 
 def generate_poscar(
     poscar_template: Callable[[Tuple[float, ...]], None], coords: Tuple[float, ...]
-):
+) -> None:
+    """Return the POSCAR generate function with arguments.
+
+    Parameters
+    -------------
+    poscar_template: function
+        Function to generate the POSCAR.
+        Function must write the POSCAR file as "POSCAR".
+        Follow the examples above (MoS2, bianthrone_crystal)
+    coords: tuple of float
+        arguments of poscar generation function.
+    """
     return poscar_template(coords)
 
 
 # -----------
 
-data: Dict[Tuple[float, float], float] = {}
+data: Dict[Tuple[float, ...], float] = {}
 
 
 def load_results(
     results: pathlib.Path = pathlib.Path("results.txt"),
-) -> Dict[Tuple[float, float], float]:
+) -> Dict[Tuple[float, ...], float]:
     """Load data from "results.txt".
 
     Parameters
@@ -192,8 +204,9 @@ def load_results(
 
     with results.open(mode="r") as f:
         for s_line in f:
-            s_line = s_line.strip().split()
-            line_f = tuple([float(x) for x in s_line])
+            line_f: Tuple[float, ...] = tuple(
+                [float(x) for x in s_line.strip().split()]
+            )
             data[line_f[:-1]] = line_f[-1]
     return data
 
