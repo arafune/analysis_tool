@@ -7,6 +7,7 @@ For writing the code I used some ideas from the Gwyddion project
 (http://gwyddion.net/) where I found rhk-sm4.c. Some of variable names
 are followed from it.
 """
+from __future__ import annotations
 
 import io
 import struct
@@ -31,7 +32,7 @@ class ExtStruct(struct.Struct):
         return self.unpack(fhandle.read(self.size))
 
 
-def get_objects_from_list(fhandle: IO[bytes], n: int, parent: Any) -> List["RHKObject"]:
+def get_objects_from_list(fhandle: IO[bytes], n: int, parent: Any) -> List[RHKObject]:
     """As the method name indicates...
 
     Parameters

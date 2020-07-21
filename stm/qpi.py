@@ -5,7 +5,7 @@ Module to extract the line profile data about QPI results.
 """
 
 import os.path
-
+from __future__ import annotations
 import numpy as np
 from typing import Sequence
 
@@ -33,7 +33,7 @@ class QPI:
         bias: float = 0,
         current: float = 0,
         dataname: str = "",
-    ):
+    ) -> None:
         """Initialization."""
         self.data: np.ndarray = np.array(data, dtype=np.float_)
         self.pixels: int
@@ -61,7 +61,7 @@ class QPI:
             Cutting angle by degrees
 
         """
-        degree = np.pi / 180.0
+        degree: float = np.pi / 180.0
         if -1.0 < np.tan(angle_deg * degree) <= 1.0:
             position_pixel = [
                 (x, self.ypixel(x, angle_deg)) for x in range(self.pixels)
@@ -124,7 +124,7 @@ class QPI:
             )
 
 
-def qpidataload(filename: str):
+def qpidataload(filename: str) -> QPI:
     """Loader for the file converted from SM4.
 
     Parameters
