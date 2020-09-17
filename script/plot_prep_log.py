@@ -26,7 +26,7 @@ def plotting(
     data: List[Tuple[float]],
     ignores: List[str] = [],
 ) -> Figure:
-    fig = plt.figure(figsize=(8.2, 11.9))
+    fig: Figure = plt.figure(figsize=(8.2, 11.9))
     num_plots: int = 5
     if ("pres_a" in ignores) and ("pres_p" in ignores):
         num_plots = num_plots - 1
@@ -45,53 +45,61 @@ def plotting(
     if "pres_p" not in ignores:
         axs.append(fig.add_subplot(num_plots, 1, num_graphs))
         num_graphs += 1
-        axs[i].plot(date_time, data[0], label="Pressure (Preparation)")
+        prep_p = axs[i].plot(date_time, data[0], label="Pressure (Preparation)")
         axs[i].set_yscale("log")
         axs[i].set_ylabel("Pressure  ( mbar )")
         axs[i].grid(True)
+        axs[i].legend()
     if "pres_a" not in ignores:
         if len(axs) == 0:
             axs.append(fig.add_subplot(num_plots, 1, num_graphs))
             num_graphs += 1
-        axs[i].plot(date_time, data[1], label="Pressure (Analysis)")
+        prep_a = axs[i].plot(date_time, data[1], label="Pressure (Analysis)")
         axs[i].set_yscale("log")
         axs[i].set_ylabel("Pressure  ( mbar )")
+        axs[i].legend()
     if len(axs) == 1:
         i += 1
     if "filament" not in ignores:
         axs.append(fig.add_subplot(num_plots, 1, num_graphs, sharex=axs[0]))
         num_graphs += 1
-        axs[i].plot(date_time, data[3], label="I_fil")
+        ifil = axs[i].plot(date_time, data[3], label="I_fil")
         axs[i].set_ylabel("Current  (A)")
-        ax_filament_v = axs[i].twinx()
-        ax_filament_v.plot(date_time, data[2], c="orange", label="V_fil")
-        ax_filament_v.set_ylabel("Voltage (V)")
+        axs[i].grid(True)
+        axs.append(axs[i].twinx())
+        i += 1
+        vfil = axs[i].plot(date_time, data[2], c="orange", label="V_fil")
+        axs[i].set_ylabel("Voltage (V)")
+        axs[i].legend(ifil + vfil, [l.get_label() for l in ifil + vfil])
         i += 1
     if "highvol" not in ignores:
         axs.append(fig.add_subplot(num_plots, 1, num_graphs, sharex=axs[0]))
         num_graphs += 1
-        axs[i].plot(date_time, data[5], label="I_e")
+        ie = axs[i].plot(date_time, data[5], label="I_e")
         axs[i].set_ylabel("Current  (mA)")
-        ax_high_v = axs[i].twinx()
-        ax_high_v.plot(date_time, data[4], c="orange", label="HV")
-        ax_high_v.set_ylabel("Voltage (V)")
-        ax_high_v.legend()
+        axs[i].grid(True)
+        axs.append(axs[i].twinx())
+        i += 1
+        hv = axs[i].plot(date_time, data[4], c="orange", label="HV")
+        axs[i].set_ylabel("Voltage (V)")
+        axs[i].legend(ie + hv, [l.get_label() for l in ie + hv])
         i += 1
     if "pyro" not in ignores:
         axs.append(fig.add_subplot(num_plots, 1, num_graphs, sharex=axs[0]))
         num_graphs += 1
         axs[i].plot(date_time, data[6], label="T_pyrometer")
         axs[i].set_ylabel("Temperature  (C)")
+        axs[i].grid(True)
+        axs[i].legend()
         i += 1
     if "tc" not in ignores:
         axs.append(fig.add_subplot(num_plots, 1, num_graphs, sharex=axs[0]))
         num_graphs += 1
         axs[i].plot(date_time, data[7], label="T_thermocouple")
         axs[i].set_ylabel("Temperature  (C)")
+        axs[i].grid(True)
+        axs[i].legend()
         i += 1
-    for ax in axs:
-        ax.legend()
-        ax.grid(True)
     fig.tight_layout()
     return fig
 
