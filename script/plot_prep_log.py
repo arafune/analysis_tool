@@ -9,16 +9,15 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 
-def load_log(file_name: Union[str, Path]) -> Tuple[List[datetime], List[float]]:
+def load_log(file_name: Union[str, Path]) -> Tuple[List[datetime], List[Tuple[float]]]:
     date_time: List[datetime] = []
-    data: List[float] = []
+    data: List[List[float]] = []
     with open(file_name, mode="r") as f:
         for line in f:
             tmp = line.split("\t")
             date_time.append(datetime.strptime(tmp.pop(0), "%Y/%m/%d %H:%M:%S.%f"))
             data.append([float(i) for i in tmp])
-    data = list(zip(*data))
-    return date_time, data
+    return date_time, list(zip(*data))
 
 
 def plotting(
