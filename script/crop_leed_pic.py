@@ -54,7 +54,6 @@ def rgb2gray(rgb):
     ---------
     numpy.ndarray
     """
-
     return rgb[:, :, 0] * 0.2989 + rgb[:, :, 1] * 0.5870 + rgb[:, :, 2] * 0.1140
 
 
@@ -82,5 +81,4 @@ if __name__ == "__main__":
             newfilename = p.stem + ".color.tiff"
         else:
             newfilename = p.stem + ".tiff"
-
         imageio.imsave(newfilename, data.astype("uint16"))
