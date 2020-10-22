@@ -1,4 +1,14 @@
 #! /usr/bin/env python3
+"""Convert to tiff image file from the LEED picture taken by EOS Kiss X5
+
+Format of the output tiff file is:
+
+    * No white balance added
+    * No auto scale added
+    * No auto bright added
+    * 16 bit (The brightest is 65536.)
+
+to evaluate numerically. """
 
 import argparse
 import pathlib
@@ -62,7 +72,9 @@ if __name__ == "__main__":
     for cr2_file in args.CR2file:
         p = pathlib.Path(cr2_file)
         raw_data = rawpy.imread(str(p))
-        data = raw_data.postprocess(use_camera_wb=True, no_auto_bright=False)
+        data = raw_data.postprocess(
+            use_camera_wb=False, no_auto_bright=True, no_auto_scale=True, output_bps=16
+        )
         if not args.color:
             data = rgb2gray(data)
         data = crop(data)
@@ -71,4 +83,4 @@ if __name__ == "__main__":
         else:
             newfilename = p.stem + ".tiff"
 
-        imageio.imsave(newfilename, data.astype("uint8"))
+        imageio.imsave(newfilename, data.astype("uint16"))
