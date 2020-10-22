@@ -18,8 +18,8 @@ import numpy as np
 
 
 def crop(
-    pic: np.ndarray[int], x: int = 890, y: int = 1974, side_length: int = 1800
-) -> np.ndarray[int]:
+    pic: np.ndarray, x: int = 890, y: int = 1974, side_length: int = 1800
+) -> np.ndarray:
     """Return cropping data of the gray scale
 
     Parameters
