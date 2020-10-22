@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 
-def load_log(file_name: Union[str, Path]) -> Tuple[List[datetime], List[float]]:
+def load_log(file_name: Union[str, Path]) -> Tuple[List[datetime], List[Tuple[float]]]:
     date_time: List[datetime] = []
     data: List[float] = []
     with open(file_name, mode="r") as f:
@@ -63,25 +63,26 @@ def plotting(
     if "filament" not in ignores:
         axs.append(fig.add_subplot(num_plots, 1, num_graphs, sharex=axs[0]))
         num_graphs += 1
-        ifil = axs[i].plot(date_time, data[3], label="I_fil")
-        axs[i].set_ylabel("Current  (A)")
+        vfil = axs[i].plot(date_time, data[2], c="orange", label="V_fil")
+        axs[i].set_ylabel("Voltage (V)")
         axs[i].grid(True)
         axs.append(axs[i].twinx())
         i += 1
-        vfil = axs[i].plot(date_time, data[2], c="orange", label="V_fil")
-        axs[i].set_ylabel("Voltage (V)")
+        ifil = axs[i].plot(date_time, data[3], label="I_fil")
+        axs[i].set_ylabel("Current  (A)")
+
         axs[i].legend(ifil + vfil, [l.get_label() for l in ifil + vfil])
         i += 1
     if "highvol" not in ignores:
         axs.append(fig.add_subplot(num_plots, 1, num_graphs, sharex=axs[0]))
         num_graphs += 1
-        ie = axs[i].plot(date_time, data[5], label="I_e")
-        axs[i].set_ylabel("Current  (mA)")
+        hv = axs[i].plot(date_time, data[4], c="orange", label="HV")
+        axs[i].set_ylabel("Voltage (V)")
         axs[i].grid(True)
         axs.append(axs[i].twinx())
         i += 1
-        hv = axs[i].plot(date_time, data[4], c="orange", label="HV")
-        axs[i].set_ylabel("Voltage (V)")
+        ie = axs[i].plot(date_time, data[5], label="I_e")
+        axs[i].set_ylabel("Current  (mA)")
         axs[i].legend(ie + hv, [l.get_label() for l in ie + hv])
         i += 1
     if "pyro" not in ignores:
