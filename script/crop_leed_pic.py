@@ -1,0 +1,74 @@
+#! /usr/bin/env python3
+
+import argparse
+import pathlib
+import imageio
+import rawpy
+
+
+def crop(pic, x: int = 890, y: int = 1974, side_length: int = 1800):
+    """Return cropping data of the gray scale
+
+    Parameters
+    -----------
+    gray: numpy.ndarray
+        grayscale data
+    x: int
+        x-point of the corner
+    y: int
+        y-point of the corner
+    side_length: int
+        the length of the square side
+
+    Returns
+    ----------
+    numpy.ndarray
+    """
+    if pic.ndim == 2:
+        return pic[x : x + side_length, y : y + side_length]
+    elif pic.ndim == 3:
+        return pic[x : x + side_length, y : y + side_length, :]
+
+
+def rgb2gray(rgb):
+    """Return Gray scale data.
+
+    Use Matlab algorithm
+    0.2989 * R + 0.5870 * G + 0.1140 * B
+
+    Parameters
+    -----------
+    rgb: numpy.ndarray
+
+    Returns
+    ---------
+    numpy.ndarray
+    """
+
+    return rgb[:, :, 0] * 0.2989 + rgb[:, :, 1] * 0.5870 + rgb[:, :, 2] * 0.1140
+
+
+if __name__ == "__main__":
+    parse = argparse.ArgumentParser()
+    parse.add_argument("CR2file", help="CR2 file of the LEED picture", nargs="*")
+    parse.add_argument(
+        "--color",
+        "-c",
+        action="store_true",
+        default=False,
+        help="Keep color information.",
+    )
+    args = parse.parse_args()
+    for cr2_file in args.CR2file:
+        p = pathlib.Path(cr2_file)
+        raw_data = rawpy.imread(str(p))
+        data = raw_data.postprocess(use_camera_wb=True, no_auto_bright=False)
+        if not args.color:
+            data = rgb2gray(data)
+        data = crop(data)
+        if args.color:
+            newfilename = p.stem + ".color.tiff"
+        else:
+            newfilename = p.stem + ".tiff"
+
+        imageio.imsave(newfilename, data.astype("uint8"))
