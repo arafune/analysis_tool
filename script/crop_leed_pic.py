@@ -14,9 +14,12 @@ import argparse
 import pathlib
 import imageio
 import rawpy
+import numpy as np
 
 
-def crop(pic, x: int = 890, y: int = 1974, side_length: int = 1800):
+def crop(
+    pic: np.ndarray[int], x: int = 890, y: int = 1974, side_length: int = 1800
+) -> np.ndarray[int]:
     """Return cropping data of the gray scale
 
     Parameters
@@ -40,7 +43,7 @@ def crop(pic, x: int = 890, y: int = 1974, side_length: int = 1800):
         return pic[x : x + side_length, y : y + side_length, :]
 
 
-def rgb2gray(rgb):
+def rgb2gray(rgb: np.ndarray) -> np.ndarray:
     """Return Gray scale data.
 
     Use Matlab algorithm
@@ -70,8 +73,8 @@ if __name__ == "__main__":
     args = parse.parse_args()
     for cr2_file in args.CR2file:
         p = pathlib.Path(cr2_file)
-        raw_data = rawpy.imread(str(p))
-        data = raw_data.postprocess(
+        raw_data: rawpy.RawPy = rawpy.imread(str(p))
+        data: np.ndarray = raw_data.postprocess(
             use_camera_wb=False, no_auto_bright=True, no_auto_scale=True, output_bps=16
         )
         if not args.color:
