@@ -46,8 +46,9 @@ def crop(
 def rgb2gray(rgb: np.ndarray) -> np.ndarray:
     """Return Gray scale data.
 
-    Use Matlab algorithm
+
     0.2989 * R + 0.5870 * G + 0.1140 * B
+    is the Matlab algorithm.  While it seems reasonable, it is not taken here for keeping the linearlity.
 
     Parameters
     -----------
@@ -57,7 +58,8 @@ def rgb2gray(rgb: np.ndarray) -> np.ndarray:
     ---------
     numpy.ndarray
     """
-    return rgb[:, :, 0] * 0.2989 + rgb[:, :, 1] * 0.5870 + rgb[:, :, 2] * 0.1140
+    # return rgb[:, :, 0] * 0.2989 + rgb[:, :, 1] * 0.5870 + rgb[:, :, 2] * 0.1140
+    return rgb[:, :, 1]  # Take the green signal
 
 
 if __name__ == "__main__":
@@ -75,7 +77,11 @@ if __name__ == "__main__":
         p = pathlib.Path(cr2_file)
         raw_data: rawpy.RawPy = rawpy.imread(str(p))
         data: np.ndarray = raw_data.postprocess(
-            use_camera_wb=False, no_auto_bright=True, no_auto_scale=True, output_bps=16
+            use_camera_wb=False,
+            no_auto_bright=True,
+            no_auto_scale=True,
+            gamma=(1, 1),  # この値が線形性を作る鍵っぽい。露光時間ー強度の関係が線形に近くなる。2020/10/23
+            output_bps=16,
         )
         if not args.color:
             data = rgb2gray(data)
