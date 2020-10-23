@@ -264,10 +264,7 @@ def load(splab_xml: str):
 
     """
     if os.path.splitext(splab_xml)[1] == ".bz2":
-        try:
-            xml = bz2.open(splab_xml, mode="rt")
-        except AttributeError:
-            xml = bz2.BZ2File(splab_xml, mode="r")  # Not teseted
+        xml = bz2.open(splab_xml, mode="rt")
     else:
         xml = open(splab_xml)
     splab = SPLab(xml)
