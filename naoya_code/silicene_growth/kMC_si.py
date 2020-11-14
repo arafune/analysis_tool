@@ -2109,35 +2109,35 @@ if __name__ == "__main__":
 
     arx: List[int] = [0, 20, 140, 200, 300, 380, 500, 560, 600]
     ary: List[int] = [0, 20, 50, 100, 130, 160, 0, 190, 220, 250, 280, 310]
-    arx1 = 20
-    arx2 = 140
-    arx3 = 200
-    arx4 = 300
-    arx5 = 380
-    arx6 = 500
-    arx7 = 560
-    arx8 = 660
+    arx[1] = 20
+    arx[2] = 140
+    arx[3] = 200
+    arx[4] = 300
+    arx[5] = 380
+    arx[6] = 500
+    arx[7] = 560
+    arx[8] = 660
 
     entry_1 = tkinter.Entry(root, text="Number of cell", width=7)
-    entry_1.place(x=arx2, y=ary[1])
+    entry_1.place(x=arx[2], y=ary[1])
     text_1 = tkinter.Label(root, text="Number of cell")
-    text_1.place(x=arx1, y=ary[1])
+    text_1.place(x=arx[1], y=ary[1])
     entry_1.delete(0, tkinter.END)
     entry_1.insert(tkinter.END, "5")
     entry_1.bind("<Return>", update)
 
     entry_zunit = tkinter.Entry(root, text="Z unit", width=7)
-    entry_zunit.place(x=arx4, y=ary[1])
+    entry_zunit.place(x=arx[4], y=ary[1])
     text_zunit = tkinter.Label(root, text="Z unit")
-    text_zunit.place(x=arx3, y=ary[1])
+    text_zunit.place(x=arx[3], y=ary[1])
     entry_zunit.delete(0, tkinter.END)
     entry_zunit.insert(tkinter.END, "5")
     entry_zunit.bind("<Return>", update)
 
     entry_kbT = tkinter.Entry(root, text="T (K)", width=7)
-    entry_kbT.place(x=arx6, y=ary[1])
+    entry_kbT.place(x=arx[6], y=ary[1])
     text_kbT = tkinter.Label(root, text="T (K)")
-    text_kbT.place(x=arx5, y=ary[1])
+    text_kbT.place(x=arx[5], y=ary[1])
     entry_kbT.delete(0, tkinter.END)
     entry_kbT.insert(tkinter.END, "550")
     entry_kbT.bind("<Return>", update)
@@ -2146,40 +2146,40 @@ if __name__ == "__main__":
     kbt = float(entry_kbT.get()) * 8.617 / 100000
 
     text_lkbt = tkinter.Label(root, text="kbT")
-    text_lkbt.place(x=arx7, y=ary[1])
+    text_lkbt.place(x=arx[7], y=ary[1])
     text_kbt = tkinter.Label(root, text=str("{:.3g}".format(kbt)))
-    text_kbt.place(x=arx8, y=ary[1])
+    text_kbt.place(x=arx[8], y=ary[1])
 
     entry_rate = tkinter.Entry(root, text="dep_rate", width=7)
-    entry_rate.place(x=arx2, y=ary[2])
+    entry_rate.place(x=arx[2], y=ary[2])
     text_2 = tkinter.Label(root, text="dep_rate (ML/min)")
-    text_2.place(x=arx1, y=ary[2])
+    text_2.place(x=arx[1], y=ary[2])
     entry_rate.delete(0, tkinter.END)
     entry_rate.insert(tkinter.END, "0.4")
     entry_rate.bind("<Return>", update)
 
     text_ats = tkinter.Label(root, text="0")
-    text_ats.place(x=arx2, y=ary[2] + 30)
+    text_ats.place(x=arx[2], y=ary[2] + 30)
 
     entry_time = tkinter.Entry(root, text="Dep.time", width=7)
-    entry_time.place(x=arx4, y=ary[2])
+    entry_time.place(x=arx[4], y=ary[2])
     text_time = tkinter.Label(root, text="Dep.time (min)")
-    text_time.place(x=arx3, y=ary[2])
+    text_time.place(x=arx[3], y=ary[2])
     entry_time.delete(0, tkinter.END)
     entry_time.insert(tkinter.END, "5")
     entry_time.bind("<Return>", update)
 
     entry_post = tkinter.Entry(root, text="Post annealing", width=7)
-    entry_post.place(x=arx6, y=ary[2])
+    entry_post.place(x=arx[6], y=ary[2])
     text_post = tkinter.Label(root, text="Post anneal (min)")
-    text_post.place(x=arx5, y=ary[2])
+    text_post.place(x=arx[5], y=ary[2])
     entry_post.delete(0, tkinter.END)
     entry_post.insert(tkinter.END, "0")
 
     entry_pre = tkinter.Entry(root, text="Prefactor (1/s)", width=7)
-    entry_pre.place(x=arx8, y=ary[2])
+    entry_pre.place(x=arx[8], y=ary[2])
     text_pre = tkinter.Label(root, text="prefactor (1/s)")
-    text_pre.place(x=arx7, y=ary[2])
+    text_pre.place(x=arx[7], y=ary[2])
     entry_pre.delete(0, tkinter.END)
     entry_pre.insert(tkinter.END, "1e+13")
     entry_pre.bind("<Return>", update)
