@@ -26,35 +26,39 @@ root = Tk()
 root.title("kMC_Si_ver1")
 root.geometry("800x550")
 
+
 def update_values():
     global pre
     pre = float(entry_pre.get())
-    #calculate deposition speed
+    # calculate deposition speed
     nl = int(entry_1.get())
-    d_rate = float(entry_rate.get())   #ML/min
-    d_rate = d_rate/60  #ML/s
-    NBL = 2*nl*nl   #atoms/ML
-    d_rate = d_rate*NBL #atoms/s
+    d_rate = float(entry_rate.get())  # ML/min
+    d_rate = d_rate / 60  # ML/s
+    NBL = 2 * nl * nl  # atoms/ML
+    d_rate = d_rate * NBL  # atoms/s
 
-
-    text_AgSi_rates["text"] = str('{:.5f}'.format(cal_rate(float(entry_AgSi.get()))))
-    text_Si12_rates["text"] = str('{:.5f}'.format(cal_rate(float(entry_Si12.get()))))
-    text_Si23_rates["text"] = str('{:.5f}'.format(cal_rate(float(entry_Si23.get()))))
-    text_Si34_rates["text"] = str('{:.5f}'.format(cal_rate(float(entry_Si34.get()))))
-    text_Si45_rates["text"] = str('{:.5f}'.format(cal_rate(float(entry_Si45.get()))))
-    text_Si56_rates["text"] = str('{:.5f}'.format(cal_rate(float(entry_Si56.get()))))
-    text_Siel_rates["text"] = str('{:.5f}'.format(cal_rate(float(entry_Siel.get()))))
-    text_Sielin_rates["text"] = str('{:.5f}'.format(cal_rate(float(entry_Sielin.get()))))
-    text_Agtp_rates["text"] = str('{:.5f}'.format(cal_rate(float(entry_Agtp.get()))))
-    text_ats["text"] = str('{:.5f}'.format(d_rate))
+    text_AgSi_rates["text"] = str("{:.5f}".format(cal_rate(float(entry_AgSi.get()))))
+    text_Si12_rates["text"] = str("{:.5f}".format(cal_rate(float(entry_Si12.get()))))
+    text_Si23_rates["text"] = str("{:.5f}".format(cal_rate(float(entry_Si23.get()))))
+    text_Si34_rates["text"] = str("{:.5f}".format(cal_rate(float(entry_Si34.get()))))
+    text_Si45_rates["text"] = str("{:.5f}".format(cal_rate(float(entry_Si45.get()))))
+    text_Si56_rates["text"] = str("{:.5f}".format(cal_rate(float(entry_Si56.get()))))
+    text_Siel_rates["text"] = str("{:.5f}".format(cal_rate(float(entry_Siel.get()))))
+    text_Sielin_rates["text"] = str(
+        "{:.5f}".format(cal_rate(float(entry_Sielin.get())))
+    )
+    text_Agtp_rates["text"] = str("{:.5f}".format(cal_rate(float(entry_Agtp.get()))))
+    text_ats["text"] = str("{:.5f}".format(d_rate))
     root.update()
- 
+
+
 def update(event):
     update_values()
 
-global unit_x, unit_y, z1, z2,unit_z, ims, max_layer
+
+global unit_x, unit_y, z1, z2, unit_z, ims, max_layer
 unit_x = [1, 0, 0]
-unit_y = [0.5,0.866 , 0]
+unit_y = [0.5, 0.866, 0]
 unit_z = [0, 0, 1]
 zd1 = 0.204
 zd2 = 0.612
@@ -62,16 +66,27 @@ max_layer = 0
 
 global c_num
 c_num = 0
+
+
 def show_current():
     global atom_set, lattice, c_num, max_layer
 
     print("current saving")
-    #image
+    # image
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
     length = nl
-    p = pat.Polygon(xy = [(0, 0), (unit_x[0]*length, unit_x[1]*length), ((unit_x[0] + unit_y[0])*length, (unit_x[1] + unit_y[1])*length),(unit_y[0]*length, unit_y[1]*length)], fc = (0.5, 0.5, 0.5), ec = (0, 0, 0))
+    p = pat.Polygon(
+        xy=[
+            (0, 0),
+            (unit_x[0] * length, unit_x[1] * length),
+            ((unit_x[0] + unit_y[0]) * length, (unit_x[1] + unit_y[1]) * length),
+            (unit_y[0] * length, unit_y[1] * length),
+        ],
+        fc=(0.5, 0.5, 0.5),
+        ec=(0, 0, 0),
+    )
     ax.add_patch(p)
 
     atom_set_n = atom_set
@@ -86,19 +101,35 @@ def show_current():
                     yp = lattice[i][k][z][1]
                     zp = lattice[i][k][z][2]
 
-                    if (z%2 == 0):
-                        t1x = xp*unit_x[0] + yp*unit_y[0] - (unit_x[0] + unit_y[0])/3
-                        t1y = xp*unit_x[1] + yp*unit_y[1] - (unit_x[1] + unit_y[1])/3
+                    if z % 2 == 0:
+                        t1x = (
+                            xp * unit_x[0]
+                            + yp * unit_y[0]
+                            - (unit_x[0] + unit_y[0]) / 3
+                        )
+                        t1y = (
+                            xp * unit_x[1]
+                            + yp * unit_y[1]
+                            - (unit_x[1] + unit_y[1]) / 3
+                        )
 
                         t2x = t1x + unit_x[0]
                         t2y = t1y + unit_x[1]
 
                         t3x = t1x + unit_y[0]
                         t3y = t1y + unit_y[1]
-    
+
                     else:
-                        t1x = xp*unit_x[0] + yp*unit_y[0] + (unit_x[0] + unit_y[0])/3
-                        t1y = xp*unit_x[1] + yp*unit_y[1] + (unit_x[1] + unit_y[1])/3
+                        t1x = (
+                            xp * unit_x[0]
+                            + yp * unit_y[0]
+                            + (unit_x[0] + unit_y[0]) / 3
+                        )
+                        t1y = (
+                            xp * unit_x[1]
+                            + yp * unit_y[1]
+                            + (unit_x[1] + unit_y[1]) / 3
+                        )
 
                         t2x = t1x - unit_x[0]
                         t2y = t1y - unit_x[1]
@@ -106,20 +137,32 @@ def show_current():
                         t3x = t1x - unit_y[0]
                         t3y = t1y - unit_y[1]
 
-                    color_num = math.floor(z/2)*2
-                    if z == 1 or z== 0:
+                    color_num = math.floor(z / 2) * 2
+                    if z == 1 or z == 0:
                         color = [0, 1, 0]
                     else:
-                        color = [color_num/max_layer, 0, 1-color_num/max_layer]
+                        color = [color_num / max_layer, 0, 1 - color_num / max_layer]
 
-                    p = pat.Polygon(xy = [(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc = color, ec = color)
+                    p = pat.Polygon(
+                        xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
+                    )
 
                     ax.add_patch(p)
 
                     if i == 0:
-                        if z%2 == 0:
-                            t1x = xp*unit_x[0] + yp*unit_y[0] - (unit_x[0] + unit_y[0])/3 + unit_x[0]*length
-                            t1y = xp*unit_x[1] + yp*unit_y[1] - (unit_x[1] + unit_y[1])/3 + unit_x[1]*length
+                        if z % 2 == 0:
+                            t1x = (
+                                xp * unit_x[0]
+                                + yp * unit_y[0]
+                                - (unit_x[0] + unit_y[0]) / 3
+                                + unit_x[0] * length
+                            )
+                            t1y = (
+                                xp * unit_x[1]
+                                + yp * unit_y[1]
+                                - (unit_x[1] + unit_y[1]) / 3
+                                + unit_x[1] * length
+                            )
 
                             t2x = t1x + unit_x[0]
                             t2y = t1y + unit_x[1]
@@ -127,8 +170,18 @@ def show_current():
                             t3x = t1x + unit_y[0]
                             t3y = t1y + unit_y[1]
                         else:
-                            t1x = xp*unit_x[0] + yp*unit_y[0] + (unit_x[0] + unit_y[0])/3 + unit_x[0]*length
-                            t1y = xp*unit_x[1] + yp*unit_y[1] + (unit_x[1] + unit_y[1])/3 + unit_x[1]*length
+                            t1x = (
+                                xp * unit_x[0]
+                                + yp * unit_y[0]
+                                + (unit_x[0] + unit_y[0]) / 3
+                                + unit_x[0] * length
+                            )
+                            t1y = (
+                                xp * unit_x[1]
+                                + yp * unit_y[1]
+                                + (unit_x[1] + unit_y[1]) / 3
+                                + unit_x[1] * length
+                            )
 
                             t2x = t1x - unit_x[0]
                             t2y = t1y - unit_x[1]
@@ -136,13 +189,25 @@ def show_current():
                             t3x = t1x - unit_y[0]
                             t3y = t1y - unit_y[1]
 
-                        p = pat.Polygon(xy = [(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc = color, ec = color)
+                        p = pat.Polygon(
+                            xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
+                        )
                         ax.add_patch(p)
 
                     if k == 0:
-                        if z%2 == 0:
-                            t1x = xp*unit_x[0] + yp*unit_y[0] - (unit_x[0] + unit_y[0])/3 + unit_y[0]*length
-                            t1y = xp*unit_x[1] + yp*unit_y[1] - (unit_x[1] + unit_y[1])/3 + unit_y[1]*length
+                        if z % 2 == 0:
+                            t1x = (
+                                xp * unit_x[0]
+                                + yp * unit_y[0]
+                                - (unit_x[0] + unit_y[0]) / 3
+                                + unit_y[0] * length
+                            )
+                            t1y = (
+                                xp * unit_x[1]
+                                + yp * unit_y[1]
+                                - (unit_x[1] + unit_y[1]) / 3
+                                + unit_y[1] * length
+                            )
 
                             t2x = t1x + unit_x[0]
                             t2y = t1y + unit_x[1]
@@ -150,8 +215,18 @@ def show_current():
                             t3x = t1x + unit_y[0]
                             t3y = t1y + unit_y[1]
                         else:
-                            t1x = xp*unit_x[0] + yp*unit_y[0] + (unit_x[0] + unit_y[0])/3 + unit_y[0]*length
-                            t1y = xp*unit_x[1] + yp*unit_y[1] + (unit_x[1] + unit_y[1])/3 + unit_y[1]*length
+                            t1x = (
+                                xp * unit_x[0]
+                                + yp * unit_y[0]
+                                + (unit_x[0] + unit_y[0]) / 3
+                                + unit_y[0] * length
+                            )
+                            t1y = (
+                                xp * unit_x[1]
+                                + yp * unit_y[1]
+                                + (unit_x[1] + unit_y[1]) / 3
+                                + unit_y[1] * length
+                            )
 
                             t2x = t1x - unit_x[0]
                             t2y = t1y - unit_x[1]
@@ -159,14 +234,28 @@ def show_current():
                             t3x = t1x - unit_y[0]
                             t3y = t1y - unit_y[1]
 
-                        p = pat.Polygon(xy = [(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc = color, ec = color)
+                        p = pat.Polygon(
+                            xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
+                        )
                         ax.add_patch(p)
 
                     if (i == 0) and (k == 0):
 
-                        if z%2 == 0:
-                            t1x = xp*unit_x[0] + yp*unit_y[0] - (unit_x[0] + unit_y[0])/3 + unit_y[0]*length + unit_x[0]*length
-                            t1y = xp*unit_x[1] + yp*unit_y[1] - (unit_x[1] + unit_y[1])/3 + unit_y[1]*length + unit_x[1]*length
+                        if z % 2 == 0:
+                            t1x = (
+                                xp * unit_x[0]
+                                + yp * unit_y[0]
+                                - (unit_x[0] + unit_y[0]) / 3
+                                + unit_y[0] * length
+                                + unit_x[0] * length
+                            )
+                            t1y = (
+                                xp * unit_x[1]
+                                + yp * unit_y[1]
+                                - (unit_x[1] + unit_y[1]) / 3
+                                + unit_y[1] * length
+                                + unit_x[1] * length
+                            )
 
                             t2x = t1x + unit_x[0]
                             t2y = t1y + unit_x[1]
@@ -174,8 +263,20 @@ def show_current():
                             t3x = t1x + unit_y[0]
                             t3y = t1y + unit_y[1]
                         else:
-                            t1x = xp*unit_x[0] + yp*unit_y[0] + (unit_x[0] + unit_y[0])/3 + unit_y[0]*length + unit_x[0]*length
-                            t1y = xp*unit_x[1] + yp*unit_y[1] + (unit_x[1] + unit_y[1])/3 + unit_y[1]*length + unit_x[1]*length
+                            t1x = (
+                                xp * unit_x[0]
+                                + yp * unit_y[0]
+                                + (unit_x[0] + unit_y[0]) / 3
+                                + unit_y[0] * length
+                                + unit_x[0] * length
+                            )
+                            t1y = (
+                                xp * unit_x[1]
+                                + yp * unit_y[1]
+                                + (unit_x[1] + unit_y[1]) / 3
+                                + unit_y[1] * length
+                                + unit_x[1] * length
+                            )
 
                             t2x = t1x - unit_x[0]
                             t2y = t1y - unit_x[1]
@@ -183,23 +284,37 @@ def show_current():
                             t3x = t1x - unit_y[0]
                             t3y = t1y - unit_y[1]
 
-                        p = pat.Polygon(xy = [(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc = color, ec = color)
+                        p = pat.Polygon(
+                            xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
+                        )
                         ax.add_patch(p)
 
-    p = pat.Polygon(xy = [(0, 0), (unit_y[0]*length, unit_y[1]*length), (0, unit_y[1]*length)], fc = (1, 1, 1), ec = (0, 0, 0))
+    p = pat.Polygon(
+        xy=[(0, 0), (unit_y[0] * length, unit_y[1] * length), (0, unit_y[1] * length)],
+        fc=(1, 1, 1),
+        ec=(0, 0, 0),
+    )
     ax.add_patch(p)
 
-    p = pat.Polygon(xy = [(unit_x[0]*length, 0), ((unit_x[0] + unit_y[0])*length, 0), ((unit_x[0] + unit_y[0])*length, (unit_x[1] + unit_y[1])*length)], fc = (1, 1, 1), ec = (0, 0, 0))
+    p = pat.Polygon(
+        xy=[
+            (unit_x[0] * length, 0),
+            ((unit_x[0] + unit_y[0]) * length, 0),
+            ((unit_x[0] + unit_y[0]) * length, (unit_x[1] + unit_y[1]) * length),
+        ],
+        fc=(1, 1, 1),
+        ec=(0, 0, 0),
+    )
     ax.add_patch(p)
 
-    ax.set_xlim(0, (unit_x[0] + unit_y[0])*length)
-    ax.set_ylim(0, (unit_x[1] + unit_y[1])*length)
-    ax.set_aspect('equal')
+    ax.set_xlim(0, (unit_x[0] + unit_y[0]) * length)
+    ax.set_ylim(0, (unit_x[1] + unit_y[1]) * length)
+    ax.set_aspect("equal")
 
-    file_name = entry_rec.get() + "_current_" + str(c_num) +  ".png"
+    file_name = entry_rec.get() + "_current_" + str(c_num) + ".png"
     fig.savefig(file_name)
 
-    #poscar
+    # poscar
 
     xp = []
     yp = []
@@ -211,33 +326,34 @@ def show_current():
         for k in range(len(s[i])):
             for z in range(len(s[i][k])):
                 if s[i][k][z] != 0:
-                    xp.append(lattice[i][k][z][0]/nl)
-                    yp.append(lattice[i][k][z][1]/nl)
-                    zp.append(lattice[i][k][z][2]/zl/2.448)
+                    xp.append(lattice[i][k][z][0] / nl)
+                    yp.append(lattice[i][k][z][1] / nl)
+                    zp.append(lattice[i][k][z][2] / zl / 2.448)
                     num = num + 1
 
     file_name = entry_rec.get() + "_" + "current" + str(c_num) + ".vasp"
-    file_data = open(file_name,"w")
+    file_data = open(file_name, "w")
     file_data.write(entry_rec.get() + "\n")
     file_data.write("10" + "\n")
 
-    file_data.write(str(nl) + "\t" + "0" + "\t" + "0" +"\n")
-    file_data.write(str(nl/2) + "\t" + str(nl/2*1.732) + "\t" + "0" +"\n")
-    file_data.write("0" + "\t" + "0" + "\t" + str(zl*2.448) +"\n")
-    file_data.write("Si" +"\n")
+    file_data.write(str(nl) + "\t" + "0" + "\t" + "0" + "\n")
+    file_data.write(str(nl / 2) + "\t" + str(nl / 2 * 1.732) + "\t" + "0" + "\n")
+    file_data.write("0" + "\t" + "0" + "\t" + str(zl * 2.448) + "\n")
+    file_data.write("Si" + "\n")
     file_data.write(str(num) + "\n")
-    file_data.write("direct"+"\n")
+    file_data.write("direct" + "\n")
 
     for i in range(len(xp)):
-        file_data.write(str(xp[i]) + "\t" + str(yp[i]) + "\t" + str(zp[i]) +"\n")
+        file_data.write(str(xp[i]) + "\t" + str(yp[i]) + "\t" + str(zp[i]) + "\n")
 
     file_data.close()
 
     c_num = c_num + 1
 
+
 def lattice_form():
     global lattice, atom_set, bonds, nl, zl, event, event_time, event_tot, maxz, max_atom
-    
+
     nl = int(entry_1.get())
     zl = int(entry_zunit.get())
     lattice_first = []
@@ -250,8 +366,7 @@ def lattice_form():
     event_time = []
     maxz = 0
 
-
-    #Calculating the position of atoms in the first unit in z (first 3 BL)
+    # Calculating the position of atoms in the first unit in z (first 3 BL)
     for i in range(0, nl):
         lattice.append([])
         lattice_first.append([])
@@ -270,126 +385,145 @@ def lattice_form():
             event_tot[-1].append([])
             event_time[-1].append([])
 
-            unit_pos = [i, k, 0]    #coodination of the unit cell
-            #6 atoms in a unit in z direction
-            #first BL
+            unit_pos = [i, k, 0]  # coodination of the unit cell
+            # 6 atoms in a unit in z direction
+            # first BL
             atom1 = [unit_pos[0], unit_pos[1], unit_pos[2]]
             atom2 = [atom1[0] + 0.333, atom1[1] + 0.333, atom1[2] + zd1]
-            #second BL
+            # second BL
             atom3 = [atom2[0], atom2[1], atom2[2] + zd2]
             atom4 = [atom3[0] + 0.334, atom3[1] + 0.334, atom3[2] + zd1]
-            #Third BL
+            # Third BL
             atom5 = [atom4[0], atom4[1], atom4[2] + zd2]
             atom6 = [atom1[0], atom1[1], atom5[2] + zd1]
-            
-            #latice_first: coodination of all atoms
-            #lattice_num_first: numerization of atoms
+
+            # latice_first: coodination of all atoms
+            # lattice_num_first: numerization of atoms
             lattice_first[-1][-1].extend([atom1, atom2, atom3, atom4, atom5, atom6])
 
-    #Calculating the position of all atoms
-    for i in range (len(lattice_first)):
+    # Calculating the position of all atoms
+    for i in range(len(lattice_first)):
         for k in range(len(lattice_first[i])):
             for u in range(0, zl):
                 for z in range(len(lattice_first[i][k])):
-                    lattice[i][k].append([round(lattice_first[i][k][z][0], 5), round(lattice_first[i][k][z][1], 5), 
-                    round(lattice_first[i][k][z][2] + u*2.448, 5)])
+                    lattice[i][k].append(
+                        [
+                            round(lattice_first[i][k][z][0], 5),
+                            round(lattice_first[i][k][z][1], 5),
+                            round(lattice_first[i][k][z][2] + u * 2.448, 5),
+                        ]
+                    )
 
                     atom_set[i][k].append(0)
                     event[i][k].append([])
                     event_time[i][k].append([])
                     event_tot[i][k].append(0)
 
-    #lattice: coodination of an atom at [i,k,z]
-    maxz = len(lattice[0][0])-1
-    max_atom = maxz*nl*nl
+    # lattice: coodination of an atom at [i,k,z]
+    maxz = len(lattice[0][0]) - 1
+    max_atom = maxz * nl * nl
 
-    #Search for bonding atoms for all the atoms
+    # Search for bonding atoms for all the atoms
     for i in range(len(lattice)):
         for k in range(len(lattice[i])):
             for z in range(len(lattice[i][k])):
                 bonds_t = []
-                zv = int(z%6)
-                ml = nl-1
+                zv = int(z % 6)
+                ml = nl - 1
 
                 if zv == 0:
                     if i == 0 and k == 0:
-                        bonds_t = [[ml, 0, z+1], [0, ml, z+1], [0, 0, z+1]]
+                        bonds_t = [[ml, 0, z + 1], [0, ml, z + 1], [0, 0, z + 1]]
                     elif i == 0:
-                        bonds_t = [[ml, k, z+1], [0, k-1, z+1], [0, k, z+1]]
+                        bonds_t = [[ml, k, z + 1], [0, k - 1, z + 1], [0, k, z + 1]]
                     elif k == 0:
-                        bonds_t =[[i-1, 0, z+1], [i, ml, z+1], [i, 0, z+1]]
+                        bonds_t = [[i - 1, 0, z + 1], [i, ml, z + 1], [i, 0, z + 1]]
                     else:
-                        bonds_t =[[i-1, k, z+1], [i, k-1, z+1], [i, k, z+1]]
+                        bonds_t = [[i - 1, k, z + 1], [i, k - 1, z + 1], [i, k, z + 1]]
 
                     if z != 0:
-                        bonds_t.append([i, k, z-1])
+                        bonds_t.append([i, k, z - 1])
                     else:
                         pass
 
                 elif zv == 1:
                     if i == ml and k == ml:
-                        bonds_t = [[ml, 0, z-1], [0, ml, z-1], [ml, ml, z-1]]
+                        bonds_t = [[ml, 0, z - 1], [0, ml, z - 1], [ml, ml, z - 1]]
                     elif i == ml:
-                        bonds_t = [[ml, k+1, z-1], [0, k, z-1], [ml, k, z-1]]
+                        bonds_t = [[ml, k + 1, z - 1], [0, k, z - 1], [ml, k, z - 1]]
                     elif k == ml:
-                        bonds_t = [[i+1, ml, z-1], [i, 0, z-1], [i, ml, z-1]]
+                        bonds_t = [[i + 1, ml, z - 1], [i, 0, z - 1], [i, ml, z - 1]]
                     else:
-                        bonds_t = [[i+1, k, z-1], [i, k+1, z-1], [i, k, z-1]]
+                        bonds_t = [[i + 1, k, z - 1], [i, k + 1, z - 1], [i, k, z - 1]]
 
-                    bonds_t.append([i, k, z+1])
-                
+                    bonds_t.append([i, k, z + 1])
 
                 elif zv == 2:
                     if i == 0 and k == 0:
-                        bonds_t = [[ml, 0, z+1], [0, ml, z+1], [0, 0, z+1]]
+                        bonds_t = [[ml, 0, z + 1], [0, ml, z + 1], [0, 0, z + 1]]
                     elif i == 0:
-                        bonds_t = [[ml, k, z+1], [0, k-1, z+1], [0, k, z+1]]
+                        bonds_t = [[ml, k, z + 1], [0, k - 1, z + 1], [0, k, z + 1]]
                     elif k == 0:
-                        bonds_t = [[i-1, 0, z+1], [i, ml, z+1], [i, 0, z+1]]
+                        bonds_t = [[i - 1, 0, z + 1], [i, ml, z + 1], [i, 0, z + 1]]
                     else:
-                        bonds_t = [[i-1, k, z+1], [i, k-1, z+1], [i, k, z+1]]
+                        bonds_t = [[i - 1, k, z + 1], [i, k - 1, z + 1], [i, k, z + 1]]
 
-                    bonds_t.append([i, k, z-1])     
+                    bonds_t.append([i, k, z - 1])
 
-                
                 elif zv == 3:
                     if i == ml and k == ml:
-                        bonds_t = [[ml, 0, z-1], [0, ml, z-1], [ml, ml, z-1]]
+                        bonds_t = [[ml, 0, z - 1], [0, ml, z - 1], [ml, ml, z - 1]]
                     elif i == ml:
-                        bonds_t = [[ml, k+1, z-1], [0, k, z-1], [ml, k, z-1]]
+                        bonds_t = [[ml, k + 1, z - 1], [0, k, z - 1], [ml, k, z - 1]]
                     elif k == ml:
-                        bonds_t = [[i+1, ml, z-1], [i, 0, z-1], [i, ml, z-1]]
+                        bonds_t = [[i + 1, ml, z - 1], [i, 0, z - 1], [i, ml, z - 1]]
                     else:
-                        bonds_t = [[i+1, k, z-1], [i, k+1, z-1], [i, k, z-1]]
+                        bonds_t = [[i + 1, k, z - 1], [i, k + 1, z - 1], [i, k, z - 1]]
 
-                    bonds_t.append([i, k, z+1])
-
+                    bonds_t.append([i, k, z + 1])
 
                 elif zv == 4:
                     if i == ml and k == ml:
-                        bonds_t = [[ml, 0, z+1], [0, ml, z+1], [0, 0, z+1]]
+                        bonds_t = [[ml, 0, z + 1], [0, ml, z + 1], [0, 0, z + 1]]
                     elif i == ml:
-                        bonds_t = [[0, k, z+1], [0, k+1, z+1], [ml, k+1, z+1]]
+                        bonds_t = [[0, k, z + 1], [0, k + 1, z + 1], [ml, k + 1, z + 1]]
                     elif k == ml:
-                        bonds_t = [[i+1, 0, z+1], [i, 0, z+1], [i+1, ml, z+1]]
+                        bonds_t = [[i + 1, 0, z + 1], [i, 0, z + 1], [i + 1, ml, z + 1]]
                     else:
-                        bonds_t = [[i+1, k, z+1], [i+1, k+1, z+1], [i, k+1, z+1]]
+                        bonds_t = [
+                            [i + 1, k, z + 1],
+                            [i + 1, k + 1, z + 1],
+                            [i, k + 1, z + 1],
+                        ]
 
-                    bonds_t.append([i, k, z-1])     
+                    bonds_t.append([i, k, z - 1])
 
                 elif zv == 5:
                     if i == 0 and k == 0:
-                        bonds_t = [[ml, ml, z-1], [0, ml, z-1], [ml, 0, z-1]]
+                        bonds_t = [[ml, ml, z - 1], [0, ml, z - 1], [ml, 0, z - 1]]
                     elif i == 0:
-                        bonds_t = [[0, k-1, z-1], [ml, k, z-1], [ml, k-1, z-1]]
+                        bonds_t = [
+                            [0, k - 1, z - 1],
+                            [ml, k, z - 1],
+                            [ml, k - 1, z - 1],
+                        ]
                     elif k == 0:
-                        bonds_t = [[i, ml, z-1], [i-1, ml, z-1], [i-1, 0, z-1]]
+                        bonds_t = [
+                            [i, ml, z - 1],
+                            [i - 1, ml, z - 1],
+                            [i - 1, 0, z - 1],
+                        ]
                     else:
-                        bonds_t = [[i-1, k, z-1], [i, k-1, z-1], [i-1, k-1, z-1]]
+                        bonds_t = [
+                            [i - 1, k, z - 1],
+                            [i, k - 1, z - 1],
+                            [i - 1, k - 1, z - 1],
+                        ]
 
-                    bonds_t.append([i, k, z+1])
+                    bonds_t.append([i, k, z + 1])
 
                 bonds[i][k].append(bonds_t)
+
 
 def lattice_form_check():
     global lattice, atom_set, bonds, nl, zl
@@ -397,9 +531,9 @@ def lattice_form_check():
     lattice_form()
 
     min_x = -1
-    max_x = (unit_x[0] + unit_y[0])*nl + 1
+    max_x = (unit_x[0] + unit_y[0]) * nl + 1
     min_y = -1
-    max_y = (unit_x[1] + unit_y[1])*nl + 1
+    max_y = (unit_x[1] + unit_y[1]) * nl + 1
 
     x = []
     y = []
@@ -412,8 +546,8 @@ def lattice_form_check():
 
         for i in range(len(lattice)):
             for k in range(len(lattice[i])):
-                xp = lattice[i][k][z][0]*unit_x[0] + lattice[i][k][z][1]*unit_y[0]
-                yp = lattice[i][k][z][0]*unit_x[1] + lattice[i][k][z][1]*unit_y[1]
+                xp = lattice[i][k][z][0] * unit_x[0] + lattice[i][k][z][1] * unit_y[0]
+                yp = lattice[i][k][z][0] * unit_x[1] + lattice[i][k][z][1] * unit_y[1]
 
                 x[-1].append(xp)
                 y[-1].append(yp)
@@ -422,49 +556,56 @@ def lattice_form_check():
                     if u[2] >= len(lattice[0][0]):
                         pass
                     else:
-                        xb = lattice[u[0]][u[1]][u[2]][0]*unit_x[0] + lattice[u[0]][u[1]][u[2]][1]*unit_y[0]
-                        yb = lattice[u[0]][u[1]][u[2]][0]*unit_x[1] + lattice[u[0]][u[1]][u[2]][1]*unit_y[1]
+                        xb = (
+                            lattice[u[0]][u[1]][u[2]][0] * unit_x[0]
+                            + lattice[u[0]][u[1]][u[2]][1] * unit_y[0]
+                        )
+                        yb = (
+                            lattice[u[0]][u[1]][u[2]][0] * unit_x[1]
+                            + lattice[u[0]][u[1]][u[2]][1] * unit_y[1]
+                        )
 
                         b[-1].append([[xp, yp], [xb, yb]])
 
-    #first BL
+    # first BL
 
     BL_num = 4
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.set(xlim = (min_x, max_x), ylim = (min_y, max_y))
+    ax.set(xlim=(min_x, max_x), ylim=(min_y, max_y))
 
-    #Draw repeatition unit
-    l1 = mlines.Line2D([0, unit_x[0]*nl], [0, 0], c = "black")
-    l2 = mlines.Line2D([unit_x[0]*nl, max_x-1], [0, max_y-1], c = "black")
-    l3 = mlines.Line2D([max_x-1, unit_y[0]*nl], [max_y-1, max_y-1], c = "black")
-    l4 = mlines.Line2D([unit_y[0]*nl, 0], [max_y-1, 0], c = "black")
+    # Draw repeatition unit
+    l1 = mlines.Line2D([0, unit_x[0] * nl], [0, 0], c="black")
+    l2 = mlines.Line2D([unit_x[0] * nl, max_x - 1], [0, max_y - 1], c="black")
+    l3 = mlines.Line2D([max_x - 1, unit_y[0] * nl], [max_y - 1, max_y - 1], c="black")
+    l4 = mlines.Line2D([unit_y[0] * nl, 0], [max_y - 1, 0], c="black")
     ax.add_line(l1)
     ax.add_line(l2)
     ax.add_line(l3)
     ax.add_line(l4)
 
-    #draw bonding
-    for d in b[BL_num*2]:
+    # draw bonding
+    for d in b[BL_num * 2]:
         l = mlines.Line2D([d[0][0], d[1][0]], [d[0][1], d[1][1]])
         ax.add_line(l)
 
-    for d in b[BL_num*2+1]:
+    for d in b[BL_num * 2 + 1]:
         l = mlines.Line2D([d[0][0], d[1][0]], [d[0][1], d[1][1]])
         ax.add_line(l)
 
-    #draw atoms
-    ax.scatter(x[BL_num*2], y[BL_num*2], c = "b", s = 30)
-    ax.scatter(x[BL_num*2+1], y[BL_num*2+1], c = "r", s = 30)
+    # draw atoms
+    ax.scatter(x[BL_num * 2], y[BL_num * 2], c="b", s=30)
+    ax.scatter(x[BL_num * 2 + 1], y[BL_num * 2 + 1], c="r", s=30)
 
     plt.show()
 
+
 def deposition():
-    #choose a position to deposit an atom
+    # choose a position to deposit an atom
     global mod, atom_set, n_atoms, cov, max_layer
 
-    #check nuber of atoms
+    # check nuber of atoms
 
     num_atom = 0
     for i in range(len(atom_set)):
@@ -481,24 +622,23 @@ def deposition():
     candidate = []
     mod = []
     n_atoms = n_atoms + 1
-    cov = n_atoms/NBL
+    cov = n_atoms / NBL
 
-
-    if n_atoms == 5 or n_atoms == 20 or n_atoms ==300:
+    if n_atoms == 5 or n_atoms == 20 or n_atoms == 300:
         show_current()
 
     if n_atoms >= max_atom:
         print("max_reached")
 
-    #first bilayer (directlly attached to substrate) is always the candidate
+    # first bilayer (directlly attached to substrate) is always the candidate
     for i in range(len(lattice)):
         for k in range(len(lattice[i])):
             if atom_set[i][k][0] == 0:
                 candidate.append([i, k, 0])
             if atom_set[i][k][1] == 0:
                 candidate.append([i, k, 1])
-    
-    #the neighbor sites of existing atoms are candidates 
+
+    # the neighbor sites of existing atoms are candidates
     for i in range(len(atom_set)):
         for k in range(len(atom_set[i])):
             for z in range(len(atom_set[i][k])):
@@ -510,22 +650,22 @@ def deposition():
                             candidate.append([u[0], u[1], u[2]])
                         else:
                             pass
-    
-    #Delete duplication
+
+    # Delete duplication
     candidate2 = []
     for i in candidate:
         if (i in candidate2) == False:
             candidate2.append(i)
 
-    #Choose a site
+    # Choose a site
     r = random.random()
-    num = math.floor(r*len(candidate2))
+    num = math.floor(r * len(candidate2))
     dep = candidate2[num]
 
-    #mod: Sites that should change the probability of events
+    # mod: Sites that should change the probability of events
     mod.append(dep)
 
-    #Check the structure of surrounding atoms
+    # Check the structure of surrounding atoms
     st = 2
     if dep[2] == maxz:
         print("atom at maxz")
@@ -533,14 +673,15 @@ def deposition():
         max_layer = dep[2]
 
     for u in bonds[dep[0]][dep[1]][dep[2]]:
-        #if at leat one atom around the deposition site is 3D, deposit atom is also 3D.
+        # if at leat one atom around the deposition site is 3D, deposit atom is also 3D.
         if atom_set[u[0]][u[1]][u[2]] == 3:
             st = 3
             mod.append(u)
         elif atom_set[u[0]][u[1]][u[2]] == 2:
-            mod.append(u)      
+            mod.append(u)
 
     atom_set[dep[0]][dep[1]][dep[2]] = st
+
 
 def params():
     global pre, Eagsi, E12, E23, E34, E45, E56, Eintra, Einter, Eagtp, Etr, Vene, rec, rec1
@@ -561,40 +702,43 @@ def params():
     rec = float(entry_img.get())
     rec1 = float(entry_img.get())
 
-    #calculate deposition speed
-    d_rate = float(entry_rate.get())   #ML/min
-    d_rate = d_rate/60  #ML/s
-    NBL = 2*nl*nl   #atoms/ML
-    d_rate = d_rate*NBL #atoms/s
+    # calculate deposition speed
+    d_rate = float(entry_rate.get())  # ML/min
+    d_rate = d_rate / 60  # ML/s
+    NBL = 2 * nl * nl  # atoms/ML
+    d_rate = d_rate * NBL  # atoms/s
 
     global ttime, dep_time
-    dep_time = float(entry_time.get())*60
-    post_time = float(entry_post.get())*60
+    dep_time = float(entry_time.get()) * 60
+    post_time = float(entry_post.get()) * 60
     ttime = dep_time + post_time
 
+
 def update_progress():
-    text_time_c["text"] = str('{:.1f}'.format(rel_time)) + " s"
-    pbval = int(rel_time/ttime*100)
+    text_time_c["text"] = str("{:.1f}".format(rel_time)) + " s"
+    pbval = int(rel_time / ttime * 100)
     pb.configure(value=pbval)
     text_count["text"] = str(pbval) + " %"
     text_event["text"] = str(event_num) + " events"
-    text_coverage["text"] = str('{:.2f}'.format(cov)) + " ML"
-    text_atoms["text"] = str('{:.2f}'.format(n_atoms)) + " atoms"
+    text_coverage["text"] = str("{:.2f}".format(cov)) + " ML"
+    text_atoms["text"] = str("{:.2f}".format(n_atoms)) + " atoms"
 
     root.update()
+
 
 def time_progress():
     global rel_time, tot, pbval, rec, rec1
     r2 = 0
     while r2 == 0:
         r2 = random.random()
-    ratio = int(rel_time/ttime*100)
-    dt = -math.log(r2)/tot
+    ratio = int(rel_time / ttime * 100)
+    dt = -math.log(r2) / tot
     rel_time = rel_time + dt
-    #recording
+    # recording
     if ratio >= rec:
         rec_atoms()
         rec = rec + rec1
+
 
 def rec_atoms():
     global a_set_rec, cov_rec, t_rec, cov
@@ -605,15 +749,17 @@ def rec_atoms():
     cov_rec.append(cov)
     t_rec.append(rel_time)
 
+
 def cal_rate(E):
     global kbt, pre
-    rate = pre*math.exp(E/kbt)
-    return(rate)
+    rate = pre * math.exp(E / kbt)
+    return rate
+
 
 def update_events():
     global mod, event, event_time, event_tot, tot
 
-    #Modify the event at the site in mod
+    # Modify the event at the site in mod
     for e in mod:
         i = e[0]
         k = e[1]
@@ -625,62 +771,62 @@ def update_events():
         event_time[i][k][z] = []
         event_tot[i][k][z] = 0
         tot_rec = 0
-        #最初はシンプルに組んで後で考え直す
+        # 最初はシンプルに組んで後で考え直す
         if atom_set[i][k][z] == 0:
             pass
         elif z == 0:
-            #calculate total energy
+            # calculate total energy
             E = Eagsi
             for u in bonds[i][k][z]:
                 s = atom_set[u[0]][u[1]][u[2]]
                 if s != 0:
                     E += E12
-            #get rate constant
+            # get rate constant
             kr = cal_rate(E)
 
-            #Record possible events and rate
+            # Record possible events and rate
             for u in bonds[i][k][z]:
                 if atom_set[u[0]][u[1]][u[2]] == 0:
-                    #empty neighbor site
+                    # empty neighbor site
                     event[i][k][z].append(["m", u[0], u[1], u[2]])
                     event_time[i][k][z].append(kr)
                     tot_rec += kr
                 else:
-                    #filled neighbor site
-                    #Jucge upclimb event
+                    # filled neighbor site
+                    # Jucge upclimb event
                     sx = u[0]
                     sy = u[1]
                     sz = u[2] + 1
 
                     if atom_set[sx][sy][sz] == 0:
-                        #upclimb possible
+                        # upclimb possible
                         event[i][k][z].append(["u", sx, sy, sz])
                         event_time[i][k][z].append(kr)
-                        tot_rec += kr         
+                        tot_rec += kr
                     else:
-                        #upclimb impossible
+                        # upclimb impossible
                         pass
 
         elif z == 1:
-            #calculate total energy
+            # calculate total energy
             E = Eagsi
             for u in bonds[i][k][z]:
                 s = atom_set[u[0]][u[1]][u[2]]
                 if (s != 0) and (u[2] == 1):
-                    #bonding with 0th atoms
+                    # bonding with 0th atoms
                     E += E12
                 elif (s != 0) and (u[2] == 3):
-                    #bonding with next bilayer
+                    # bonding with next bilayer
                     E += E23
 
-            #get rate constant
+            # get rate constant
             kr = cal_rate(E)
 
-            #Record possible events and rate
+            # Record possible events and rate
 
             for u in bonds[i][k][z]:
                 if (atom_set[u[0]][u[1]][u[2]] == 0) and (u[2] == 0):
-                    #empty neighbor site
+                    # empty neighbor site
                     event[i][k][z].append(["m", u[0], u[1], u[2]])
                     event_time[i][k][z].append(kr)
                     tot_rec += kr
@@ -688,156 +834,156 @@ def update_events():
                     pass
 
         elif (z == 2) or (z == 4):
-            #calculate total energy
+            # calculate total energy
             E = 0
             for u in bonds[i][k][z]:
                 s = atom_set[u[0]][u[1]][u[2]]
                 if (s != 0) and (u[2] == z - 1):
-                    #bonding with under BL
+                    # bonding with under BL
                     E += Vene[u[2]]
                 elif (s != 0) and (u[2] == z + 1):
-                    #bonding in same BL
-                    E += Vene[u[2]+1]
+                    # bonding in same BL
+                    E += Vene[u[2] + 1]
 
-            #get rate constant
+            # get rate constant
             kr = cal_rate(E)
 
-            #Record possible events and rates
+            # Record possible events and rates
             for u in bonds[i][k][z]:
                 if (atom_set[u[0]][u[1]][u[2]] == 0) and (u[2] == z + 1):
-                    #empty neighbor site in same BL
+                    # empty neighbor site in same BL
                     event[i][k][z].append(["m", u[0], u[1], u[2]])
                     event_time[i][k][z].append(kr)
                     tot_rec += kr
                 elif (atom_set[u[0]][u[1]][u[2]] == 0) and (u[2] == z - 1):
-                    #empty neighbor site in lower BL
-                    #Judge neighbor in lower site
+                    # empty neighbor site in lower BL
+                    # Judge neighbor in lower site
                     judge = 0
                     for j in bonds[u[0]][u[1]][u[2]]:
                         if atom_set[j[0]][j[1]][j[2]] != 0:
                             judge += 1
-                    
+
                     if judge >= 2:
-                        #the site has neighbor, which can make a bond. Candidate.
+                        # the site has neighbor, which can make a bond. Candidate.
                         event[i][k][z].append(["m", u[0], u[1], u[2]])
                         event_time[i][k][z].append(kr)
                         tot_rec += kr
 
                 elif (atom_set[u[0]][u[1]][u[2]] == 1) and (u[2] == z - 1):
-                    #Downstair
+                    # Downstair
                     for j in bonds[u[0]][u[1]][u[2]]:
                         if atom_set[j[0]][j[1]][j[2]] == 0:
-                            #down stair possible
+                            # down stair possible
                             event[i][k][z].append(["d", j[0], j[1], j[2]])
                             event_time[i][k][z].append(kr)
                             tot_rec += kr
                         else:
                             pass
-                
+
                 elif (atom_set[u[0]][u[1]][u[2]] == 1) and (u[2] == z + 1):
-                    #upstair
+                    # upstair
                     judge = 0
                     for j in bonds[u[0]][u[1]][[2]]:
                         if atom_set[j[0]][j[1]][j[2]] != 0:
                             judge += 1
                         else:
                             pass
-                    
+
                     if (judge >= 2) and (atom_set[u[0]][u[1]][u[2] + 1] == 0):
-                        #upstair possible
+                        # upstair possible
                         event[i][k][z].append(["u", u[0], u[1], u[2] + 1])
                         event_time[i][k][z].append(kr)
                         tot_rec += kr
 
-        elif z%2 == 0:
-            #calculate total energy
+        elif z % 2 == 0:
+            # calculate total energy
             E = 0
             for u in bonds[i][k][z]:
                 s = atom_set[u[0]][u[1]][u[2]]
                 if (s != 0) and (u[2] == z - 1):
-                    #bonding with under BL
+                    # bonding with under BL
                     E += Vene[5]
                 elif (s != 0) and (u[2] == z + 1):
-                    #bonding in same BL
+                    # bonding in same BL
                     E += Vene[6]
 
-            #get rate constant
+            # get rate constant
             kr = cal_rate(E)
 
-            #Record possible events and rates
+            # Record possible events and rates
             for u in bonds[i][k][z]:
                 if (atom_set[u[0]][u[1]][u[2]] == 0) and (u[2] == z + 1):
-                    #empty neighbor site in same BL
+                    # empty neighbor site in same BL
                     event[i][k][z].append(["m", u[0], u[1], u[2]])
                     event_time[i][k][z].append(kr)
                     tot_rec += kr
                 elif (atom_set[u[0]][u[1]][u[2]] == 0) and (u[2] == z - 1):
-                    #empty neighbor site in lower BL
-                    #Judge neighbor in lower site
+                    # empty neighbor site in lower BL
+                    # Judge neighbor in lower site
                     judge = 0
                     for j in bonds[u[0]][u[1]][u[2]]:
                         if atom_set[j[0]][j[1]][j[2]] != 0:
                             judge += 1
-                    
+
                     if judge >= 2:
-                        #the site has neighbor, which can make a bond. Candidate.
+                        # the site has neighbor, which can make a bond. Candidate.
                         event[i][k][z].append(["m", u[0], u[1], u[2]])
                         event_time[i][k][z].append(kr)
                         tot_rec += kr
 
                 elif (atom_set[u[0]][u[1]][u[2]] == 1) and (u[2] == z - 1):
-                    #Downstair
+                    # Downstair
                     for j in bonds[u[0]][u[1]][u[2]]:
                         if atom_set[j[0]][j[1]][j[2]] == 0:
-                            #down stair possible
+                            # down stair possible
                             event[i][k][z].append(["d", j[0], j[1], j[2]])
                             event_time[i][k][z].append(kr)
                             tot_rec += kr
                         else:
                             pass
-                
+
                 elif (atom_set[u[0]][u[1]][u[2]] == 1) and (u[2] == z + 1):
-                    #upstair
+                    # upstair
                     judge = 0
                     for j in bonds[u[0]][u[1]][[2]]:
                         if atom_set[j[0]][j[1]][j[2]] != 0:
                             judge += 1
                         else:
                             pass
-                    
+
                     if (judge >= 2) and (atom_set[u[0]][u[1]][u[2] + 1] == 0):
-                        #upstair possible
+                        # upstair possible
                         if u[2] + 1 >= maxz:
                             print("maxz reached")
                         event[i][k][z].append(["u", u[0], u[1], u[2] + 1])
                         event_time[i][k][z].append(kr)
                         tot_rec += kr
 
-        elif (z == 3) or (z== 5):
-            #calculate total energy
+        elif (z == 3) or (z == 5):
+            # calculate total energy
             E = 0
             for u in bonds[i][k][z]:
                 s = atom_set[u[0]][u[1]][u[2]]
                 if (s != 0) and (u[2] == z - 1):
-                    #bonding in same BL
+                    # bonding in same BL
                     E += Vene[z]
                 elif (s != 0) and (u[2] == z + 1):
-                    #bonding with next bilayer
+                    # bonding with next bilayer
                     E += Vene[z + 1]
-            #get rate constant
+            # get rate constant
             kr = cal_rate(E)
 
-            #Record possible events and rate
+            # Record possible events and rate
             for u in bonds[i][k][z]:
-                if (atom_set[u[0]][u[1]][u[2]] == 0):
-                    #empty neighbor site
+                if atom_set[u[0]][u[1]][u[2]] == 0:
+                    # empty neighbor site
                     judge = 0
                     for j in bonds[u[0]][u[1]][u[2]]:
                         if atom_set[j[0]][j[1]][j[2]] != 0:
                             judge += 1
 
                     if judge >= 2:
-                        #candidate
+                        # candidate
                         event[i][k][z].append(["m", u[0], u[1], u[2]])
                         event_time[i][k][z].append(kr)
                         tot_rec += kr
@@ -845,33 +991,33 @@ def update_events():
                 else:
                     pass
 
-        elif z%2 == 1:
-            #calculate total energy
+        elif z % 2 == 1:
+            # calculate total energy
             E = 0
             for u in bonds[i][k][z]:
                 s = atom_set[u[0]][u[1]][u[2]]
                 if (s != 0) and (u[2] == z - 1):
-                    #bonding in same BL
+                    # bonding in same BL
                     E += Vene[6]
                 elif (s != 0) and (u[2] == z + 1):
-                    #bonding with next bilayer
+                    # bonding with next bilayer
                     E += Vene[5]
-            #get rate constant
+            # get rate constant
             kr = cal_rate(E)
 
-            #Record possible events and rate
+            # Record possible events and rate
             for u in bonds[i][k][z]:
                 if u[2] >= maxz:
                     print("maxz reached")
-                elif (atom_set[u[0]][u[1]][u[2]] == 0):
-                    #empty neighbor site
+                elif atom_set[u[0]][u[1]][u[2]] == 0:
+                    # empty neighbor site
                     judge = 0
                     for j in bonds[u[0]][u[1]][u[2]]:
                         if atom_set[j[0]][j[1]][j[2]] != 0:
                             judge += 1
 
                     if judge >= 2:
-                        #candidate
+                        # candidate
                         event[i][k][z].append(["m", u[0], u[1], u[2]])
                         event_time[i][k][z].append(kr)
                         tot_rec += kr
@@ -882,16 +1028,22 @@ def update_events():
             print("No updates")
         event_tot[i][k][z] = tot_rec
         tot = tot + tot_rec
-    
+
     mod = []
+
 
 def event_progress(i, k, z, j):
     global atom_set, mod, max_layer
 
-    if (i >= len(event)) or (k >= len(event[i])) or (z >= len(event[i][k])) or (j >= len(event[i][k][z])):
+    if (
+        (i >= len(event))
+        or (k >= len(event[i]))
+        or (z >= len(event[i][k]))
+        or (j >= len(event[i][k][z]))
+    ):
         print("Over")
         print("i = " + str(i))
-        print("len(i) = " + str(len(event))) 
+        print("len(i) = " + str(len(event)))
         print("k = " + str(k))
         print("len(k) = " + str(len(event[i])))
         print("z = " + str(z))
@@ -900,7 +1052,7 @@ def event_progress(i, k, z, j):
         print("len(j) = " + str(len(event[i][k][z])))
         print("atomset = " + str(atom_set[i][k][z]))
         print("time = " + str(event_tot[i][k][z]))
- 
+
     s = event[i][k][z][j]
     mod = []
     if atom_set[i][k][z] == 0:
@@ -929,7 +1081,7 @@ def event_progress(i, k, z, j):
         for a in bonds[i][k][z]:
             if atom_set[a[0]][a[1]][a[2]] != 0:
                 mod.append([a[0], a[1], a[2]])
-        
+
     if bonds[s[1]][s[2]][s[3]] == []:
         pass
     else:
@@ -937,23 +1089,24 @@ def event_progress(i, k, z, j):
             if atom_set[a[0]][a[1]][a[2]] != 0:
                 mod.append([a[0], a[1], a[2]])
 
+
 def kMC():
     global tot, d_rate, rel_time, event_num
     event_num = 1
     while rel_time <= dep_time:
         update_progress()
 
-        event_num = event_num +1
+        event_num = event_num + 1
 
         r1 = random.random()
-        rt = r1*tot
-        #judge deposition
+        rt = r1 * tot
+        # judge deposition
         if rt <= d_rate:
-            #deposition happens
+            # deposition happens
             deposition()
-            #time progess
+            # time progess
             time_progress()
-            #update events and rates
+            # update events and rates
             update_events()
 
         else:
@@ -973,10 +1126,8 @@ def kMC():
                             trec = rt
                             rt = rt - event_tot[i][k][z]
 
-
                         else:
                             rt = rt - event_tot[i][k][z]
-
 
             if rt > 0:
                 print("strange")
@@ -985,7 +1136,7 @@ def kMC():
                 print("ie =" + str(ie))
             else:
                 for j in range(len(event_time[ie][ke][ze])):
-                    #print(event_time[ie][ke][ze][j])
+                    # print(event_time[ie][ke][ze][j])
                     if trec <= 0:
                         pass
                     elif event_time[ie][ke][ze][j] == 0:
@@ -994,30 +1145,30 @@ def kMC():
                         je = j
                         trec = trec - event_time[ie][ke][ze][j]
                     else:
-                        trec = trec - event_time[ie][ke][ze][j]                    
-                
+                        trec = trec - event_time[ie][ke][ze][j]
+
                 if trec > 0:
                     print("strange")
                     print("tot = " + str(tot))
                     print("remain = " + str(trec))
-                
+
                 else:
-            
-                    #event[ie][ke][ze][je] happens
+
+                    # event[ie][ke][ze][je] happens
                     event_progress(ie, ke, ze, je)
-                    #time progess
+                    # time progess
                     time_progress()
-                    #update events and rates
+                    # update events and rates
                     update_events()
 
-    #deposition finish
-    #post annealing
+    # deposition finish
+    # post annealing
     tot = tot - d_rate
 
-    #repetition untill post annealing finish
+    # repetition untill post annealing finish
     while rel_time <= ttime:
         r1 = random.random()
-        rt = r1*tot
+        rt = r1 * tot
 
         for i in range(len(event_tot)):
             for k in range(len(event_tot[i])):
@@ -1051,19 +1202,20 @@ def kMC():
                 elif trec <= event_time[ie][ke][ze][j]:
                     je = j
                     trec = trec - event_time[ie][ke][ze][j]
-        
-            if trec >0:
+
+            if trec > 0:
                 pass
             else:
-                #event[ie][ke][ze][je] happens
+                # event[ie][ke][ze][je] happens
                 event_progress(ie, ke, ze, je)
-                #time progess
+                # time progess
                 time_progress()
-                #update events and rates
+                # update events and rates
                 update_events()
 
+
 def rec_pos():
-    #record the position of atoms in poscar form
+    # record the position of atoms in poscar form
     for n in range(len(a_set_rec)):
         xp = []
         yp = []
@@ -1075,27 +1227,30 @@ def rec_pos():
             for k in range(len(s[i])):
                 for z in range(len(s[i][k])):
                     if s[i][k][z] != 0:
-                        xp.append(lattice[i][k][z][0]/nl)
-                        yp.append(lattice[i][k][z][1]/nl)
-                        zp.append(lattice[i][k][z][2]/zl/2.448)
+                        xp.append(lattice[i][k][z][0] / nl)
+                        yp.append(lattice[i][k][z][1] / nl)
+                        zp.append(lattice[i][k][z][2] / zl / 2.448)
                         num = num + 1
 
-        file_name = entry_rec.get() + "_" + str(int(t_rec[n])) + "s" +"_" + str(n) + ".vasp"
-        file_data = open(file_name,"w")
+        file_name = (
+            entry_rec.get() + "_" + str(int(t_rec[n])) + "s" + "_" + str(n) + ".vasp"
+        )
+        file_data = open(file_name, "w")
         file_data.write(entry_rec.get() + "\n")
         file_data.write("10" + "\n")
 
-        file_data.write(str(nl) + "\t" + "0" + "\t" + "0" +"\n")
-        file_data.write(str(nl/2) + "\t" + str(nl/2*1.732) + "\t" + "0" +"\n")
-        file_data.write("0" + "\t" + "0" + "\t" + str(zl*2.448) +"\n")
-        file_data.write("Si" +"\n")
+        file_data.write(str(nl) + "\t" + "0" + "\t" + "0" + "\n")
+        file_data.write(str(nl / 2) + "\t" + str(nl / 2 * 1.732) + "\t" + "0" + "\n")
+        file_data.write("0" + "\t" + "0" + "\t" + str(zl * 2.448) + "\n")
+        file_data.write("Si" + "\n")
         file_data.write(str(num) + "\n")
-        file_data.write("direct"+"\n")
+        file_data.write("direct" + "\n")
 
         for i in range(len(xp)):
-            file_data.write(str(xp[i]) + "\t" + str(yp[i]) + "\t" + str(zp[i]) +"\n")
+            file_data.write(str(xp[i]) + "\t" + str(yp[i]) + "\t" + str(zp[i]) + "\n")
 
         file_data.close()
+
 
 def figure_draw_rec():
     for n in range(len(a_set_rec)):
@@ -1104,9 +1259,18 @@ def figure_draw_rec():
 
         kx = figure_formation(ax, n)
 
-        file_name = entry_rec.get() + "_middle_" + str(int(t_rec[n])) + "s" + "_" + str(n) + ".png"
+        file_name = (
+            entry_rec.get()
+            + "_middle_"
+            + str(int(t_rec[n]))
+            + "s"
+            + "_"
+            + str(n)
+            + ".png"
+        )
         fig.savefig(file_name)
         images.append(file_name)
+
 
 def coverage_color():
     global images, gray, green
@@ -1124,8 +1288,8 @@ def coverage_color():
         psize = img.size
 
         for s in range(psize[0]):
-            for t in range (psize[1]):
-                r, g, b, no = img.getpixel((s,t))
+            for t in range(psize[1]):
+                r, g, b, no = img.getpixel((s, t))
                 col = [r, g, b]
 
                 if col == [128, 128, 128]:
@@ -1138,24 +1302,34 @@ def coverage_color():
         gray.append(i[0])
         green.append(i[1])
 
+
 def hist_rec():
     global images_h
 
     images_h = []
-    
+
     for k in range(len(layers_each)):
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
         kx = hist_formation(ax, k)
 
-        file_name = entry_rec.get() + "_hist_" + str(int(t_rec[k])) + "s" + "_" + str(k) + ".png"
+        file_name = (
+            entry_rec.get()
+            + "_hist_"
+            + str(int(t_rec[k]))
+            + "s"
+            + "_"
+            + str(k)
+            + ".png"
+        )
         fig.savefig(file_name)
         images_h.append(file_name)
 
+
 def ppt_form():
     global images, images_h
-    k = os.path.exists('Layer_analysis_results.pptx')
+    k = os.path.exists("Layer_analysis_results.pptx")
 
     if k == True:
         prs = Presentation("Layer_analysis_results.pptx")
@@ -1169,7 +1343,7 @@ def ppt_form():
         title = slide.shapes.title
         title.text = "Layer analysis calculation results"
 
-    #First page
+    # First page
     blank_slide_layout = prs.slide_layouts[6]
     slide = prs.slides.add_slide(blank_slide_layout)
 
@@ -1192,7 +1366,7 @@ def ppt_form():
     width = Inches(12)
     height = Inches(1)
 
-    #record parameters
+    # record parameters
     table0 = shapes.add_table(rows, cols, left, top, width, height).table
 
     table0.cell(0, 0).text = "Num. cells"
@@ -1210,7 +1384,7 @@ def ppt_form():
     table0.cell(1, 0).text = str(nl)
     table0.cell(1, 1).text = str(zl)
     table0.cell(1, 2).text = entry_kbT.get()
-    table0.cell(1, 3).text = str('{:.3g}'.format(kbt))
+    table0.cell(1, 3).text = str("{:.3g}".format(kbt))
     table0.cell(1, 4).text = entry_rate.get()
     table0.cell(1, 5).text = entry_time.get()
     table0.cell(1, 6).text = entry_post.get()
@@ -1228,7 +1402,6 @@ def ppt_form():
 
     table0.cell(1, 10).text = str(minute) + " m " + str(second) + " s"
 
-
     left = Inches(0.5)
     top = Inches(3.5)
     rows = 2
@@ -1245,7 +1418,7 @@ def ppt_form():
     table.cell(0, 5).text = "Si(4-5)"
     table.cell(0, 6).text = "Si(5-6)"
     table.cell(0, 7).text = "Si(intra)"
-    table.cell(0, 8).text = "Si(inter)"    
+    table.cell(0, 8).text = "Si(inter)"
     table.cell(0, 9).text = "Ag(top)"
     table.cell(0, 10).text = "Trans."
     table.cell(1, 0).text = "Energy"
@@ -1260,7 +1433,6 @@ def ppt_form():
     table.cell(1, 8).text = entry_Sielin.get()
     table.cell(1, 9).text = entry_Agtp.get()
     table.cell(1, 10).text = entry_tr.get()
-
 
     """
     left = Inches(0.5)
@@ -1291,7 +1463,7 @@ def ppt_form():
     p.text = entry_text.get()
     p.font.size = Pt(20)
 
-    #second slide
+    # second slide
     slide = prs.slides.add_slide(blank_slide_layout)
 
     width = height = Inches(1)
@@ -1304,7 +1476,7 @@ def ppt_form():
     p.text = "Results"
     p.font.size = Pt(28)
 
-    #put images
+    # put images
 
     left0 = 0.2
     top0 = 0.7
@@ -1337,27 +1509,34 @@ def ppt_form():
             height = Inches(2.5)
             height_w = Inches(1)
 
-        for i in range (0, 3):
+        for i in range(0, 3):
             for k in range(0, 4):
                 if imn >= num_ims:
                     fin = 1
                 else:
-                    left = Inches(left0 + k*3.2)
-                    top = Inches(top0 + i*2.1)
+                    left = Inches(left0 + k * 3.2)
+                    top = Inches(top0 + i * 2.1)
                     slide.shapes.add_picture(images[imn], left, top, height=height)
 
-                    txBox = slide.shapes.add_textbox(left, top- Inches(0.2), width, height_w)
+                    txBox = slide.shapes.add_textbox(
+                        left, top - Inches(0.2), width, height_w
+                    )
                     tf = txBox.text_frame
 
                     p = tf.add_paragraph()
-                    p.text = str(int(t_rec[imn]))+ " s, " + str('{:.2f}'.format(cov_rec[imn])) + " ML" 
+                    p.text = (
+                        str(int(t_rec[imn]))
+                        + " s, "
+                        + str("{:.2f}".format(cov_rec[imn]))
+                        + " ML"
+                    )
                     p.font.size = Pt(20)
 
                     imn = imn + 1
         if imn == num_ims:
             fin = 1
 
-    #Third slide
+    # Third slide
     slide = prs.slides.add_slide(blank_slide_layout)
 
     width = height = Inches(1)
@@ -1370,7 +1549,7 @@ def ppt_form():
     p.text = "Results: layer analysis"
     p.font.size = Pt(28)
 
-    #put images
+    # put images
 
     left0 = 0.2
     top0 = 0.7
@@ -1403,21 +1582,29 @@ def ppt_form():
             height = Inches(2)
             height_w = Inches(1)
 
-
-        for i in range (0, 3):
+        for i in range(0, 3):
             for k in range(0, 4):
                 if imn >= num_ims:
                     fin = 1
                 else:
-                    left = Inches(left0 + k*3.2)
-                    top = Inches(top0 + i*2.1)
-                    slide.shapes.add_picture(images_h[imn], left, top + Inches(0.2), height=height)
+                    left = Inches(left0 + k * 3.2)
+                    top = Inches(top0 + i * 2.1)
+                    slide.shapes.add_picture(
+                        images_h[imn], left, top + Inches(0.2), height=height
+                    )
 
-                    txBox = slide.shapes.add_textbox(left, top- Inches(0.2), width, height_w)
+                    txBox = slide.shapes.add_textbox(
+                        left, top - Inches(0.2), width, height_w
+                    )
                     tf = txBox.text_frame
 
                     p = tf.add_paragraph()
-                    p.text = str(int(t_rec[imn]))+ " s, " + str('{:.2f}'.format(cov_rec[imn])) + " ML" 
+                    p.text = (
+                        str(int(t_rec[imn]))
+                        + " s, "
+                        + str("{:.2f}".format(cov_rec[imn]))
+                        + " ML"
+                    )
                     p.font.size = Pt(20)
 
                     imn = imn + 1
@@ -1446,7 +1633,8 @@ def ppt_form():
     slide.shapes.add_picture(file_name, left, top, height=height)
     """
 
-    prs.save('Layer_analysis_results.pptx')
+    prs.save("Layer_analysis_results.pptx")
+
 
 def layer_sum():
     global layers_each, max_layer
@@ -1457,9 +1645,9 @@ def layer_sum():
     for s in range(len(a_set_rec)):
         layers_each.append([])
         co = a_set_rec[s]
-        for z in range (len(co[0][0])):
+        for z in range(len(co[0][0])):
             c_each = 0
-            if z%2 == 0:
+            if z % 2 == 0:
                 count = 0
 
             for i in range(len(co)):
@@ -1468,15 +1656,25 @@ def layer_sum():
                         count += 1
                         c_each += 1
 
-            if z%2 == 1:
+            if z % 2 == 1:
                 layers_each[-1].append(count)
 
             if (c_each != 0) and (z >= max_layer):
                 max_layer = z
 
+
 def figure_formation(ax, n):
     length = nl
-    p = pat.Polygon(xy = [(0, 0), (unit_x[0]*length, unit_x[1]*length), ((unit_x[0] + unit_y[0])*length, (unit_x[1] + unit_y[1])*length),(unit_y[0]*length, unit_y[1]*length)], fc = (0.5, 0.5, 0.5), ec = (0, 0, 0))
+    p = pat.Polygon(
+        xy=[
+            (0, 0),
+            (unit_x[0] * length, unit_x[1] * length),
+            ((unit_x[0] + unit_y[0]) * length, (unit_x[1] + unit_y[1]) * length),
+            (unit_y[0] * length, unit_y[1] * length),
+        ],
+        fc=(0.5, 0.5, 0.5),
+        ec=(0, 0, 0),
+    )
     ax.add_patch(p)
 
     atom_set_n = a_set_rec[n]
@@ -1490,19 +1688,35 @@ def figure_formation(ax, n):
                     xp = lattice[i][k][z][0]
                     yp = lattice[i][k][z][1]
                     zp = lattice[i][k][z][2]
-                    if z%2 == 0:
-                        t1x = xp*unit_x[0] + yp*unit_y[0] - (unit_x[0] + unit_y[0])/3
-                        t1y = xp*unit_x[1] + yp*unit_y[1] - (unit_x[1] + unit_y[1])/3
+                    if z % 2 == 0:
+                        t1x = (
+                            xp * unit_x[0]
+                            + yp * unit_y[0]
+                            - (unit_x[0] + unit_y[0]) / 3
+                        )
+                        t1y = (
+                            xp * unit_x[1]
+                            + yp * unit_y[1]
+                            - (unit_x[1] + unit_y[1]) / 3
+                        )
 
                         t2x = t1x + unit_x[0]
                         t2y = t1y + unit_x[1]
 
                         t3x = t1x + unit_y[0]
                         t3y = t1y + unit_y[1]
-    
+
                     else:
-                        t1x = xp*unit_x[0] + yp*unit_y[0] + (unit_x[0] + unit_y[0])/3
-                        t1y = xp*unit_x[1] + yp*unit_y[1] + (unit_x[1] + unit_y[1])/3
+                        t1x = (
+                            xp * unit_x[0]
+                            + yp * unit_y[0]
+                            + (unit_x[0] + unit_y[0]) / 3
+                        )
+                        t1y = (
+                            xp * unit_x[1]
+                            + yp * unit_y[1]
+                            + (unit_x[1] + unit_y[1]) / 3
+                        )
 
                         t2x = t1x - unit_x[0]
                         t2y = t1y - unit_x[1]
@@ -1510,20 +1724,32 @@ def figure_formation(ax, n):
                         t3x = t1x - unit_y[0]
                         t3y = t1y - unit_y[1]
 
-                    color_num = math.floor(z/2)*2
+                    color_num = math.floor(z / 2) * 2
                     if z == 1 or z == 0:
                         color = [0, 1, 0]
                     else:
-                        color = [color_num/max_layer, 0, 1-color_num/max_layer]
+                        color = [color_num / max_layer, 0, 1 - color_num / max_layer]
 
-                    p = pat.Polygon(xy = [(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc = color, ec = color)
+                    p = pat.Polygon(
+                        xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
+                    )
 
                     ax.add_patch(p)
 
                     if i == 0:
-                        if z%2 == 0:
-                            t1x = xp*unit_x[0] + yp*unit_y[0] - (unit_x[0] + unit_y[0])/3 + unit_x[0]*length
-                            t1y = xp*unit_x[1] + yp*unit_y[1] - (unit_x[1] + unit_y[1])/3 + unit_x[1]*length
+                        if z % 2 == 0:
+                            t1x = (
+                                xp * unit_x[0]
+                                + yp * unit_y[0]
+                                - (unit_x[0] + unit_y[0]) / 3
+                                + unit_x[0] * length
+                            )
+                            t1y = (
+                                xp * unit_x[1]
+                                + yp * unit_y[1]
+                                - (unit_x[1] + unit_y[1]) / 3
+                                + unit_x[1] * length
+                            )
 
                             t2x = t1x + unit_x[0]
                             t2y = t1y + unit_x[1]
@@ -1531,8 +1757,18 @@ def figure_formation(ax, n):
                             t3x = t1x + unit_y[0]
                             t3y = t1y + unit_y[1]
                         else:
-                            t1x = xp*unit_x[0] + yp*unit_y[0] + (unit_x[0] + unit_y[0])/3 + unit_x[0]*length
-                            t1y = xp*unit_x[1] + yp*unit_y[1] + (unit_x[1] + unit_y[1])/3 + unit_x[1]*length
+                            t1x = (
+                                xp * unit_x[0]
+                                + yp * unit_y[0]
+                                + (unit_x[0] + unit_y[0]) / 3
+                                + unit_x[0] * length
+                            )
+                            t1y = (
+                                xp * unit_x[1]
+                                + yp * unit_y[1]
+                                + (unit_x[1] + unit_y[1]) / 3
+                                + unit_x[1] * length
+                            )
 
                             t2x = t1x - unit_x[0]
                             t2y = t1y - unit_x[1]
@@ -1540,13 +1776,25 @@ def figure_formation(ax, n):
                             t3x = t1x - unit_y[0]
                             t3y = t1y - unit_y[1]
 
-                        p = pat.Polygon(xy = [(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc = color, ec = color)
+                        p = pat.Polygon(
+                            xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
+                        )
                         ax.add_patch(p)
 
                     if k == 0:
-                        if z%2 == 0:
-                            t1x = xp*unit_x[0] + yp*unit_y[0] - (unit_x[0] + unit_y[0])/3 + unit_y[0]*length
-                            t1y = xp*unit_x[1] + yp*unit_y[1] - (unit_x[1] + unit_y[1])/3 + unit_y[1]*length
+                        if z % 2 == 0:
+                            t1x = (
+                                xp * unit_x[0]
+                                + yp * unit_y[0]
+                                - (unit_x[0] + unit_y[0]) / 3
+                                + unit_y[0] * length
+                            )
+                            t1y = (
+                                xp * unit_x[1]
+                                + yp * unit_y[1]
+                                - (unit_x[1] + unit_y[1]) / 3
+                                + unit_y[1] * length
+                            )
 
                             t2x = t1x + unit_x[0]
                             t2y = t1y + unit_x[1]
@@ -1554,8 +1802,18 @@ def figure_formation(ax, n):
                             t3x = t1x + unit_y[0]
                             t3y = t1y + unit_y[1]
                         else:
-                            t1x = xp*unit_x[0] + yp*unit_y[0] + (unit_x[0] + unit_y[0])/3 + unit_y[0]*length
-                            t1y = xp*unit_x[1] + yp*unit_y[1] + (unit_x[1] + unit_y[1])/3 + unit_y[1]*length
+                            t1x = (
+                                xp * unit_x[0]
+                                + yp * unit_y[0]
+                                + (unit_x[0] + unit_y[0]) / 3
+                                + unit_y[0] * length
+                            )
+                            t1y = (
+                                xp * unit_x[1]
+                                + yp * unit_y[1]
+                                + (unit_x[1] + unit_y[1]) / 3
+                                + unit_y[1] * length
+                            )
 
                             t2x = t1x - unit_x[0]
                             t2y = t1y - unit_x[1]
@@ -1563,14 +1821,28 @@ def figure_formation(ax, n):
                             t3x = t1x - unit_y[0]
                             t3y = t1y - unit_y[1]
 
-                        p = pat.Polygon(xy = [(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc = color, ec = color)
+                        p = pat.Polygon(
+                            xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
+                        )
                         ax.add_patch(p)
 
                     if (i == 0) and (k == 0):
 
-                        if z%2 == 0:
-                            t1x = xp*unit_x[0] + yp*unit_y[0] - (unit_x[0] + unit_y[0])/3 + unit_y[0]*length + unit_x[0]*length
-                            t1y = xp*unit_x[1] + yp*unit_y[1] - (unit_x[1] + unit_y[1])/3 + unit_y[1]*length + unit_x[1]*length
+                        if z % 2 == 0:
+                            t1x = (
+                                xp * unit_x[0]
+                                + yp * unit_y[0]
+                                - (unit_x[0] + unit_y[0]) / 3
+                                + unit_y[0] * length
+                                + unit_x[0] * length
+                            )
+                            t1y = (
+                                xp * unit_x[1]
+                                + yp * unit_y[1]
+                                - (unit_x[1] + unit_y[1]) / 3
+                                + unit_y[1] * length
+                                + unit_x[1] * length
+                            )
 
                             t2x = t1x + unit_x[0]
                             t2y = t1y + unit_x[1]
@@ -1578,8 +1850,20 @@ def figure_formation(ax, n):
                             t3x = t1x + unit_y[0]
                             t3y = t1y + unit_y[1]
                         else:
-                            t1x = xp*unit_x[0] + yp*unit_y[0] + (unit_x[0] + unit_y[0])/3 + unit_y[0]*length + unit_x[0]*length
-                            t1y = xp*unit_x[1] + yp*unit_y[1] + (unit_x[1] + unit_y[1])/3 + unit_y[1]*length + unit_x[1]*length
+                            t1x = (
+                                xp * unit_x[0]
+                                + yp * unit_y[0]
+                                + (unit_x[0] + unit_y[0]) / 3
+                                + unit_y[0] * length
+                                + unit_x[0] * length
+                            )
+                            t1y = (
+                                xp * unit_x[1]
+                                + yp * unit_y[1]
+                                + (unit_x[1] + unit_y[1]) / 3
+                                + unit_y[1] * length
+                                + unit_x[1] * length
+                            )
 
                             t2x = t1x - unit_x[0]
                             t2y = t1y - unit_x[1]
@@ -1587,26 +1871,41 @@ def figure_formation(ax, n):
                             t3x = t1x - unit_y[0]
                             t3y = t1y - unit_y[1]
 
-                        p = pat.Polygon(xy = [(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc = color, ec = color)
+                        p = pat.Polygon(
+                            xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
+                        )
                         ax.add_patch(p)
 
-    p = pat.Polygon(xy = [(0, 0), (unit_y[0]*length, unit_y[1]*length), (0, unit_y[1]*length)], fc = (1, 1, 1), ec = (0, 0, 0))
+    p = pat.Polygon(
+        xy=[(0, 0), (unit_y[0] * length, unit_y[1] * length), (0, unit_y[1] * length)],
+        fc=(1, 1, 1),
+        ec=(0, 0, 0),
+    )
     ax.add_patch(p)
 
-    p = pat.Polygon(xy = [(unit_x[0]*length, 0), ((unit_x[0] + unit_y[0])*length, 0), ((unit_x[0] + unit_y[0])*length, (unit_x[1] + unit_y[1])*length)], fc = (1, 1, 1), ec = (0, 0, 0))
+    p = pat.Polygon(
+        xy=[
+            (unit_x[0] * length, 0),
+            ((unit_x[0] + unit_y[0]) * length, 0),
+            ((unit_x[0] + unit_y[0]) * length, (unit_x[1] + unit_y[1]) * length),
+        ],
+        fc=(1, 1, 1),
+        ec=(0, 0, 0),
+    )
     ax.add_patch(p)
 
-    ax.set_xlim(0, (unit_x[0] + unit_y[0])*length)
-    ax.set_ylim(0, (unit_x[1] + unit_y[1])*length)
-    ax.set_aspect('equal')
+    ax.set_xlim(0, (unit_x[0] + unit_y[0]) * length)
+    ax.set_ylim(0, (unit_x[1] + unit_y[1]) * length)
+    ax.set_aspect("equal")
 
-    return(ax)
+    return ax
+
 
 def hist_formation(bx, n):
     numbers = layers_each[n]
     lay = []
     for i in range(len(numbers)):
-        lay.append(i+1)
+        lay.append(i + 1)
 
     left = np.arange(len(numbers))
 
@@ -1617,7 +1916,8 @@ def hist_formation(bx, n):
     bx.set_ylabel("layer number")
 
     bx.set_xlim(0, NBL)
-    return(bx)
+    return bx
+
 
 def figure_draw(n):
     ax = fig.add_subplot(211)
@@ -1626,13 +1926,14 @@ def figure_draw(n):
 
     kx = figure_formation(ax, n)
 
-    #hist
+    # hist
 
     bx = fig.add_subplot(212)
     bx.cla()
     bx = fig.add_subplot(212)
 
     jx = hist_formation(bx, n)
+
 
 def show_pictures():
     global canvas, imnum, fig
@@ -1645,18 +1946,18 @@ def show_pictures():
         imnum = imnum - 1
 
         if imnum < 0:
-            imnum = len(cov_rec)-1
+            imnum = len(cov_rec) - 1
 
         figure_draw(imnum)
 
         canvas.draw()
         canvas.get_tk_widget().pack()
-        text_p8["text"] = str(int(t_rec[imnum])) +" s"
+        text_p8["text"] = str(int(t_rec[imnum])) + " s"
         text_p4["text"] = str(cov_rec[imnum])
-        text_p6["text"] = str(imnum+1) + "/" + str(len(cov_rec))  
+        text_p6["text"] = str(imnum + 1) + "/" + str(len(cov_rec))
 
     def p2_clicked():
-        global imnum, cov_rec,canvas, fig
+        global imnum, cov_rec, canvas, fig
         imnum = imnum + 1
 
         if imnum >= len(cov_rec):
@@ -1669,48 +1970,55 @@ def show_pictures():
 
         text_p8["text"] = str(int(t_rec[imnum])) + " s"
         text_p4["text"] = str(cov_rec[imnum])
-        text_p6["text"] = str(imnum+1) + "/" + str(len(cov_rec))        
+        text_p6["text"] = str(imnum + 1) + "/" + str(len(cov_rec))
 
-    button_p1 = tkinter.Button(root_p, text='Previous', command=p1_clicked, height = 2, width = 25)
-    button_p1.place(x = 30, y = 560)
+    button_p1 = tkinter.Button(
+        root_p, text="Previous", command=p1_clicked, height=2, width=25
+    )
+    button_p1.place(x=30, y=560)
 
-    button_p2 = tkinter.Button(root_p, text='Next', command=p2_clicked, height = 2, width = 25)
-    button_p2.place(x = 230, y = 560)
+    button_p2 = tkinter.Button(
+        root_p, text="Next", command=p2_clicked, height=2, width=25
+    )
+    button_p2.place(x=230, y=560)
 
-    text_p7 = tkinter.Label(root_p, text = "Time: ",font=("",16))
-    text_p7.place(x = 30, y = 500)
+    text_p7 = tkinter.Label(root_p, text="Time: ", font=("", 16))
+    text_p7.place(x=30, y=500)
 
-    text_p8 = tkinter.Label(root_p, text = str(cov_rec[0]),font=("",16))
-    text_p8.place(x = 130, y = 500)
+    text_p8 = tkinter.Label(root_p, text=str(cov_rec[0]), font=("", 16))
+    text_p8.place(x=130, y=500)
 
-    text_p3 = tkinter.Label(root_p, text = "Coverage: ",font=("",16))
-    text_p3.place(x = 230, y = 500)
+    text_p3 = tkinter.Label(root_p, text="Coverage: ", font=("", 16))
+    text_p3.place(x=230, y=500)
 
-    text_p4 = tkinter.Label(root_p, text = str(cov_rec[0]),font=("",16))
-    text_p4.place(x = 350, y = 500)
+    text_p4 = tkinter.Label(root_p, text=str(cov_rec[0]), font=("", 16))
+    text_p4.place(x=350, y=500)
 
-    text_p6 = tkinter.Label(root_p, text = "1/" + str(len(cov_rec)), font=("",16))
+    text_p6 = tkinter.Label(root_p, text="1/" + str(len(cov_rec)), font=("", 16))
     text_p6.place(x=450, y=500)
 
     imnum = len(cov_rec) - 1
     fig = plt.Figure()
     text_p8["text"] = str(int(t_rec[imnum])) + " s"
     text_p4["text"] = str(cov_rec[imnum])
-    text_p6["text"] = str(imnum+1) + "/" + str(len(cov_rec))    
+    text_p6["text"] = str(imnum + 1) + "/" + str(len(cov_rec))
     figure_draw(imnum)
 
-    canvas = FigureCanvasTkAgg(fig, master=root_p)  
+    canvas = FigureCanvasTkAgg(fig, master=root_p)
     canvas.draw()
     canvas.get_tk_widget().pack()
-    
+
     def button_closep_clicked():
         plt.close("all")
         root_p.destroy()
 
-    button_closep = tkinter.Button(root_p ,text='Close', command=button_closep_clicked,  height = 2, width = 25)
-    button_closep.place(x = 430, y = 560)
+    button_closep = tkinter.Button(
+        root_p, text="Close", command=button_closep_clicked, height=2, width=25
+    )
+    button_closep.place(x=430, y=560)
 
     root_p.mainloop()
+
 
 def cal_start():
     global lattice, atom_set, bonds, event, mod, rel_time, tot
@@ -1723,23 +2031,23 @@ def cal_start():
     text_coverage["text"] = "0 ML"
     root.update()
 
-    #lists for recording
+    # lists for recording
     a_set_rec = []
     cov_rec = []
     t_rec = []
     images = []
 
-    #form lattice
+    # form lattice
     lattice_form()
     params()
 
-    #tot: sum of rate constants. First, only deposition
+    # tot: sum of rate constants. First, only deposition
     tot = d_rate
 
-    #evaporation start
+    # evaporation start
     rel_time = 0
 
-    #first deposition
+    # first deposition
     global n_atoms
     n_atoms = 0
     deposition()
@@ -1748,28 +2056,28 @@ def cal_start():
     root.update()
     time_progress()
 
-    #record first deposition
+    # record first deposition
     rec_atoms()
 
-    #update events and rates
+    # update events and rates
     update_events()
 
-    #second atomdepsoition
+    # second atomdepsoition
     deposition()
     time_progress()
     update_events()
 
-    #repetition 
+    # repetition
     kMC()
 
-    #record final structure
+    # record final structure
     text_count["text"] = "Saving"
     rec_atoms()
 
-    #make poscar
+    # make poscar
     rec_pos()
 
-    #record figures
+    # record figures
     layer_sum()
     figure_draw_rec()
     coverage_color()
@@ -1778,17 +2086,17 @@ def cal_start():
     global minute, second
 
     elapsed_time = time.time() - start
-    minute = math.floor(elapsed_time/60)
-    second = int(elapsed_time%60)
+    minute = math.floor(elapsed_time / 60)
+    second = int(elapsed_time % 60)
     text_count["text"] = str(minute) + " min " + str(second) + " sec"
     text_count["text"] = "PPT forming"
     ppt_form()
     text_count["text"] = "Finished"
     root.update()
 
-    #calculation end
+    # calculation end
 
-    #Show results
+    # Show results
     show_pictures()
 
 
@@ -1804,303 +2112,310 @@ arx8 = 660
 ary1 = 20
 ary2 = 50
 
-entry_1 = tkinter.Entry(root, text = "Number of cell", width = 7)
-entry_1.place(x = arx2, y = ary1)
-text_1 = tkinter.Label(root, text = "Number of cell")
-text_1.place(x = arx1,y = ary1)
+entry_1 = tkinter.Entry(root, text="Number of cell", width=7)
+entry_1.place(x=arx2, y=ary1)
+text_1 = tkinter.Label(root, text="Number of cell")
+text_1.place(x=arx1, y=ary1)
 entry_1.delete(0, tkinter.END)
-entry_1.insert(tkinter.END,"5")
-entry_1.bind('<Return>', update)
+entry_1.insert(tkinter.END, "5")
+entry_1.bind("<Return>", update)
 
-entry_zunit = tkinter.Entry(root, text = "Z unit", width = 7)
-entry_zunit.place(x = arx4, y = ary1)
-text_zunit = tkinter.Label(root, text = "Z unit")
-text_zunit.place(x = arx3,y = ary1)
+entry_zunit = tkinter.Entry(root, text="Z unit", width=7)
+entry_zunit.place(x=arx4, y=ary1)
+text_zunit = tkinter.Label(root, text="Z unit")
+text_zunit.place(x=arx3, y=ary1)
 entry_zunit.delete(0, tkinter.END)
-entry_zunit.insert(tkinter.END,"5")
-entry_zunit.bind('<Return>', update)
+entry_zunit.insert(tkinter.END, "5")
+entry_zunit.bind("<Return>", update)
 
-entry_kbT = tkinter.Entry(root, text = "T (K)", width = 7)
-entry_kbT.place(x = arx6, y = ary1)
-text_kbT = tkinter.Label(root, text = "T (K)")
-text_kbT.place(x = arx5,y = ary1)
+entry_kbT = tkinter.Entry(root, text="T (K)", width=7)
+entry_kbT.place(x=arx6, y=ary1)
+text_kbT = tkinter.Label(root, text="T (K)")
+text_kbT.place(x=arx5, y=ary1)
 entry_kbT.delete(0, tkinter.END)
-entry_kbT.insert(tkinter.END,"550")
-entry_kbT.bind('<Return>', update)
+entry_kbT.insert(tkinter.END, "550")
+entry_kbT.bind("<Return>", update)
 
 global kbt
-kbt = float(entry_kbT.get())*8.617/100000
+kbt = float(entry_kbT.get()) * 8.617 / 100000
 
-text_lkbt = tkinter.Label(root, text = "kbT")
-text_lkbt.place(x = arx7, y = ary1)
-text_kbt = tkinter.Label(root, text = str('{:.3g}'.format(kbt)))
-text_kbt.place(x = arx8, y = ary1)
+text_lkbt = tkinter.Label(root, text="kbT")
+text_lkbt.place(x=arx7, y=ary1)
+text_kbt = tkinter.Label(root, text=str("{:.3g}".format(kbt)))
+text_kbt.place(x=arx8, y=ary1)
 
 
-entry_rate = tkinter.Entry(root, text = "dep_rate", width = 7)
-entry_rate.place(x = arx2, y = ary2)
-text_2 = tkinter.Label(root, text = "dep_rate (ML/min)")
-text_2.place(x = arx1,y = ary2)
+entry_rate = tkinter.Entry(root, text="dep_rate", width=7)
+entry_rate.place(x=arx2, y=ary2)
+text_2 = tkinter.Label(root, text="dep_rate (ML/min)")
+text_2.place(x=arx1, y=ary2)
 entry_rate.delete(0, tkinter.END)
-entry_rate.insert(tkinter.END,"0.4")
-entry_rate.bind('<Return>', update)
+entry_rate.insert(tkinter.END, "0.4")
+entry_rate.bind("<Return>", update)
 
-text_ats = tkinter.Label(root, text = "0")
-text_ats.place(x = arx2,y = ary2 + 30)
+text_ats = tkinter.Label(root, text="0")
+text_ats.place(x=arx2, y=ary2 + 30)
 
-entry_time = tkinter.Entry(root, text = "Dep.time", width = 7)
-entry_time.place(x = arx4, y = ary2)
-text_time = tkinter.Label(root, text = "Dep.time (min)")
-text_time.place(x = arx3,y = ary2)
+entry_time = tkinter.Entry(root, text="Dep.time", width=7)
+entry_time.place(x=arx4, y=ary2)
+text_time = tkinter.Label(root, text="Dep.time (min)")
+text_time.place(x=arx3, y=ary2)
 entry_time.delete(0, tkinter.END)
-entry_time.insert(tkinter.END,"5")
-entry_time.bind('<Return>', update)
+entry_time.insert(tkinter.END, "5")
+entry_time.bind("<Return>", update)
 
-entry_post = tkinter.Entry(root, text = "Post annealing", width = 7)
-entry_post.place(x = arx6, y = ary2)
-text_post = tkinter.Label(root, text = "Post anneal (min)")
-text_post.place(x = arx5,y = ary2)
+entry_post = tkinter.Entry(root, text="Post annealing", width=7)
+entry_post.place(x=arx6, y=ary2)
+text_post = tkinter.Label(root, text="Post anneal (min)")
+text_post.place(x=arx5, y=ary2)
 entry_post.delete(0, tkinter.END)
-entry_post.insert(tkinter.END,"0")
+entry_post.insert(tkinter.END, "0")
 
-entry_pre = tkinter.Entry(root, text = "Prefactor (1/s)", width = 7)
-entry_pre.place(x = arx8, y = ary2)
-text_pre = tkinter.Label(root, text = "prefactor (1/s)")
-text_pre.place(x = arx7,y = ary2)
+entry_pre = tkinter.Entry(root, text="Prefactor (1/s)", width=7)
+entry_pre.place(x=arx8, y=ary2)
+text_pre = tkinter.Label(root, text="prefactor (1/s)")
+text_pre.place(x=arx7, y=ary2)
 entry_pre.delete(0, tkinter.END)
-entry_pre.insert(tkinter.END,"1e+13")
-entry_pre.bind('<Return>', update)
+entry_pre.insert(tkinter.END, "1e+13")
+entry_pre.bind("<Return>", update)
 
 ary3 = 100
 ary4 = 130
 ary5 = 160
 
-text_bonding = tkinter.Label(root, text = "Energy")
-text_bonding.place(x = 20,y = ary4)
+text_bonding = tkinter.Label(root, text="Energy")
+text_bonding.place(x=20, y=ary4)
 
-#Ag-Si
-text_AgSi = tkinter.Label(root, text = "Ag-Si")
-text_AgSi.place(x = 100,y = ary3)
-entry_AgSi = tkinter.Entry(root, text = "Ag-Si", width = 7)
-entry_AgSi.place(x = 100, y = ary4)
+# Ag-Si
+text_AgSi = tkinter.Label(root, text="Ag-Si")
+text_AgSi.place(x=100, y=ary3)
+entry_AgSi = tkinter.Entry(root, text="Ag-Si", width=7)
+entry_AgSi.place(x=100, y=ary4)
 entry_AgSi.delete(0, tkinter.END)
-entry_AgSi.insert(tkinter.END,"-1.4")
-entry_AgSi.bind('<Return>', update)
+entry_AgSi.insert(tkinter.END, "-1.4")
+entry_AgSi.bind("<Return>", update)
 
-#Si1-2
-text_Si12 = tkinter.Label(root, text = "Si(1-2)")
-text_Si12.place(x = 180,y = ary3)
+# Si1-2
+text_Si12 = tkinter.Label(root, text="Si(1-2)")
+text_Si12.place(x=180, y=ary3)
 
-entry_Si12 = tkinter.Entry(root, text = "Si(1-2)", width = 7)
-entry_Si12.place(x = 180, y = ary4)
+entry_Si12 = tkinter.Entry(root, text="Si(1-2)", width=7)
+entry_Si12.place(x=180, y=ary4)
 entry_Si12.delete(0, tkinter.END)
-entry_Si12.insert(tkinter.END,"-1.2")
-entry_Si12.bind('<Return>', update)
+entry_Si12.insert(tkinter.END, "-1.2")
+entry_Si12.bind("<Return>", update)
 
-#Si2-3
-text_Si23 = tkinter.Label(root, text = "Si(2-3)")
-text_Si23.place(x = 260,y = ary3)
+# Si2-3
+text_Si23 = tkinter.Label(root, text="Si(2-3)")
+text_Si23.place(x=260, y=ary3)
 
-entry_Si23 = tkinter.Entry(root, text = "Si(2-3)", width = 7)
-entry_Si23.place(x = 260, y = ary4)
+entry_Si23 = tkinter.Entry(root, text="Si(2-3)", width=7)
+entry_Si23.place(x=260, y=ary4)
 entry_Si23.delete(0, tkinter.END)
-entry_Si23.insert(tkinter.END,"-1.3")
-entry_Si23.bind('<Return>', update)
+entry_Si23.insert(tkinter.END, "-1.3")
+entry_Si23.bind("<Return>", update)
 
-#Si3-4
-text_Si34 = tkinter.Label(root, text = "Si(3-4)")
-text_Si34.place(x = 340,y = ary3)
+# Si3-4
+text_Si34 = tkinter.Label(root, text="Si(3-4)")
+text_Si34.place(x=340, y=ary3)
 
-entry_Si34 = tkinter.Entry(root, text = "Si(3-4)", width = 7)
-entry_Si34.place(x = 340, y = ary4)
+entry_Si34 = tkinter.Entry(root, text="Si(3-4)", width=7)
+entry_Si34.place(x=340, y=ary4)
 entry_Si34.delete(0, tkinter.END)
-entry_Si34.insert(tkinter.END,"-1.3")
-entry_Si34.bind('<Return>', update)
+entry_Si34.insert(tkinter.END, "-1.3")
+entry_Si34.bind("<Return>", update)
 
-#Si4-5
-text_Si45 = tkinter.Label(root, text = "Si(4-5)")
-text_Si45.place(x = 420,y = ary3)
+# Si4-5
+text_Si45 = tkinter.Label(root, text="Si(4-5)")
+text_Si45.place(x=420, y=ary3)
 
-entry_Si45 = tkinter.Entry(root, text = "Si(4-5)", width = 7)
-entry_Si45.place(x = 420, y = ary4)
+entry_Si45 = tkinter.Entry(root, text="Si(4-5)", width=7)
+entry_Si45.place(x=420, y=ary4)
 entry_Si45.delete(0, tkinter.END)
-entry_Si45.insert(tkinter.END,"-1.4")
-entry_Si45.bind('<Return>', update)
+entry_Si45.insert(tkinter.END, "-1.4")
+entry_Si45.bind("<Return>", update)
 
-#Si5-6
-text_Si56 = tkinter.Label(root, text = "Si(5-6)")
-text_Si56.place(x = 500,y = ary3)
+# Si5-6
+text_Si56 = tkinter.Label(root, text="Si(5-6)")
+text_Si56.place(x=500, y=ary3)
 
-entry_Si56 = tkinter.Entry(root, text = "Si(5-6)", width = 7)
-entry_Si56.place(x = 500, y = ary4)
+entry_Si56 = tkinter.Entry(root, text="Si(5-6)", width=7)
+entry_Si56.place(x=500, y=ary4)
 entry_Si56.delete(0, tkinter.END)
-entry_Si56.insert(tkinter.END,"-1.4")
-entry_Si56.bind('<Return>', update)
+entry_Si56.insert(tkinter.END, "-1.4")
+entry_Si56.bind("<Return>", update)
 
-#else between layers
-text_Siel = tkinter.Label(root, text = "Si(intra)")
-text_Siel.place(x = 580,y = ary3)
+# else between layers
+text_Siel = tkinter.Label(root, text="Si(intra)")
+text_Siel.place(x=580, y=ary3)
 
-entry_Siel = tkinter.Entry(root, text = "Si(intra)", width = 7)
-entry_Siel.place(x = 580, y = ary4)
+entry_Siel = tkinter.Entry(root, text="Si(intra)", width=7)
+entry_Siel.place(x=580, y=ary4)
 entry_Siel.delete(0, tkinter.END)
-entry_Siel.insert(tkinter.END,"-1.4")
-entry_Siel.bind('<Return>', update)
+entry_Siel.insert(tkinter.END, "-1.4")
+entry_Siel.bind("<Return>", update)
 
-#else inter layers
-text_Sielin = tkinter.Label(root, text = "Si(inter)")
-text_Sielin.place(x = 660,y = ary3)
+# else inter layers
+text_Sielin = tkinter.Label(root, text="Si(inter)")
+text_Sielin.place(x=660, y=ary3)
 
-entry_Sielin = tkinter.Entry(root, text = "Si(inter)", width = 7)
-entry_Sielin.place(x = 660, y = ary4)
+entry_Sielin = tkinter.Entry(root, text="Si(inter)", width=7)
+entry_Sielin.place(x=660, y=ary4)
 entry_Sielin.delete(0, tkinter.END)
-entry_Sielin.insert(tkinter.END,"-1.4")
-entry_Sielin.bind('<Return>', update)
+entry_Sielin.insert(tkinter.END, "-1.4")
+entry_Sielin.bind("<Return>", update)
 
-#Agtop
-text_Agtp = tkinter.Label(root, text = "Ag(top)")
-text_Agtp.place(x = 740,y = ary3)
+# Agtop
+text_Agtp = tkinter.Label(root, text="Ag(top)")
+text_Agtp.place(x=740, y=ary3)
 
-entry_Agtp = tkinter.Entry(root, text = "Ag(top)", width = 7)
-entry_Agtp.place(x = 740, y = ary4)
+entry_Agtp = tkinter.Entry(root, text="Ag(top)", width=7)
+entry_Agtp.place(x=740, y=ary4)
 entry_Agtp.delete(0, tkinter.END)
-entry_Agtp.insert(tkinter.END,"-0.65")
-entry_Agtp.bind('<Return>', update)
+entry_Agtp.insert(tkinter.END, "-0.65")
+entry_Agtp.bind("<Return>", update)
 
 
-#Reference rates
-text_rates = tkinter.Label(root, text = "Rates/bond")
-text_rates.place(x = 20,y = ary5)
+# Reference rates
+text_rates = tkinter.Label(root, text="Rates/bond")
+text_rates.place(x=20, y=ary5)
 
-#Ag-Si
-text_AgSi_rates = tkinter.Label(root, text = "Rates/bond")
-text_AgSi_rates.place(x = 100,y = ary5)
+# Ag-Si
+text_AgSi_rates = tkinter.Label(root, text="Rates/bond")
+text_AgSi_rates.place(x=100, y=ary5)
 
-#Si1-2
-text_Si12_rates = tkinter.Label(root, text = "Rates/bond")
-text_Si12_rates.place(x = 180,y = ary5)
+# Si1-2
+text_Si12_rates = tkinter.Label(root, text="Rates/bond")
+text_Si12_rates.place(x=180, y=ary5)
 
-#Si2-3
-text_Si23_rates = tkinter.Label(root, text = "Rates/bond")
-text_Si23_rates.place(x = 260,y = ary5)
+# Si2-3
+text_Si23_rates = tkinter.Label(root, text="Rates/bond")
+text_Si23_rates.place(x=260, y=ary5)
 
-#Si3-4
-text_Si34_rates = tkinter.Label(root, text = "Rates/bond")
-text_Si34_rates.place(x = 340,y = ary5)
+# Si3-4
+text_Si34_rates = tkinter.Label(root, text="Rates/bond")
+text_Si34_rates.place(x=340, y=ary5)
 
-#Si4-5
-text_Si45_rates = tkinter.Label(root, text = "Rates/bond")
-text_Si45_rates.place(x = 420,y = ary5)
+# Si4-5
+text_Si45_rates = tkinter.Label(root, text="Rates/bond")
+text_Si45_rates.place(x=420, y=ary5)
 
-#Si5-6
-text_Si56_rates = tkinter.Label(root, text = "Rates/bond")
-text_Si56_rates.place(x = 500,y = ary5)
+# Si5-6
+text_Si56_rates = tkinter.Label(root, text="Rates/bond")
+text_Si56_rates.place(x=500, y=ary5)
 
-#else between layers
-text_Siel_rates = tkinter.Label(root, text = "Rates/bond")
-text_Siel_rates.place(x = 580,y = ary5)
+# else between layers
+text_Siel_rates = tkinter.Label(root, text="Rates/bond")
+text_Siel_rates.place(x=580, y=ary5)
 
-#else inter layers
-text_Sielin_rates = tkinter.Label(root, text = "Rates/bond")
-text_Sielin_rates.place(x = 660,y = ary5)
+# else inter layers
+text_Sielin_rates = tkinter.Label(root, text="Rates/bond")
+text_Sielin_rates.place(x=660, y=ary5)
 
 
-#Agtop
-text_Agtp_rates = tkinter.Label(root, text = "Rates/bond")
-text_Agtp_rates.place(x = 740,y = ary5)
+# Agtop
+text_Agtp_rates = tkinter.Label(root, text="Rates/bond")
+text_Agtp_rates.place(x=740, y=ary5)
 
 
 ary7 = 190
 bln_tr = tkinter.BooleanVar()
 bln_tr.set(True)
 
-chk_tr = tkinter.Checkbutton(root, variable=bln_tr, text='Transformation')
-chk_tr.place(x = 20, y = ary7)
+chk_tr = tkinter.Checkbutton(root, variable=bln_tr, text="Transformation")
+chk_tr.place(x=20, y=ary7)
 
-entry_tr = tkinter.Entry(root, text = "transformation", width = 7)
-entry_tr.place(x = 200, y = ary7+5)
+entry_tr = tkinter.Entry(root, text="transformation", width=7)
+entry_tr.place(x=200, y=ary7 + 5)
 entry_tr.delete(0, tkinter.END)
-entry_tr.insert(tkinter.END,"-0.3")
-entry_tr.bind('<Return>', update)
+entry_tr.insert(tkinter.END, "-0.3")
+entry_tr.bind("<Return>", update)
 
 ary8 = 220
 
 bln_def = tkinter.BooleanVar()
 bln_def.set(True)
 
-chk_def = tkinter.Checkbutton(root, variable=bln_def, text='Keep defect in first layer')
-chk_def.place(x = 20,y = ary8)
+chk_def = tkinter.Checkbutton(root, variable=bln_def, text="Keep defect in first layer")
+chk_def.place(x=20, y=ary8)
 
 
 ary9 = 250
 
-text_rec = tkinter.Label(root, text = "Record")
-text_rec.place(x = 20,y = ary9)
+text_rec = tkinter.Label(root, text="Record")
+text_rec.place(x=20, y=ary9)
 
-entry_rec = tkinter.Entry(root, text = "Name", width = 50)
-entry_rec.place(x = 100, y = ary9)
+entry_rec = tkinter.Entry(root, text="Name", width=50)
+entry_rec.place(x=100, y=ary9)
 
 entry_rec.delete(0, tkinter.END)
-entry_rec.insert(tkinter.END,"kMC_rec")
+entry_rec.insert(tkinter.END, "kMC_rec")
 
-text_img = tkinter.Label(root, text = "Image rec. (%) :  ")
-text_img.place(x = 450,y = ary9)
+text_img = tkinter.Label(root, text="Image rec. (%) :  ")
+text_img.place(x=450, y=ary9)
 
-entry_img = tkinter.Entry(root, text = "img", width = 10)
-entry_img.place(x = 570, y = ary9)
+entry_img = tkinter.Entry(root, text="img", width=10)
+entry_img.place(x=570, y=ary9)
 
 entry_img.delete(0, tkinter.END)
-entry_img.insert(tkinter.END,"10")
+entry_img.insert(tkinter.END, "10")
 
 ary10 = 280
 
-text_comment = tkinter.Label(root, text = "Comments")
-text_comment.place(x = 20,y = ary10)
+text_comment = tkinter.Label(root, text="Comments")
+text_comment.place(x=20, y=ary10)
 
-entry_text = tkinter.Entry(root, text = "Comments", width = 110)
-entry_text.place(x = 100, y = ary10)
+entry_text = tkinter.Entry(root, text="Comments", width=110)
+entry_text.place(x=100, y=ary10)
 entry_text.delete(0, tkinter.END)
-entry_text.insert(tkinter.END,"No comments")
+entry_text.insert(tkinter.END, "No comments")
 
 
 def button_start_clicked():
-    #lattice_form_check()
+    # lattice_form_check()
     cal_start()
+
+
 global pbval
 ary11 = 310
 pbval = 0
 
-pb = ttk.Progressbar(root, orient=HORIZONTAL, length=350, mode='determinate')
+pb = ttk.Progressbar(root, orient=HORIZONTAL, length=350, mode="determinate")
 pb.configure(maximum=100, value=pbval)
-pb.place(x = 350, y = ary11+ 5)
+pb.place(x=350, y=ary11 + 5)
 
-text_count = tkinter.Label(root, text = "Waiting" )
-text_count.place(x=720, y= ary11 +5)
+text_count = tkinter.Label(root, text="Waiting")
+text_count.place(x=720, y=ary11 + 5)
 
-text_time_c = tkinter.Label(root, text = "time (s)" )
-text_time_c.place(x=370, y= ary11 + 35)
+text_time_c = tkinter.Label(root, text="time (s)")
+text_time_c.place(x=370, y=ary11 + 35)
 
-text_event = tkinter.Label(root, text = "events" )
-text_event.place(x=470, y= ary11 + 35)
+text_event = tkinter.Label(root, text="events")
+text_event.place(x=470, y=ary11 + 35)
 
-text_atoms = tkinter.Label(root, text = "Num. atoms" )
-text_atoms.place(x=570, y= ary11 + 35)
+text_atoms = tkinter.Label(root, text="Num. atoms")
+text_atoms.place(x=570, y=ary11 + 35)
 
-text_coverage = tkinter.Label(root, text = "Coverage" )
-text_coverage.place(x=670, y= ary11 + 35)
+text_coverage = tkinter.Label(root, text="Coverage")
+text_coverage.place(x=670, y=ary11 + 35)
 
 
-button_start = tkinter.Button(root ,text='Start', command=button_start_clicked,  height = 1, width = 20)
-button_start.place(x = 20, y = ary11)
+button_start = tkinter.Button(
+    root, text="Start", command=button_start_clicked, height=1, width=20
+)
+button_start.place(x=20, y=ary11)
+
 
 def button_close_clicked():
     plt.close("all")
     root.destroy()
 
-button_close = tkinter.Button(root ,text='Close', command=button_close_clicked,  height = 1, width = 20)
-button_close.place(x = 180, y = ary11)
+
+button_close = tkinter.Button(
+    root, text="Close", command=button_close_clicked, height=1, width=20
+)
+button_close.place(x=180, y=ary11)
 
 update_values()
 
 root.mainloop()
-
