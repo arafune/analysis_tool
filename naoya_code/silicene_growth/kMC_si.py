@@ -2081,325 +2081,9 @@ def cal_start():
     show_pictures()
 
 
-root = Tk()
-root.title("kMC_Si_ver1")
-root.geometry("800x550")
-global unit_x, unit_y, z1, z2, unit_z, ims, max_layer
-unit_x = [1, 0, 0]
-unit_y = [0.5, 0.866, 0]
-unit_z = [0, 0, 1]
-zd1 = 0.204
-zd2 = 0.612
-max_layer = 0
-
-global c_num
-c_num = 0
-
-
-arx1 = 20
-arx2 = 140
-arx3 = 200
-arx4 = 300
-arx5 = 380
-arx6 = 500
-arx7 = 560
-arx8 = 660
-
-ary1 = 20
-ary2 = 50
-
-entry_1 = tkinter.Entry(root, text="Number of cell", width=7)
-entry_1.place(x=arx2, y=ary1)
-text_1 = tkinter.Label(root, text="Number of cell")
-text_1.place(x=arx1, y=ary1)
-entry_1.delete(0, tkinter.END)
-entry_1.insert(tkinter.END, "5")
-entry_1.bind("<Return>", update)
-
-entry_zunit = tkinter.Entry(root, text="Z unit", width=7)
-entry_zunit.place(x=arx4, y=ary1)
-text_zunit = tkinter.Label(root, text="Z unit")
-text_zunit.place(x=arx3, y=ary1)
-entry_zunit.delete(0, tkinter.END)
-entry_zunit.insert(tkinter.END, "5")
-entry_zunit.bind("<Return>", update)
-
-entry_kbT = tkinter.Entry(root, text="T (K)", width=7)
-entry_kbT.place(x=arx6, y=ary1)
-text_kbT = tkinter.Label(root, text="T (K)")
-text_kbT.place(x=arx5, y=ary1)
-entry_kbT.delete(0, tkinter.END)
-entry_kbT.insert(tkinter.END, "550")
-entry_kbT.bind("<Return>", update)
-
-global kbt
-kbt = float(entry_kbT.get()) * 8.617 / 100000
-
-text_lkbt = tkinter.Label(root, text="kbT")
-text_lkbt.place(x=arx7, y=ary1)
-text_kbt = tkinter.Label(root, text=str("{:.3g}".format(kbt)))
-text_kbt.place(x=arx8, y=ary1)
-
-
-entry_rate = tkinter.Entry(root, text="dep_rate", width=7)
-entry_rate.place(x=arx2, y=ary2)
-text_2 = tkinter.Label(root, text="dep_rate (ML/min)")
-text_2.place(x=arx1, y=ary2)
-entry_rate.delete(0, tkinter.END)
-entry_rate.insert(tkinter.END, "0.4")
-entry_rate.bind("<Return>", update)
-
-text_ats = tkinter.Label(root, text="0")
-text_ats.place(x=arx2, y=ary2 + 30)
-
-entry_time = tkinter.Entry(root, text="Dep.time", width=7)
-entry_time.place(x=arx4, y=ary2)
-text_time = tkinter.Label(root, text="Dep.time (min)")
-text_time.place(x=arx3, y=ary2)
-entry_time.delete(0, tkinter.END)
-entry_time.insert(tkinter.END, "5")
-entry_time.bind("<Return>", update)
-
-entry_post = tkinter.Entry(root, text="Post annealing", width=7)
-entry_post.place(x=arx6, y=ary2)
-text_post = tkinter.Label(root, text="Post anneal (min)")
-text_post.place(x=arx5, y=ary2)
-entry_post.delete(0, tkinter.END)
-entry_post.insert(tkinter.END, "0")
-
-entry_pre = tkinter.Entry(root, text="Prefactor (1/s)", width=7)
-entry_pre.place(x=arx8, y=ary2)
-text_pre = tkinter.Label(root, text="prefactor (1/s)")
-text_pre.place(x=arx7, y=ary2)
-entry_pre.delete(0, tkinter.END)
-entry_pre.insert(tkinter.END, "1e+13")
-entry_pre.bind("<Return>", update)
-
-ary3 = 100
-ary4 = 130
-ary5 = 160
-
-text_bonding = tkinter.Label(root, text="Energy")
-text_bonding.place(x=20, y=ary4)
-
-# Ag-Si
-text_AgSi = tkinter.Label(root, text="Ag-Si")
-text_AgSi.place(x=100, y=ary3)
-entry_AgSi = tkinter.Entry(root, text="Ag-Si", width=7)
-entry_AgSi.place(x=100, y=ary4)
-entry_AgSi.delete(0, tkinter.END)
-entry_AgSi.insert(tkinter.END, "-1.4")
-entry_AgSi.bind("<Return>", update)
-
-# Si1-2
-text_Si12 = tkinter.Label(root, text="Si(1-2)")
-text_Si12.place(x=180, y=ary3)
-
-entry_Si12 = tkinter.Entry(root, text="Si(1-2)", width=7)
-entry_Si12.place(x=180, y=ary4)
-entry_Si12.delete(0, tkinter.END)
-entry_Si12.insert(tkinter.END, "-1.2")
-entry_Si12.bind("<Return>", update)
-
-# Si2-3
-text_Si23 = tkinter.Label(root, text="Si(2-3)")
-text_Si23.place(x=260, y=ary3)
-
-entry_Si23 = tkinter.Entry(root, text="Si(2-3)", width=7)
-entry_Si23.place(x=260, y=ary4)
-entry_Si23.delete(0, tkinter.END)
-entry_Si23.insert(tkinter.END, "-1.3")
-entry_Si23.bind("<Return>", update)
-
-# Si3-4
-text_Si34 = tkinter.Label(root, text="Si(3-4)")
-text_Si34.place(x=340, y=ary3)
-
-entry_Si34 = tkinter.Entry(root, text="Si(3-4)", width=7)
-entry_Si34.place(x=340, y=ary4)
-entry_Si34.delete(0, tkinter.END)
-entry_Si34.insert(tkinter.END, "-1.3")
-entry_Si34.bind("<Return>", update)
-
-# Si4-5
-text_Si45 = tkinter.Label(root, text="Si(4-5)")
-text_Si45.place(x=420, y=ary3)
-
-entry_Si45 = tkinter.Entry(root, text="Si(4-5)", width=7)
-entry_Si45.place(x=420, y=ary4)
-entry_Si45.delete(0, tkinter.END)
-entry_Si45.insert(tkinter.END, "-1.4")
-entry_Si45.bind("<Return>", update)
-
-# Si5-6
-text_Si56 = tkinter.Label(root, text="Si(5-6)")
-text_Si56.place(x=500, y=ary3)
-
-entry_Si56 = tkinter.Entry(root, text="Si(5-6)", width=7)
-entry_Si56.place(x=500, y=ary4)
-entry_Si56.delete(0, tkinter.END)
-entry_Si56.insert(tkinter.END, "-1.4")
-entry_Si56.bind("<Return>", update)
-
-# else between layers
-text_Siel = tkinter.Label(root, text="Si(intra)")
-text_Siel.place(x=580, y=ary3)
-
-entry_Siel = tkinter.Entry(root, text="Si(intra)", width=7)
-entry_Siel.place(x=580, y=ary4)
-entry_Siel.delete(0, tkinter.END)
-entry_Siel.insert(tkinter.END, "-1.4")
-entry_Siel.bind("<Return>", update)
-
-# else inter layers
-text_Sielin = tkinter.Label(root, text="Si(inter)")
-text_Sielin.place(x=660, y=ary3)
-
-entry_Sielin = tkinter.Entry(root, text="Si(inter)", width=7)
-entry_Sielin.place(x=660, y=ary4)
-entry_Sielin.delete(0, tkinter.END)
-entry_Sielin.insert(tkinter.END, "-1.4")
-entry_Sielin.bind("<Return>", update)
-
-# Agtop
-text_Agtp = tkinter.Label(root, text="Ag(top)")
-text_Agtp.place(x=740, y=ary3)
-
-entry_Agtp = tkinter.Entry(root, text="Ag(top)", width=7)
-entry_Agtp.place(x=740, y=ary4)
-entry_Agtp.delete(0, tkinter.END)
-entry_Agtp.insert(tkinter.END, "-0.65")
-entry_Agtp.bind("<Return>", update)
-
-
-# Reference rates
-text_rates = tkinter.Label(root, text="Rates/bond")
-text_rates.place(x=20, y=ary5)
-
-# Ag-Si
-text_AgSi_rates = tkinter.Label(root, text="Rates/bond")
-text_AgSi_rates.place(x=100, y=ary5)
-
-# Si1-2
-text_Si12_rates = tkinter.Label(root, text="Rates/bond")
-text_Si12_rates.place(x=180, y=ary5)
-
-# Si2-3
-text_Si23_rates = tkinter.Label(root, text="Rates/bond")
-text_Si23_rates.place(x=260, y=ary5)
-
-# Si3-4
-text_Si34_rates = tkinter.Label(root, text="Rates/bond")
-text_Si34_rates.place(x=340, y=ary5)
-
-# Si4-5
-text_Si45_rates = tkinter.Label(root, text="Rates/bond")
-text_Si45_rates.place(x=420, y=ary5)
-
-# Si5-6
-text_Si56_rates = tkinter.Label(root, text="Rates/bond")
-text_Si56_rates.place(x=500, y=ary5)
-
-# else between layers
-text_Siel_rates = tkinter.Label(root, text="Rates/bond")
-text_Siel_rates.place(x=580, y=ary5)
-
-# else inter layers
-text_Sielin_rates = tkinter.Label(root, text="Rates/bond")
-text_Sielin_rates.place(x=660, y=ary5)
-
-
-# Agtop
-text_Agtp_rates = tkinter.Label(root, text="Rates/bond")
-text_Agtp_rates.place(x=740, y=ary5)
-
-
-ary7 = 190
-bln_tr = tkinter.BooleanVar()
-bln_tr.set(True)
-
-chk_tr = tkinter.Checkbutton(root, variable=bln_tr, text="Transformation")
-chk_tr.place(x=20, y=ary7)
-
-entry_tr = tkinter.Entry(root, text="transformation", width=7)
-entry_tr.place(x=200, y=ary7 + 5)
-entry_tr.delete(0, tkinter.END)
-entry_tr.insert(tkinter.END, "-0.3")
-entry_tr.bind("<Return>", update)
-
-ary8 = 220
-
-bln_def = tkinter.BooleanVar()
-bln_def.set(True)
-
-chk_def = tkinter.Checkbutton(root, variable=bln_def, text="Keep defect in first layer")
-chk_def.place(x=20, y=ary8)
-
-
-ary9 = 250
-
-text_rec = tkinter.Label(root, text="Record")
-text_rec.place(x=20, y=ary9)
-
-entry_rec = tkinter.Entry(root, text="Name", width=50)
-entry_rec.place(x=100, y=ary9)
-
-entry_rec.delete(0, tkinter.END)
-entry_rec.insert(tkinter.END, "kMC_rec")
-
-text_img = tkinter.Label(root, text="Image rec. (%) :  ")
-text_img.place(x=450, y=ary9)
-
-entry_img = tkinter.Entry(root, text="img", width=10)
-entry_img.place(x=570, y=ary9)
-
-entry_img.delete(0, tkinter.END)
-entry_img.insert(tkinter.END, "10")
-
-ary10 = 280
-
-text_comment = tkinter.Label(root, text="Comments")
-text_comment.place(x=20, y=ary10)
-
-entry_text = tkinter.Entry(root, text="Comments", width=110)
-entry_text.place(x=100, y=ary10)
-entry_text.delete(0, tkinter.END)
-entry_text.insert(tkinter.END, "No comments")
-
-
 def button_start_clicked():
     # lattice_form_check()
     cal_start()
-
-
-global pbval
-ary11 = 310
-pbval = 0
-
-pb = ttk.Progressbar(root, orient=HORIZONTAL, length=350, mode="determinate")
-pb.configure(maximum=100, value=pbval)
-pb.place(x=350, y=ary11 + 5)
-
-text_count = tkinter.Label(root, text="Waiting")
-text_count.place(x=720, y=ary11 + 5)
-
-text_time_c = tkinter.Label(root, text="time (s)")
-text_time_c.place(x=370, y=ary11 + 35)
-
-text_event = tkinter.Label(root, text="events")
-text_event.place(x=470, y=ary11 + 35)
-
-text_atoms = tkinter.Label(root, text="Num. atoms")
-text_atoms.place(x=570, y=ary11 + 35)
-
-text_coverage = tkinter.Label(root, text="Coverage")
-text_coverage.place(x=670, y=ary11 + 35)
-
-
-button_start = tkinter.Button(
-    root, text="Start", command=button_start_clicked, height=1, width=20
-)
-button_start.place(x=20, y=ary11)
 
 
 def button_close_clicked():
@@ -2407,11 +2091,316 @@ def button_close_clicked():
     root.destroy()
 
 
-button_close = tkinter.Button(
-    root, text="Close", command=button_close_clicked, height=1, width=20
-)
-button_close.place(x=180, y=ary11)
+if __name__ == "__main__":
 
-update_values()
+    root = Tk()
+    root.title("kMC_Si_ver1")
+    root.geometry("800x550")
+    global unit_x, unit_y, z1, z2, unit_z, ims, max_layer
+    unit_x = [1, 0, 0]
+    unit_y = [0.5, 0.866, 0]
+    unit_z = [0, 0, 1]
+    zd1 = 0.204
+    zd2 = 0.612
+    max_layer = 0
 
-root.mainloop()
+    global c_num
+    c_num = 0
+
+    arx1 = 20
+    arx2 = 140
+    arx3 = 200
+    arx4 = 300
+    arx5 = 380
+    arx6 = 500
+    arx7 = 560
+    arx8 = 660
+
+    ary1 = 20
+    ary2 = 50
+    ary3 = 100
+    ary4 = 130
+    ary5 = 160
+    ary7 = 190
+    ary8 = 220
+    ary9 = 250
+    ary11 = 310
+
+    entry_1 = tkinter.Entry(root, text="Number of cell", width=7)
+    entry_1.place(x=arx2, y=ary1)
+    text_1 = tkinter.Label(root, text="Number of cell")
+    text_1.place(x=arx1, y=ary1)
+    entry_1.delete(0, tkinter.END)
+    entry_1.insert(tkinter.END, "5")
+    entry_1.bind("<Return>", update)
+
+    entry_zunit = tkinter.Entry(root, text="Z unit", width=7)
+    entry_zunit.place(x=arx4, y=ary1)
+    text_zunit = tkinter.Label(root, text="Z unit")
+    text_zunit.place(x=arx3, y=ary1)
+    entry_zunit.delete(0, tkinter.END)
+    entry_zunit.insert(tkinter.END, "5")
+    entry_zunit.bind("<Return>", update)
+
+    entry_kbT = tkinter.Entry(root, text="T (K)", width=7)
+    entry_kbT.place(x=arx6, y=ary1)
+    text_kbT = tkinter.Label(root, text="T (K)")
+    text_kbT.place(x=arx5, y=ary1)
+    entry_kbT.delete(0, tkinter.END)
+    entry_kbT.insert(tkinter.END, "550")
+    entry_kbT.bind("<Return>", update)
+
+    global kbt
+    kbt = float(entry_kbT.get()) * 8.617 / 100000
+
+    text_lkbt = tkinter.Label(root, text="kbT")
+    text_lkbt.place(x=arx7, y=ary1)
+    text_kbt = tkinter.Label(root, text=str("{:.3g}".format(kbt)))
+    text_kbt.place(x=arx8, y=ary1)
+
+    entry_rate = tkinter.Entry(root, text="dep_rate", width=7)
+    entry_rate.place(x=arx2, y=ary2)
+    text_2 = tkinter.Label(root, text="dep_rate (ML/min)")
+    text_2.place(x=arx1, y=ary2)
+    entry_rate.delete(0, tkinter.END)
+    entry_rate.insert(tkinter.END, "0.4")
+    entry_rate.bind("<Return>", update)
+
+    text_ats = tkinter.Label(root, text="0")
+    text_ats.place(x=arx2, y=ary2 + 30)
+
+    entry_time = tkinter.Entry(root, text="Dep.time", width=7)
+    entry_time.place(x=arx4, y=ary2)
+    text_time = tkinter.Label(root, text="Dep.time (min)")
+    text_time.place(x=arx3, y=ary2)
+    entry_time.delete(0, tkinter.END)
+    entry_time.insert(tkinter.END, "5")
+    entry_time.bind("<Return>", update)
+
+    entry_post = tkinter.Entry(root, text="Post annealing", width=7)
+    entry_post.place(x=arx6, y=ary2)
+    text_post = tkinter.Label(root, text="Post anneal (min)")
+    text_post.place(x=arx5, y=ary2)
+    entry_post.delete(0, tkinter.END)
+    entry_post.insert(tkinter.END, "0")
+
+    entry_pre = tkinter.Entry(root, text="Prefactor (1/s)", width=7)
+    entry_pre.place(x=arx8, y=ary2)
+    text_pre = tkinter.Label(root, text="prefactor (1/s)")
+    text_pre.place(x=arx7, y=ary2)
+    entry_pre.delete(0, tkinter.END)
+    entry_pre.insert(tkinter.END, "1e+13")
+    entry_pre.bind("<Return>", update)
+
+    text_bonding = tkinter.Label(root, text="Energy")
+    text_bonding.place(x=20, y=ary4)
+
+    # Ag-Si
+    text_AgSi = tkinter.Label(root, text="Ag-Si")
+    text_AgSi.place(x=100, y=ary3)
+    entry_AgSi = tkinter.Entry(root, text="Ag-Si", width=7)
+    entry_AgSi.place(x=100, y=ary4)
+    entry_AgSi.delete(0, tkinter.END)
+    entry_AgSi.insert(tkinter.END, "-1.4")
+    entry_AgSi.bind("<Return>", update)
+
+    # Si1-2
+    text_Si12 = tkinter.Label(root, text="Si(1-2)")
+    text_Si12.place(x=180, y=ary3)
+
+    entry_Si12 = tkinter.Entry(root, text="Si(1-2)", width=7)
+    entry_Si12.place(x=180, y=ary4)
+    entry_Si12.delete(0, tkinter.END)
+    entry_Si12.insert(tkinter.END, "-1.2")
+    entry_Si12.bind("<Return>", update)
+
+    # Si2-3
+    text_Si23 = tkinter.Label(root, text="Si(2-3)")
+    text_Si23.place(x=260, y=ary3)
+
+    entry_Si23 = tkinter.Entry(root, text="Si(2-3)", width=7)
+    entry_Si23.place(x=260, y=ary4)
+    entry_Si23.delete(0, tkinter.END)
+    entry_Si23.insert(tkinter.END, "-1.3")
+    entry_Si23.bind("<Return>", update)
+
+    # Si3-4
+    text_Si34 = tkinter.Label(root, text="Si(3-4)")
+    text_Si34.place(x=340, y=ary3)
+
+    entry_Si34 = tkinter.Entry(root, text="Si(3-4)", width=7)
+    entry_Si34.place(x=340, y=ary4)
+    entry_Si34.delete(0, tkinter.END)
+    entry_Si34.insert(tkinter.END, "-1.3")
+    entry_Si34.bind("<Return>", update)
+
+    # Si4-5
+    text_Si45 = tkinter.Label(root, text="Si(4-5)")
+    text_Si45.place(x=420, y=ary3)
+
+    entry_Si45 = tkinter.Entry(root, text="Si(4-5)", width=7)
+    entry_Si45.place(x=420, y=ary4)
+    entry_Si45.delete(0, tkinter.END)
+    entry_Si45.insert(tkinter.END, "-1.4")
+    entry_Si45.bind("<Return>", update)
+
+    # Si5-6
+    text_Si56 = tkinter.Label(root, text="Si(5-6)")
+    text_Si56.place(x=500, y=ary3)
+
+    entry_Si56 = tkinter.Entry(root, text="Si(5-6)", width=7)
+    entry_Si56.place(x=500, y=ary4)
+    entry_Si56.delete(0, tkinter.END)
+    entry_Si56.insert(tkinter.END, "-1.4")
+    entry_Si56.bind("<Return>", update)
+
+    # else between layers
+    text_Siel = tkinter.Label(root, text="Si(intra)")
+    text_Siel.place(x=580, y=ary3)
+
+    entry_Siel = tkinter.Entry(root, text="Si(intra)", width=7)
+    entry_Siel.place(x=580, y=ary4)
+    entry_Siel.delete(0, tkinter.END)
+    entry_Siel.insert(tkinter.END, "-1.4")
+    entry_Siel.bind("<Return>", update)
+
+    # else inter layers
+    text_Sielin = tkinter.Label(root, text="Si(inter)")
+    text_Sielin.place(x=660, y=ary3)
+
+    entry_Sielin = tkinter.Entry(root, text="Si(inter)", width=7)
+    entry_Sielin.place(x=660, y=ary4)
+    entry_Sielin.delete(0, tkinter.END)
+    entry_Sielin.insert(tkinter.END, "-1.4")
+    entry_Sielin.bind("<Return>", update)
+
+    # Agtop
+    text_Agtp = tkinter.Label(root, text="Ag(top)")
+    text_Agtp.place(x=740, y=ary3)
+
+    entry_Agtp = tkinter.Entry(root, text="Ag(top)", width=7)
+    entry_Agtp.place(x=740, y=ary4)
+    entry_Agtp.delete(0, tkinter.END)
+    entry_Agtp.insert(tkinter.END, "-0.65")
+    entry_Agtp.bind("<Return>", update)
+
+    # Reference rates
+    text_rates = tkinter.Label(root, text="Rates/bond")
+    text_rates.place(x=20, y=ary5)
+
+    # Ag-Si
+    text_AgSi_rates = tkinter.Label(root, text="Rates/bond")
+    text_AgSi_rates.place(x=100, y=ary5)
+
+    # Si1-2
+    text_Si12_rates = tkinter.Label(root, text="Rates/bond")
+    text_Si12_rates.place(x=180, y=ary5)
+
+    # Si2-3
+    text_Si23_rates = tkinter.Label(root, text="Rates/bond")
+    text_Si23_rates.place(x=260, y=ary5)
+
+    # Si3-4
+    text_Si34_rates = tkinter.Label(root, text="Rates/bond")
+    text_Si34_rates.place(x=340, y=ary5)
+
+    # Si4-5
+    text_Si45_rates = tkinter.Label(root, text="Rates/bond")
+    text_Si45_rates.place(x=420, y=ary5)
+
+    # Si5-6
+    text_Si56_rates = tkinter.Label(root, text="Rates/bond")
+    text_Si56_rates.place(x=500, y=ary5)
+
+    # else between layers
+    text_Siel_rates = tkinter.Label(root, text="Rates/bond")
+    text_Siel_rates.place(x=580, y=ary5)
+
+    # else inter layers
+    text_Sielin_rates = tkinter.Label(root, text="Rates/bond")
+    text_Sielin_rates.place(x=660, y=ary5)
+
+    # Agtop
+    text_Agtp_rates = tkinter.Label(root, text="Rates/bond")
+    text_Agtp_rates.place(x=740, y=ary5)
+
+    bln_tr = tkinter.BooleanVar()
+    bln_tr.set(True)
+
+    chk_tr = tkinter.Checkbutton(root, variable=bln_tr, text="Transformation")
+    chk_tr.place(x=20, y=ary7)
+
+    entry_tr = tkinter.Entry(root, text="transformation", width=7)
+    entry_tr.place(x=200, y=ary7 + 5)
+    entry_tr.delete(0, tkinter.END)
+    entry_tr.insert(tkinter.END, "-0.3")
+    entry_tr.bind("<Return>", update)
+
+    bln_def = tkinter.BooleanVar()
+    bln_def.set(True)
+
+    chk_def = tkinter.Checkbutton(
+        root, variable=bln_def, text="Keep defect in first layer"
+    )
+    chk_def.place(x=20, y=ary8)
+
+    text_rec = tkinter.Label(root, text="Record")
+    text_rec.place(x=20, y=ary9)
+
+    entry_rec = tkinter.Entry(root, text="Name", width=50)
+    entry_rec.place(x=100, y=ary9)
+
+    entry_rec.delete(0, tkinter.END)
+    entry_rec.insert(tkinter.END, "kMC_rec")
+
+    text_img = tkinter.Label(root, text="Image rec. (%) :  ")
+    text_img.place(x=450, y=ary9)
+
+    entry_img = tkinter.Entry(root, text="img", width=10)
+    entry_img.place(x=570, y=ary9)
+
+    entry_img.delete(0, tkinter.END)
+    entry_img.insert(tkinter.END, "10")
+
+    ary10 = 280
+
+    text_comment = tkinter.Label(root, text="Comments")
+    text_comment.place(x=20, y=ary10)
+
+    entry_text = tkinter.Entry(root, text="Comments", width=110)
+    entry_text.place(x=100, y=ary10)
+    entry_text.delete(0, tkinter.END)
+    entry_text.insert(tkinter.END, "No comments")
+
+    global pbval
+    pbval = 0
+
+    pb = ttk.Progressbar(root, orient=HORIZONTAL, length=350, mode="determinate")
+    pb.configure(maximum=100, value=pbval)
+    pb.place(x=350, y=ary11 + 5)
+
+    text_count = tkinter.Label(root, text="Waiting")
+    text_count.place(x=720, y=ary11 + 5)
+
+    text_time_c = tkinter.Label(root, text="time (s)")
+    text_time_c.place(x=370, y=ary11 + 35)
+
+    text_event = tkinter.Label(root, text="events")
+    text_event.place(x=470, y=ary11 + 35)
+
+    text_atoms = tkinter.Label(root, text="Num. atoms")
+    text_atoms.place(x=570, y=ary11 + 35)
+
+    text_coverage = tkinter.Label(root, text="Coverage")
+    text_coverage.place(x=670, y=ary11 + 35)
+    button_start = tkinter.Button(
+        root, text="Start", command=button_start_clicked, height=1, width=20
+    )
+    button_start.place(x=20, y=ary11)
+    button_close = tkinter.Button(
+        root, text="Close", command=button_close_clicked, height=1, width=20
+    )
+    button_close.place(x=180, y=ary11)
+    update_values()
+
+    root.mainloop()
