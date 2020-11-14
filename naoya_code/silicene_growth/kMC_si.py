@@ -1,10 +1,9 @@
-import cv2
+#!/usr/bin/env python3
+
 import numpy as np
-import sys
+import copy
 import math
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
+import time
 import tkinter
 import glob
 from tkinter import *
@@ -12,19 +11,13 @@ from tkinter import ttk
 import os
 import random
 import matplotlib.animation as animation
-from PIL import Image, ImageGrab
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from pptx import Presentation
-from pptx.util import Inches, Pt
-import time
+import matplotlib.pyplot as plt
 import matplotlib.patches as pat
 import matplotlib.lines as mlines
-import copy
-
-root = Tk()
-
-root.title("kMC_Si_ver1")
-root.geometry("800x550")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from PIL import Image, ImageGrab
+from pptx import Presentation
+from pptx.util import Inches, Pt
 
 
 def update_values():
@@ -54,18 +47,6 @@ def update_values():
 
 def update(event):
     update_values()
-
-
-global unit_x, unit_y, z1, z2, unit_z, ims, max_layer
-unit_x = [1, 0, 0]
-unit_y = [0.5, 0.866, 0]
-unit_z = [0, 0, 1]
-zd1 = 0.204
-zd2 = 0.612
-max_layer = 0
-
-global c_num
-c_num = 0
 
 
 def show_current():
@@ -2098,6 +2079,21 @@ def cal_start():
 
     # Show results
     show_pictures()
+
+
+root = Tk()
+root.title("kMC_Si_ver1")
+root.geometry("800x550")
+global unit_x, unit_y, z1, z2, unit_z, ims, max_layer
+unit_x = [1, 0, 0]
+unit_y = [0.5, 0.866, 0]
+unit_z = [0, 0, 1]
+zd1 = 0.204
+zd2 = 0.612
+max_layer = 0
+
+global c_num
+c_num = 0
 
 
 arx1 = 20
