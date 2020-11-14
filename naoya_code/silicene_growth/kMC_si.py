@@ -51,12 +51,10 @@ def update(event):
 
 def show_current():
     global atom_set, lattice, c_num, max_layer
-
     print("current saving")
     # image
     fig = plt.figure()
     ax = fig.add_subplot(111)
-
     length = nl
     p = pat.Polygon(
         xy=[
@@ -69,9 +67,7 @@ def show_current():
         ec=(0, 0, 0),
     )
     ax.add_patch(p)
-
     atom_set_n = atom_set
-
     for z in range(0, max_layer):
         for i in range(len(atom_set_n)):
             for k in range(len(atom_set_n[i])):
@@ -93,13 +89,10 @@ def show_current():
                             + yp * unit_y[1]
                             - (unit_x[1] + unit_y[1]) / 3
                         )
-
                         t2x = t1x + unit_x[0]
                         t2y = t1y + unit_x[1]
-
                         t3x = t1x + unit_y[0]
                         t3y = t1y + unit_y[1]
-
                     else:
                         t1x = (
                             xp * unit_x[0]
@@ -269,14 +262,12 @@ def show_current():
                             xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
                         )
                         ax.add_patch(p)
-
     p = pat.Polygon(
         xy=[(0, 0), (unit_y[0] * length, unit_y[1] * length), (0, unit_y[1] * length)],
         fc=(1, 1, 1),
         ec=(0, 0, 0),
     )
     ax.add_patch(p)
-
     p = pat.Polygon(
         xy=[
             (unit_x[0] * length, 0),
@@ -287,11 +278,9 @@ def show_current():
         ec=(0, 0, 0),
     )
     ax.add_patch(p)
-
     ax.set_xlim(0, (unit_x[0] + unit_y[0]) * length)
     ax.set_ylim(0, (unit_x[1] + unit_y[1]) * length)
     ax.set_aspect("equal")
-
     file_name = entry_rec.get() + "_current_" + str(c_num) + ".png"
     fig.savefig(file_name)
 
