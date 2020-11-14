@@ -316,37 +316,30 @@ def show_current():
     file_data = open(file_name, "w")
     file_data.write(entry_rec.get() + "\n")
     file_data.write("10" + "\n")
-
     file_data.write(str(nl) + "\t" + "0" + "\t" + "0" + "\n")
     file_data.write(str(nl / 2) + "\t" + str(nl / 2 * 1.732) + "\t" + "0" + "\n")
     file_data.write("0" + "\t" + "0" + "\t" + str(zl * 2.448) + "\n")
     file_data.write("Si" + "\n")
     file_data.write(str(num) + "\n")
     file_data.write("direct" + "\n")
-
     for i in range(len(xp)):
         file_data.write(str(xp[i]) + "\t" + str(yp[i]) + "\t" + str(zp[i]) + "\n")
-
     file_data.close()
-
     c_num = c_num + 1
 
 
 def lattice_form():
     global lattice, atom_set, bonds, nl, zl, event, event_time, event_tot, maxz, max_atom
-
     nl = int(entry_1.get())
     zl = int(entry_zunit.get())
     lattice_first = []
     lattice = []
-
     atom_set = []
     bonds = []
     event = []
     event_tot = []
     event_time = []
     maxz = 0
-
     # Calculating the position of atoms in the first unit in z (first 3 BL)
     for i in range(0, nl):
         lattice.append([])
@@ -356,7 +349,6 @@ def lattice_form():
         event.append([])
         event_tot.append([])
         event_time.append([])
-
         for k in range(0, nl):
             lattice[-1].append([])
             lattice_first[-1].append([])
@@ -411,7 +403,6 @@ def lattice_form():
                 bonds_t = []
                 zv = int(z % 6)
                 ml = nl - 1
-
                 if zv == 0:
                     if i == 0 and k == 0:
                         bonds_t = [[ml, 0, z + 1], [0, ml, z + 1], [0, 0, z + 1]]
@@ -421,12 +412,10 @@ def lattice_form():
                         bonds_t = [[i - 1, 0, z + 1], [i, ml, z + 1], [i, 0, z + 1]]
                     else:
                         bonds_t = [[i - 1, k, z + 1], [i, k - 1, z + 1], [i, k, z + 1]]
-
                     if z != 0:
                         bonds_t.append([i, k, z - 1])
                     else:
                         pass
-
                 elif zv == 1:
                     if i == ml and k == ml:
                         bonds_t = [[ml, 0, z - 1], [0, ml, z - 1], [ml, ml, z - 1]]
@@ -436,9 +425,7 @@ def lattice_form():
                         bonds_t = [[i + 1, ml, z - 1], [i, 0, z - 1], [i, ml, z - 1]]
                     else:
                         bonds_t = [[i + 1, k, z - 1], [i, k + 1, z - 1], [i, k, z - 1]]
-
                     bonds_t.append([i, k, z + 1])
-
                 elif zv == 2:
                     if i == 0 and k == 0:
                         bonds_t = [[ml, 0, z + 1], [0, ml, z + 1], [0, 0, z + 1]]
@@ -448,9 +435,7 @@ def lattice_form():
                         bonds_t = [[i - 1, 0, z + 1], [i, ml, z + 1], [i, 0, z + 1]]
                     else:
                         bonds_t = [[i - 1, k, z + 1], [i, k - 1, z + 1], [i, k, z + 1]]
-
                     bonds_t.append([i, k, z - 1])
-
                 elif zv == 3:
                     if i == ml and k == ml:
                         bonds_t = [[ml, 0, z - 1], [0, ml, z - 1], [ml, ml, z - 1]]
@@ -460,9 +445,7 @@ def lattice_form():
                         bonds_t = [[i + 1, ml, z - 1], [i, 0, z - 1], [i, ml, z - 1]]
                     else:
                         bonds_t = [[i + 1, k, z - 1], [i, k + 1, z - 1], [i, k, z - 1]]
-
                     bonds_t.append([i, k, z + 1])
-
                 elif zv == 4:
                     if i == ml and k == ml:
                         bonds_t = [[ml, 0, z + 1], [0, ml, z + 1], [0, 0, z + 1]]
@@ -476,9 +459,7 @@ def lattice_form():
                             [i + 1, k + 1, z + 1],
                             [i, k + 1, z + 1],
                         ]
-
                     bonds_t.append([i, k, z - 1])
-
                 elif zv == 5:
                     if i == 0 and k == 0:
                         bonds_t = [[ml, ml, z - 1], [0, ml, z - 1], [ml, 0, z - 1]]
@@ -500,9 +481,7 @@ def lattice_form():
                             [i, k - 1, z - 1],
                             [i - 1, k - 1, z - 1],
                         ]
-
                     bonds_t.append([i, k, z + 1])
-
                 bonds[i][k].append(bonds_t)
 
 
@@ -594,18 +573,15 @@ def deposition():
             for z in range(len(atom_set[i][k])):
                 if atom_set[i][k][z] != 0:
                     num_atom += 1
-
     if num_atom != n_atoms:
         print("Mass error")
         print("deposited atom = " + str(n_atoms))
         print("caculated atom = " + str(num_atom))
-
     candidate = []
     mod = []
     n_atoms = n_atoms + 1
     cov = n_atoms / NBL
-
-    if n_atoms == 5 or n_atoms == 20 or n_atoms == 300:
+    if n_atoms in (5, 20, 300):
         show_current()
 
     if n_atoms >= max_atom:
@@ -703,7 +679,6 @@ def update_progress():
     text_event["text"] = str(event_num) + " events"
     text_coverage["text"] = str("{:.2f}".format(cov)) + " ML"
     text_atoms["text"] = str("{:.2f}".format(n_atoms)) + " atoms"
-
     root.update()
 
 
@@ -739,15 +714,12 @@ def cal_rate(E):
 
 def update_events():
     global mod, event, event_time, event_tot, tot
-
     # Modify the event at the site in mod
     for e in mod:
         i = e[0]
         k = e[1]
         z = e[2]
-
         tot = tot - event_tot[i][k][z]
-
         event[i][k][z] = []
         event_time[i][k][z] = []
         event_tot[i][k][z] = 0
@@ -764,7 +736,6 @@ def update_events():
                     E += E12
             # get rate constant
             kr = cal_rate(E)
-
             # Record possible events and rate
             for u in bonds[i][k][z]:
                 if atom_set[u[0]][u[1]][u[2]] == 0:
@@ -778,7 +749,6 @@ def update_events():
                     sx = u[0]
                     sy = u[1]
                     sz = u[2] + 1
-
                     if atom_set[sx][sy][sz] == 0:
                         # upclimb possible
                         event[i][k][z].append(["u", sx, sy, sz])
@@ -787,7 +757,6 @@ def update_events():
                     else:
                         # upclimb impossible
                         pass
-
         elif z == 1:
             # calculate total energy
             E = Eagsi
@@ -799,12 +768,9 @@ def update_events():
                 elif (s != 0) and (u[2] == 3):
                     # bonding with next bilayer
                     E += E23
-
             # get rate constant
             kr = cal_rate(E)
-
             # Record possible events and rate
-
             for u in bonds[i][k][z]:
                 if (atom_set[u[0]][u[1]][u[2]] == 0) and (u[2] == 0):
                     # empty neighbor site
@@ -813,7 +779,6 @@ def update_events():
                     tot_rec += kr
                 else:
                     pass
-
         elif (z == 2) or (z == 4):
             # calculate total energy
             E = 0
@@ -825,10 +790,8 @@ def update_events():
                 elif (s != 0) and (u[2] == z + 1):
                     # bonding in same BL
                     E += Vene[u[2] + 1]
-
             # get rate constant
             kr = cal_rate(E)
-
             # Record possible events and rates
             for u in bonds[i][k][z]:
                 if (atom_set[u[0]][u[1]][u[2]] == 0) and (u[2] == z + 1):
@@ -849,7 +812,6 @@ def update_events():
                         event[i][k][z].append(["m", u[0], u[1], u[2]])
                         event_time[i][k][z].append(kr)
                         tot_rec += kr
-
                 elif (atom_set[u[0]][u[1]][u[2]] == 1) and (u[2] == z - 1):
                     # Downstair
                     for j in bonds[u[0]][u[1]][u[2]]:
@@ -860,7 +822,6 @@ def update_events():
                             tot_rec += kr
                         else:
                             pass
-
                 elif (atom_set[u[0]][u[1]][u[2]] == 1) and (u[2] == z + 1):
                     # upstair
                     judge = 0
@@ -869,13 +830,11 @@ def update_events():
                             judge += 1
                         else:
                             pass
-
                     if (judge >= 2) and (atom_set[u[0]][u[1]][u[2] + 1] == 0):
                         # upstair possible
                         event[i][k][z].append(["u", u[0], u[1], u[2] + 1])
                         event_time[i][k][z].append(kr)
                         tot_rec += kr
-
         elif z % 2 == 0:
             # calculate total energy
             E = 0
@@ -887,10 +846,8 @@ def update_events():
                 elif (s != 0) and (u[2] == z + 1):
                     # bonding in same BL
                     E += Vene[6]
-
             # get rate constant
             kr = cal_rate(E)
-
             # Record possible events and rates
             for u in bonds[i][k][z]:
                 if (atom_set[u[0]][u[1]][u[2]] == 0) and (u[2] == z + 1):
@@ -911,7 +868,6 @@ def update_events():
                         event[i][k][z].append(["m", u[0], u[1], u[2]])
                         event_time[i][k][z].append(kr)
                         tot_rec += kr
-
                 elif (atom_set[u[0]][u[1]][u[2]] == 1) and (u[2] == z - 1):
                     # Downstair
                     for j in bonds[u[0]][u[1]][u[2]]:
@@ -922,7 +878,6 @@ def update_events():
                             tot_rec += kr
                         else:
                             pass
-
                 elif (atom_set[u[0]][u[1]][u[2]] == 1) and (u[2] == z + 1):
                     # upstair
                     judge = 0
@@ -1226,10 +1181,8 @@ def rec_pos():
         file_data.write("Si" + "\n")
         file_data.write(str(num) + "\n")
         file_data.write("direct" + "\n")
-
         for i in range(len(xp)):
             file_data.write(str(xp[i]) + "\t" + str(yp[i]) + "\t" + str(zp[i]) + "\n")
-
         file_data.close()
 
 
@@ -1237,9 +1190,7 @@ def figure_draw_rec():
     for n in range(len(a_set_rec)):
         fig = plt.figure()
         ax = fig.add_subplot(111)
-
         kx = figure_formation(ax, n)
-
         file_name = (
             entry_rec.get()
             + "_middle_"
@@ -1255,19 +1206,14 @@ def figure_draw_rec():
 
 def coverage_color():
     global images, gray, green
-
     number = 0
     distribution = []
-
     for i in images:
         distribution.append([0, 0])
-
         number = number + 1
         img = Image.open(i)
         img.convert("RGB")
-
         psize = img.size
-
         for s in range(psize[0]):
             for t in range(psize[1]):
                 r, g, b, no = img.getpixel((s, t))
@@ -1286,9 +1232,7 @@ def coverage_color():
 
 def hist_rec():
     global images_h
-
     images_h = []
-
     for k in range(len(layers_each)):
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -1311,10 +1255,8 @@ def hist_rec():
 def ppt_form():
     global images, images_h
     k = os.path.exists("Layer_analysis_results.pptx")
-
     if k == True:
         prs = Presentation("Layer_analysis_results.pptx")
-
     else:
         prs = Presentation()
         prs.slide_height = Inches(7.5)
@@ -1323,33 +1265,26 @@ def ppt_form():
         slide = prs.slides.add_slide(title_slide_layout)
         title = slide.shapes.title
         title.text = "Layer analysis calculation results"
-
     # First page
     blank_slide_layout = prs.slide_layouts[6]
     slide = prs.slides.add_slide(blank_slide_layout)
-
     width = height = Inches(1)
     top = Inches(0)
     left = Inches(0.5)
     txBox = slide.shapes.add_textbox(left, top, width, height)
     tf = txBox.text_frame
-
     p = tf.add_paragraph()
     p.text = "Parameters"
     p.font.size = Pt(28)
-
     shapes = slide.shapes
-
     left = Inches(0.5)
     top = Inches(1.5)
     rows = 2
     cols = 11
     width = Inches(12)
     height = Inches(1)
-
     # record parameters
     table0 = shapes.add_table(rows, cols, left, top, width, height).table
-
     table0.cell(0, 0).text = "Num. cells"
     table0.cell(0, 1).text = "Z units"
     table0.cell(0, 2).text = "T (K)"
@@ -1361,7 +1296,6 @@ def ppt_form():
     table0.cell(0, 8).text = "transform"
     table0.cell(0, 9).text = "keep defect"
     table0.cell(0, 10).text = "Cal. time (s)"
-
     table0.cell(1, 0).text = str(nl)
     table0.cell(1, 1).text = str(zl)
     table0.cell(1, 2).text = entry_kbT.get()
@@ -1370,28 +1304,22 @@ def ppt_form():
     table0.cell(1, 5).text = entry_time.get()
     table0.cell(1, 6).text = entry_post.get()
     table0.cell(1, 7).text = entry_pre.get()
-
     if bln_tr.get() == True:
         table0.cell(1, 8).text = "on"
     else:
         table0.cell(1, 8).text = "off"
-
     if bln_def.get() == True:
         table0.cell(1, 9).text = "on"
     else:
         table0.cell(1, 9).text = "off"
-
     table0.cell(1, 10).text = str(minute) + " m " + str(second) + " s"
-
     left = Inches(0.5)
     top = Inches(3.5)
     rows = 2
     cols = 11
     width = Inches(12)
     height = Inches(1)
-
     table = shapes.add_table(rows, cols, left, top, width, height).table
-
     table.cell(0, 1).text = "Ag-Si"
     table.cell(0, 2).text = "Si(1-2)"
     table.cell(0, 3).text = "Si(2-3)"
@@ -1403,7 +1331,6 @@ def ppt_form():
     table.cell(0, 9).text = "Ag(top)"
     table.cell(0, 10).text = "Trans."
     table.cell(1, 0).text = "Energy"
-
     table.cell(1, 1).text = entry_AgSi.get()
     table.cell(1, 2).text = entry_Si12.get()
     table.cell(1, 3).text = entry_Si23.get()
@@ -1414,7 +1341,6 @@ def ppt_form():
     table.cell(1, 8).text = entry_Sielin.get()
     table.cell(1, 9).text = entry_Agtp.get()
     table.cell(1, 10).text = entry_tr.get()
-
     """
     left = Inches(0.5)
     top = Inches(6.5)
@@ -1619,10 +1545,8 @@ def ppt_form():
 
 def layer_sum():
     global layers_each, max_layer
-
     layers_each = []
     max_layer = 0
-
     for s in range(len(a_set_rec)):
         layers_each.append([])
         co = a_set_rec[s]
@@ -1630,16 +1554,13 @@ def layer_sum():
             c_each = 0
             if z % 2 == 0:
                 count = 0
-
             for i in range(len(co)):
                 for k in range(len(co[i])):
                     if co[i][k][z] != 0:
                         count += 1
                         c_each += 1
-
             if z % 2 == 1:
                 layers_each[-1].append(count)
-
             if (c_each != 0) and (z >= max_layer):
                 max_layer = z
 
@@ -1657,9 +1578,7 @@ def figure_formation(ax, n):
         ec=(0, 0, 0),
     )
     ax.add_patch(p)
-
     atom_set_n = a_set_rec[n]
-
     for z in range(0, max_layer):
         for i in range(len(atom_set_n)):
             for k in range(len(atom_set_n[i])):
@@ -2021,51 +1940,38 @@ def cal_start():
     # form lattice
     lattice_form()
     params()
-
     # tot: sum of rate constants. First, only deposition
     tot = d_rate
-
     # evaporation start
     rel_time = 0
-
     # first deposition
     global n_atoms
     n_atoms = 0
     deposition()
-
     text_count["text"] = "0 %"
     root.update()
     time_progress()
-
     # record first deposition
     rec_atoms()
-
     # update events and rates
     update_events()
-
     # second atomdepsoition
     deposition()
     time_progress()
     update_events()
-
     # repetition
     kMC()
-
     # record final structure
     text_count["text"] = "Saving"
     rec_atoms()
-
     # make poscar
     rec_pos()
-
     # record figures
     layer_sum()
     figure_draw_rec()
     coverage_color()
     hist_rec()
-
     global minute, second
-
     elapsed_time = time.time() - start
     minute = math.floor(elapsed_time / 60)
     second = int(elapsed_time % 60)
@@ -2074,9 +1980,7 @@ def cal_start():
     ppt_form()
     text_count["text"] = "Finished"
     root.update()
-
     # calculation end
-
     # Show results
     show_pictures()
 
@@ -2096,14 +2000,13 @@ if __name__ == "__main__":
     root = Tk()
     root.title("kMC_Si_ver1")
     root.geometry("800x550")
-    global unit_x, unit_y, z1, z2, unit_z, ims, max_layer
-    unit_x = [1, 0, 0]
-    unit_y = [0.5, 0.866, 0]
-    unit_z = [0, 0, 1]
+    global unit_x, unit_y, unit_z, ims, max_layer
+    unit_x: List[float] = [1, 0, 0]
+    unit_y: List[float] = [0.5, 0.866, 0]
+    unit_z: List[float] = [0, 0, 1]
     zd1 = 0.204
     zd2 = 0.612
     max_layer = 0
-
     global c_num
     c_num = 0
 
@@ -2143,7 +2046,7 @@ if __name__ == "__main__":
     entry_kbT.bind("<Return>", update)
 
     global kbt
-    kbt = float(entry_kbT.get()) * 8.617 / 100000
+    kbt = float(entry_kbT.get()) * 8.617e-5
 
     text_lkbt = tkinter.Label(root, text="kbT")
     text_lkbt.place(x=arx[7], y=ary[1])
@@ -2392,5 +2295,4 @@ if __name__ == "__main__":
     )
     button_close.place(x=180, y=ary[11])
     update_values()
-
     root.mainloop()
