@@ -1465,22 +1465,18 @@ def ppt_form():
         slides = slides + 1
         if slides != 1:
             slide = prs.slides.add_slide(blank_slide_layout)
-
             width = height = Inches(1)
             top = Inches(-0.1)
             left = Inches(0.5)
             txBox = slide.shapes.add_textbox(left, top, width, height)
             tf = txBox.text_frame
-
             p = tf.add_paragraph()
             p.text = "Results: layer analysis"
             p.font.size = Pt(28)
-
             left0 = 0.2
             top0 = 0.7
             height = Inches(2)
             height_w = Inches(1)
-
         for i in range(0, 3):
             for k in range(0, 4):
                 if imn >= num_ims:
@@ -1509,7 +1505,6 @@ def ppt_form():
                     imn = imn + 1
         if imn == num_ims:
             fin = 1
-
     """
     slide = prs.slides.add_slide(blank_slide_layout)
 
@@ -1531,7 +1526,6 @@ def ppt_form():
 
     slide.shapes.add_picture(file_name, left, top, height=height)
     """
-
     prs.save("Layer_analysis_results.pptx")
 
 
