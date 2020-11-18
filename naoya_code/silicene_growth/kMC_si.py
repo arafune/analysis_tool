@@ -71,7 +71,7 @@ def show_current():
     )
     ax.add_patch(p)
     atom_set_n = atom_set
-    for z in range(0, max_layer):
+    for z in range(max_layer):
         for i in range(len(atom_set_n)):
             for k in range(len(atom_set_n[i])):
                 if atom_set_n[i][k][z] == 0:
@@ -80,7 +80,6 @@ def show_current():
                     xp = lattice[i][k][z][0]
                     yp = lattice[i][k][z][1]
                     zp = lattice[i][k][z][2]
-
                     if z % 2 == 0:
                         t1x = (
                             xp * unit_x[0]
@@ -107,13 +106,11 @@ def show_current():
                             + yp * unit_y[1]
                             + (unit_x[1] + unit_y[1]) / 3
                         )
-
                         t2x = t1x - unit_x[0]
                         t2y = t1y - unit_x[1]
 
                         t3x = t1x - unit_y[0]
                         t3y = t1y - unit_y[1]
-
                     color_num = math.floor(z / 2) * 2
                     if z == 1 or z == 0:
                         color = [0, 1, 0]
@@ -123,9 +120,7 @@ def show_current():
                     p = pat.Polygon(
                         xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
                     )
-
                     ax.add_patch(p)
-
                     if i == 0:
                         if z % 2 == 0:
                             t1x = (
@@ -140,10 +135,8 @@ def show_current():
                                 - (unit_x[1] + unit_y[1]) / 3
                                 + unit_x[1] * length
                             )
-
                             t2x = t1x + unit_x[0]
                             t2y = t1y + unit_x[1]
-
                             t3x = t1x + unit_y[0]
                             t3y = t1y + unit_y[1]
                         else:
@@ -159,18 +152,14 @@ def show_current():
                                 + (unit_x[1] + unit_y[1]) / 3
                                 + unit_x[1] * length
                             )
-
                             t2x = t1x - unit_x[0]
                             t2y = t1y - unit_x[1]
-
                             t3x = t1x - unit_y[0]
                             t3y = t1y - unit_y[1]
-
                         p = pat.Polygon(
                             xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
                         )
                         ax.add_patch(p)
-
                     if k == 0:
                         if z % 2 == 0:
                             t1x = (
@@ -185,10 +174,8 @@ def show_current():
                                 - (unit_x[1] + unit_y[1]) / 3
                                 + unit_y[1] * length
                             )
-
                             t2x = t1x + unit_x[0]
                             t2y = t1y + unit_x[1]
-
                             t3x = t1x + unit_y[0]
                             t3y = t1y + unit_y[1]
                         else:
@@ -204,20 +191,15 @@ def show_current():
                                 + (unit_x[1] + unit_y[1]) / 3
                                 + unit_y[1] * length
                             )
-
                             t2x = t1x - unit_x[0]
                             t2y = t1y - unit_x[1]
-
                             t3x = t1x - unit_y[0]
                             t3y = t1y - unit_y[1]
-
                         p = pat.Polygon(
                             xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
                         )
                         ax.add_patch(p)
-
                     if (i == 0) and (k == 0):
-
                         if z % 2 == 0:
                             t1x = (
                                 xp * unit_x[0]
@@ -233,10 +215,8 @@ def show_current():
                                 + unit_y[1] * length
                                 + unit_x[1] * length
                             )
-
                             t2x = t1x + unit_x[0]
                             t2y = t1y + unit_x[1]
-
                             t3x = t1x + unit_y[0]
                             t3y = t1y + unit_y[1]
                         else:
@@ -254,13 +234,10 @@ def show_current():
                                 + unit_y[1] * length
                                 + unit_x[1] * length
                             )
-
                             t2x = t1x - unit_x[0]
                             t2y = t1y - unit_x[1]
-
                             t3x = t1x - unit_y[0]
                             t3y = t1y - unit_y[1]
-
                         p = pat.Polygon(
                             xy=[(t1x, t1y), (t2x, t2y), (t3x, t3y)], fc=color, ec=color
                         )
@@ -286,15 +263,12 @@ def show_current():
     ax.set_aspect("equal")
     file_name = entry_rec.get() + "_current_" + str(c_num) + ".png"
     fig.savefig(file_name)
-
     # poscar
-
     xp = []
     yp = []
     zp = []
     num = 0
     s = atom_set
-
     for i in range(len(s)):
         for k in range(len(s[i])):
             for z in range(len(s[i][k])):
@@ -303,7 +277,6 @@ def show_current():
                     yp.append(lattice[i][k][z][1] / nl)
                     zp.append(lattice[i][k][z][2] / zl / 2.448)
                     num = num + 1
-
     file_name = entry_rec.get() + "_" + "current" + str(c_num) + ".vasp"
     file_data = open(file_name, "w")
     file_data.write(entry_rec.get() + "\n")
@@ -349,7 +322,6 @@ def lattice_form():
             event[-1].append([])
             event_tot[-1].append([])
             event_time[-1].append([])
-
             unit_pos = [i, k, 0]  # coodination of the unit cell
             # 6 atoms in a unit in z direction
             # first BL
@@ -361,11 +333,9 @@ def lattice_form():
             # Third BL
             atom5 = [atom4[0], atom4[1], atom4[2] + zd2]
             atom6 = [atom1[0], atom1[1], atom5[2] + zd1]
-
             # latice_first: coodination of all atoms
             # lattice_num_first: numerization of atoms
             lattice_first[-1][-1].extend([atom1, atom2, atom3, atom4, atom5, atom6])
-
     # Calculating the position of all atoms
     for i in range(len(lattice_first)):
         for k in range(len(lattice_first[i])):
@@ -378,16 +348,13 @@ def lattice_form():
                             round(lattice_first[i][k][z][2] + u * 2.448, 5),
                         ]
                     )
-
                     atom_set[i][k].append(0)
                     event[i][k].append([])
                     event_time[i][k].append([])
                     event_tot[i][k].append(0)
-
     # lattice: coodination of an atom at [i,k,z]
     maxz = len(lattice[0][0]) - 1
     max_atom = maxz * nl * nl
-
     # Search for bonding atoms for all the atoms
     for i in range(len(lattice)):
         for k in range(len(lattice[i])):
@@ -495,16 +462,13 @@ def lattice_form_check():
         x.append([])
         y.append([])
         b.append([])
-
         for i in range(len(lattice)):
             for k in range(len(lattice[i])):
                 xp = lattice[i][k][z][0] * unit_x[0] + lattice[i][k][z][1] * unit_y[0]
                 yp = lattice[i][k][z][0] * unit_x[1] + lattice[i][k][z][1] * unit_y[1]
-
                 x[-1].append(xp)
                 y[-1].append(yp)
                 for u in bonds[i][k][z]:
-
                     if u[2] >= len(lattice[0][0]):
                         pass
                     else:
@@ -518,15 +482,11 @@ def lattice_form_check():
                         )
 
                         b[-1].append([[xp, yp], [xb, yb]])
-
     # first BL
-
     BL_num = 4
-
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set(xlim=(min_x, max_x), ylim=(min_y, max_y))
-
     # Draw repeatition unit
     l1 = mlines.Line2D([0, unit_x[0] * nl], [0, 0], c="black")
     l2 = mlines.Line2D([unit_x[0] * nl, max_x - 1], [0, max_y - 1], c="black")
@@ -541,15 +501,12 @@ def lattice_form_check():
     for d in b[BL_num * 2]:
         l = mlines.Line2D([d[0][0], d[1][0]], [d[0][1], d[1][1]])
         ax.add_line(l)
-
     for d in b[BL_num * 2 + 1]:
         l = mlines.Line2D([d[0][0], d[1][0]], [d[0][1], d[1][1]])
         ax.add_line(l)
-
     # draw atoms
     ax.scatter(x[BL_num * 2], y[BL_num * 2], c="b", s=30)
     ax.scatter(x[BL_num * 2 + 1], y[BL_num * 2 + 1], c="r", s=30)
-
     plt.show()
 
 
@@ -583,9 +540,9 @@ def deposition():
     for i in range(len(lattice)):
         for k in range(len(lattice[i])):
             if atom_set[i][k][0] == 0:
-                candidate.append([i, k, 0])
+                candidate.append((i, k, 0))
             if atom_set[i][k][1] == 0:
-                candidate.append([i, k, 1])
+                candidate.append((i, k, 1))
 
     # the neighbor sites of existing atoms are candidates
     for i in range(len(atom_set)):
@@ -596,7 +553,7 @@ def deposition():
                 else:
                     for u in bonds[i][k][z]:
                         if atom_set[u[0]][u[1]][u[2]] == 0:
-                            candidate.append([u[0], u[1], u[2]])
+                            candidate.append((u[0], u[1], u[2]))
                         else:
                             pass
 
