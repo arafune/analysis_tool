@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Module for analyzing the CePc2, TbPc2 on Au(111) vasp calculation
+Code for vasp calculation results requested by Prof. Komeda (Nov, 2020)
 
 (2x2) lattice
 """
@@ -316,3 +317,7 @@ molecule4: Dict[str, List[int]] = {
     "N_up": [44, 58, 33, 51, 48, 55, 37, 62],
     "N_low": [3, 20, 10, 25, 13, 22, 8, 31],
 }
+
+
+if __name__ == "__main__":
+    pass
