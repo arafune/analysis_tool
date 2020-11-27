@@ -92,7 +92,7 @@ molecule1: Dict[str, List[int]] = {
 }
 
 
-molecule2 = Dict[str, List[int]] = {
+molecule2: Dict[str, List[int]] = {
     "C_up": [
         135,
         228,
@@ -318,6 +318,36 @@ molecule4: Dict[str, List[int]] = {
     "N_low": [3, 20, 10, 25, 13, 22, 8, 31],
 }
 
+molecules: List[Dict[str, List[int]]] = [molecule1, molecule2, molecule3, molecule4]
+site_names: List[str] = ["C", "H", "N"]
+positions: List[str] = ["up", "low"]
+
+
+def test_check_the_number_of_atoms_all():
+    atoms = {}
+    for mol in molecules:
+
+
+
+def test_check_the_number_of_atoms_mol():
+    for mol in molecules:
+        assert len(mol["C_up"]) == 32
+        assert len(mol["C_low"]) == 32
+        assert len(mol["H_up"]) == 16
+        assert len(mol["H_low"]) == 16
+        assert len(mol["N_up"]) == 8
+        assert len(mol["N_low"]) == 8
+
+
+def test_check_not_overlapping():
+    for mol in molecules:
+        for site in site_names:
+            for position in positions:
+                assert len(set(sorted(mol[site + "_" + position]))) == len(
+                    sorted(mol[site + "_" + position])
+                )
+
 
 if __name__ == "__main__":
-    pass
+    test_check_the_number_of_atoms_mol()
+    test_check_not_overlapping()
