@@ -5,6 +5,7 @@ Code for vasp calculation results requested by Prof. Komeda (Nov, 2020)
 (2x2) lattice
 """
 
+import itertools
 from typing import Dict, List
 
 DIFF_FROM_WHOLE_INDEX: Dict[str, int] = {
@@ -89,6 +90,7 @@ molecule1: Dict[str, List[int]] = {
     "H_low": [20, 56, 60, 64, 23, 35, 31, 27, 6, 10, 14, 50, 1, 37, 45, 41],
     "N_up": [41, 50, 36, 59, 63, 45, 54, 40],
     "N_low": [2, 17, 11, 28, 5, 23, 16, 30],
+    "Ce": [1],
 }
 
 
@@ -165,6 +167,7 @@ molecule2: Dict[str, List[int]] = {
     "H_low": [55, 19, 59, 63, 24, 36, 28, 32, 2, 38, 42, 46, 5, 49, 9, 13],
     "N_up": [42, 35, 60, 49, 53, 46, 64, 39],
     "N_low": [1, 18, 12, 27, 15, 29, 24, 6],
+    "Ce": [2],
 }
 
 molecule3: Dict[str, List[int]] = {
@@ -240,6 +243,7 @@ molecule3: Dict[str, List[int]] = {
     "H_low": [18, 54, 58, 62, 21, 33, 25, 29, 3, 39, 43, 47, 8, 12, 16, 52],
     "N_up": [43, 57, 34, 52, 47, 56, 61, 38],
     "N_low": [4, 19, 9, 26, 14, 21, 7, 32],
+    "Ce": [3],
 }
 
 
@@ -316,6 +320,7 @@ molecule4: Dict[str, List[int]] = {
     "H_low": [53, 17, 57, 61, 22, 34, 26, 30, 4, 40, 44, 48, 7, 51, 11, 15],
     "N_up": [44, 58, 33, 51, 48, 55, 37, 62],
     "N_low": [3, 20, 10, 25, 13, 22, 8, 31],
+    "Ce": [4],
 }
 
 molecules: List[Dict[str, List[int]]] = [molecule1, molecule2, molecule3, molecule4]
@@ -323,13 +328,30 @@ site_names: List[str] = ["C", "H", "N"]
 positions: List[str] = ["up", "low"]
 
 
-def test_check_the_number_of_atoms_all():
-    atoms = {}
-    for mol in molecules:
+def series_index(molecule: Dict[str, List[int]]) -> List[int]:
+    """Return series index (begin with "0") of molecule"""
+    series = []
+    for site, index in molecule.items():
+        if site.startswith("C_"):
+            series.extend([i + DIFF_FROM_WHOLE_INDEX["C"] for i in index])
+        elif site.startswith("N_"):
+            series.extend([i + DIFF_FROM_WHOLE_INDEX["N"] for i in index])
+        elif site.startswith("H_"):
+            series.extend([i + DIFF_FROM_WHOLE_INDEX["H"] for i in index])
+        elif site.startswith("Ce"):
+            series.extend([i + DIFF_FROM_WHOLE_INDEX["Ce"] for i in index])
+    return series
 
 
+def test_check_independent_index() -> None:
+    index_set = [set(series_index(mol)) for mol in molecules]
+    for i in index_set:
+        assert len(i) == 113
+    for c in list(itertools.combinations([0, 1, 2, 3], 2)):
+        assert len(index_set[c[0]] & index_set[c[1]]) == 0
 
-def test_check_the_number_of_atoms_mol():
+
+def test_check_the_number_of_atoms_mol() -> None:
     for mol in molecules:
         assert len(mol["C_up"]) == 32
         assert len(mol["C_low"]) == 32
@@ -339,7 +361,7 @@ def test_check_the_number_of_atoms_mol():
         assert len(mol["N_low"]) == 8
 
 
-def test_check_not_overlapping():
+def test_check_not_overlapping() -> None:
     for mol in molecules:
         for site in site_names:
             for position in positions:
@@ -351,3 +373,4 @@ def test_check_not_overlapping():
 if __name__ == "__main__":
     test_check_the_number_of_atoms_mol()
     test_check_not_overlapping()
+    test_check_independent_index()

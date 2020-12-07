@@ -12,7 +12,7 @@ DIFF_FROM_WHOLE_INDEX: Dict[str, int] = {
     "N": 95,
     "Ce": 111,
     "Au": 112,
-}
+}  # 基本的には使わない。
 
 molecule: Dict[str, List[int]] = {
     "C_low": list(range(32)),
@@ -22,7 +22,10 @@ molecule: Dict[str, List[int]] = {
     "N_low": list(range(96, 104)),
     "N_up": list(range(104, 112)),
     "Ce": [112],
+    "series": list(range(113)),
 }
+
+series = []
 
 if __name__ == "__main__":
     pass
