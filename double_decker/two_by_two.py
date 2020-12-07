@@ -8,11 +8,12 @@ Code for vasp calculation results requested by Prof. Komeda (Nov, 2020)
 import itertools
 from typing import Dict, List
 
-DIFF_FROM_WHOLE_INDEX: Dict[str, int] = {
+DIFF_FROM_SERIES_INDEX: Dict[str, int] = {
     "C": -1,
     "H": 255,
     "N": 383,
     "Ce": 447,
+    "Tb": 447,
     "Au": 451,
 }
 
@@ -328,18 +329,23 @@ site_names: List[str] = ["C", "H", "N"]
 positions: List[str] = ["up", "low"]
 
 
-def series_index(molecule: Dict[str, List[int]]) -> List[int]:
+def series_index(
+    molecule: Dict[str, List[int]],
+    diff_from_series_index: Dict[str, int] = DIFF_FROM_SERIES_INDEX,
+) -> List[int]:
     """Return series index (begin with "0") of molecule"""
     series = []
     for site, index in molecule.items():
         if site.startswith("C_"):
-            series.extend([i + DIFF_FROM_WHOLE_INDEX["C"] for i in index])
+            series.extend([i + diff_from_series_index["C"] for i in index])
         elif site.startswith("N_"):
-            series.extend([i + DIFF_FROM_WHOLE_INDEX["N"] for i in index])
+            series.extend([i + diff_from_series_index["N"] for i in index])
         elif site.startswith("H_"):
-            series.extend([i + DIFF_FROM_WHOLE_INDEX["H"] for i in index])
+            series.extend([i + diff_from_series_index["H"] for i in index])
         elif site.startswith("Ce"):
-            series.extend([i + DIFF_FROM_WHOLE_INDEX["Ce"] for i in index])
+            series.extend([i + diff_from_series_index["Ce"] for i in index])
+        elif site.startswith("Tb"):
+            series.extend([i + diff_from_series_index["Tb"] for i in index])
     return series
 
 

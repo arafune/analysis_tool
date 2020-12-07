@@ -22,10 +22,9 @@ molecule: Dict[str, List[int]] = {
     "N_low": list(range(96, 104)),
     "N_up": list(range(104, 112)),
     "Ce": [112],
+    "Tb": [112],
     "series": list(range(113)),
 }
-
-series = []
 
 if __name__ == "__main__":
     pass
