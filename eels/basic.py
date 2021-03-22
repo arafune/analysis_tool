@@ -21,17 +21,17 @@ def scatter_angle(theta_in_deg: float) -> float:
     float
         Minimum scattering angle achieved by IB500
     """
-    return 102 - theta_in_deg
+    return 102.0 - theta_in_deg
 
 
 def momentum_transfer(
-    energy_in_eV: float, theta_in_deg: float, theta_out_deg: float
+    energy_eV: float, theta_in_deg: float, theta_out_deg: float
 ) -> float:
     """Return the momentum transfer in off-specular geometry of EELS experiments.
 
         Parameters
         ----------
-        energy_in: float
+        energy_eV: float
             Energy of impact electron (eV unit)
         theta_in_deg: float
             Incident angle
@@ -45,6 +45,6 @@ def momentum_transfer(
     """
     return (
         0.512
-        * np.sqrt(energy_in_eV)
+        * np.sqrt(energy_eV)
         * (np.sin(theta_in_deg * DEGREE) - np.sin(theta_out_deg * DEGREE))
     )
