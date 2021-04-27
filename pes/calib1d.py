@@ -20,7 +20,7 @@ class Calib1d:
     SL_Version: str = "4.57.1-r83491"
     SL_Build_Date: str = "2019-06-19 10:39:02 UTC"
 
-    def __init__(self, file_name: Union[str, Path, None] = None) -> None:
+    def __init__(self, file_name: Union[str, Path] = "") -> None:
         """Initialization.
 
         Parameters
@@ -31,11 +31,7 @@ class Calib1d:
         self.positions: Union[List[float], np.ndarray] = []
         self.shifts: Union[List[float], np.ndarray] = []
         self.header: OrderedDict[str, Optional[str]] = OrderedDict()
-        if file_name is None:
-            self.header = {}
-            self.positions = np.array([])
-            self.shifts = np.array([])
-        else:
+        if file_name is not None:
             with open(file_name, "r") as fileread:
                 for line in fileread:
                     if line[0] == "#":
