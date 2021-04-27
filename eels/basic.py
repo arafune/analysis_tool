@@ -29,19 +29,19 @@ def momentum_transfer(
 ) -> float:
     """Return the momentum transfer in off-specular geometry of EELS experiments.
 
-        Parameters
-        ----------
-        energy_eV: float
-            Energy of impact electron (eV unit)
-        theta_in_deg: float
-            Incident angle
-        theta_out_deg: float
-            Scattering angle
-    s
-        Returns
-        -------
-        float
-            Transfered momentum (AA-1 units)
+    Parameters
+    ----------
+    energy_eV: float
+        Energy of impact electron (eV unit)
+    theta_in_deg: float
+        Incident angle
+    theta_out_deg: float
+        Scattering angle
+
+    Returns
+    -------
+    float
+        Transfered momentum (AA-1 units)
     """
     return (
         0.512
