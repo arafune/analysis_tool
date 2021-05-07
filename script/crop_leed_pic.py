@@ -15,10 +15,11 @@ import pathlib
 import imageio
 import rawpy
 import numpy as np
+from numpy.typing import ArrayLike
 
 
 def crop(
-    pic: np.ndarray, x: int = 890, y: int = 1974, side_length: int = 1800
+    pic: ArrayLike, x: int = 890, y: int = 1974, side_length: int = 1800
 ) -> np.ndarray:
     """Return cropping data of the gray scale
 
