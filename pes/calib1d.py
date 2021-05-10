@@ -3,6 +3,7 @@
 
 from typing import Union, Optional, List
 import numpy as np
+from numpy.typing import ArrayLike
 from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
@@ -28,10 +29,10 @@ class Calib1d:
         file_name: str
             calib1d data file name.  Suffix is .calib1d.
         """
-        self.positions: Union[List[float], np.ndarray] = []
-        self.shifts: Union[List[float], np.ndarray] = []
+        self.positions: ArrayLike = []
+        self.shifts: ArrayLike = []
         self.header: OrderedDict[str, Optional[str]] = OrderedDict()
-        if file_name is not None:
+        if file_name:
             with open(file_name, "r") as fileread:
                 for line in fileread:
                     if line[0] == "#":

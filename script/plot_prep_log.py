@@ -38,7 +38,7 @@ def plotting(
     elif "t_tc" in ignores:
         num_plots = num_plots - 1
     #
-    axs = []
+    axs: List = []
     i = 0
     num_graphs = 1
     if "pres_p" not in ignores:
