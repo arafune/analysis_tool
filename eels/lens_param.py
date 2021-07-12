@@ -32,12 +32,12 @@ def label_str(
     labeltext: str,
 ) -> Union[tuple[datetime.datetime, float, float], tuple[None, None, None]]:
     """Return tuple of date & time, resolution, intensity from 'Label' string.
-    
+
 
     Parameters
     --------------
     labeltext: str
-        String of "Label" item in ELS parameter data, such as "2/14/20 7:43:28 PM : +7.48 meV, 192.65 pA"  
+        String of "Label" item in ELS parameter data, such as "2/14/20 7:43:28 PM : +7.48 meV, 192.65 pA"
 
     Returns
     ----------
@@ -58,17 +58,6 @@ def label_str(
         return day_time, float(tmp[4]), float(tmp[6])
     except IndexError:
         return None, None, None
-
-
-def _label_str_to_date(
-    params: list[dict[str, str]],
-) -> Union[dict[str, Union[float, datetime.datetime]], dict[str, None]]:
-    for entry in params:
-        day_time, res, intensity = label_str(entry["Label"])
-        entry["Date"] = day_time
-        entry["Res"] = res
-        entry["intensity"] = intensity
-    return params
 
 
 def _to_list(
@@ -137,7 +126,7 @@ def load_els_lens_parameter(
     -------------
     filename: str, pathlib.Path
         filename of EELS parameter
-    
+
     Returns
     ----------
     list

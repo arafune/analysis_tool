@@ -19,8 +19,8 @@ from numpy.typing import NDArray
 
 
 def crop(
-    pic: NDArray[np.float64], x: int = 890, y: int = 1974, side_length: int = 1800
-) -> np.ndarray:
+    pic: NDArray[np.float_], x: int = 890, y: int = 1974, side_length: int = 1800
+) -> NDArray[np.float_]:
     """Return cropping data of the gray scale
 
     Parameters
