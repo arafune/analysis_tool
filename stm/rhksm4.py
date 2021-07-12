@@ -12,7 +12,7 @@ from __future__ import annotations
 import io
 import struct
 from types import MethodType
-from typing import Any, IO, List, Union, Optional
+from typing import Any, IO, Union, Optional
 
 
 class ExtStruct(struct.Struct):
@@ -32,7 +32,7 @@ class ExtStruct(struct.Struct):
         return self.unpack(fhandle.read(self.size))
 
 
-def get_objects_from_list(fhandle: IO[bytes], n: int, parent: Any) -> List[RHKObject]:
+def get_objects_from_list(fhandle: IO[bytes], n: int, parent: Any) -> list[RHKObject]:
     """As the method name indicates...
 
     Parameters
@@ -66,8 +66,7 @@ class RHKObject:
     offset: int
 
     size: int
-
-"""
+    """
 
     packer = ExtStruct("<3I")
     """format is '<3I'
@@ -143,8 +142,7 @@ class RHKObject:
         Parameters
         ----------
         fhandle: io.IOBase
-            File handle
-"""
+            File handle"""
         fhandle.seek(self.offset)
         self.contents = fhandle.read(self.size)
 
@@ -240,7 +238,7 @@ class RHKPage:
 
     children: list
 
-        Object List: Stores the Page Index Objects.  Currently we are
+        Object list: Stores the Page Index Objects.  Currently we are
         storing:
 
         1. Page Header
@@ -250,8 +248,7 @@ class RHKPage:
 
     reserved: int
         0  (Not used, just prepared for future by RHK)
-
-"""
+    """
 
     packer = ExtStruct("<16s4I")
     """format is '<16s4I'
@@ -308,7 +305,7 @@ class RHKPageIndexArray:  # Object Id: 2
     Attributes
     -----------
     pages: list
-        List for storing RHKPage objects
+        list for storing RHKPage objects
 
     """
 
@@ -607,8 +604,7 @@ class RHKThumbnailHeader:  # Object id: 16
     height: int
         Lines per frame
     nformat:int
-        0 (= Raw data)
-"""
+        0 (= Raw data)"""
 
     packer = ExtStruct("<3I")
     """format is '<3I'

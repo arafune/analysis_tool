@@ -7,6 +7,7 @@ Module to extract the line profile data about QPI results.
 import os.path
 from __future__ import annotations
 import numpy as np
+from numpy.typing import ArrayLike, NDArray
 from typing import Sequence
 
 
@@ -28,14 +29,14 @@ class QPI:
 
     def __init__(
         self,
-        data: Sequence[float],
-        physical_size: float = 0,
+        data: ArrayLike,
+        physical_size: float = 0.0,
         bias: float = 0,
         current: float = 0,
         dataname: str = "",
     ) -> None:
         """Initialization."""
-        self.data: np.ndarray = np.array(data, dtype=np.float_)
+        self.data: NDArray[np.float_] = np.array(data, dtype=np.float_)
         self.pixels: int
         if self.data.ndim == 1:
             self.pixels = int(np.sqrt(self.data.shape[0]))
@@ -44,7 +45,7 @@ class QPI:
             self.pixels = self.data.shape[0]
         else:
             raise ValueError("Data mismatch!")
-        if physical_size == 0:
+        if physical_size == 0.0:
             self.physical_size = self.data.shape[0]
         else:
             self.physical_size = physical_size
@@ -52,7 +53,7 @@ class QPI:
         self.current = current
         self.dataname = dataname
 
-    def cross_section_by_degree(self, angle_deg: float) -> np.ndarray:
+    def cross_section_by_degree(self, angle_deg: float) -> NDArray[np.float_]:
         """Return the intensities along the line tilted by the angle.
 
         Parameters
@@ -100,7 +101,7 @@ class QPI:
             y = 0
         return y
 
-    def physical_axis(self, angle_deg: float) -> np.ndarray:
+    def physical_axis(self, angle_deg: float) -> NDArray[np.float_]:
         """Calculate k-value along the line tilted by the angle.
 
         Parameters
@@ -139,7 +140,7 @@ def qpidataload(filename: str) -> QPI:
     """
     dataname = os.path.splitext(filename)[0]
     thefile = open(filename)
-    data = []
+    data: list[list[float]] = []
     with thefile:
         [next(thefile) for i in range(4)]
         tmp = next(thefile)
@@ -170,8 +171,7 @@ def anglestring(angle: float) -> str:
     ---------
         str
             When the angle is negative, return 'm'+abs(angle).
-
-"""
+    """
     if angle < 0:
         return "m" + str(abs(angle))
     else:
