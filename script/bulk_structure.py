@@ -7,15 +7,15 @@ import math
 import pathlib
 import glob
 import subprocess
-from typing import Callable, Optional, Dict, Tuple, Union
+from typing import Callable, Optional, Union
 import numpy as np
 from scipy.optimize import minimize
 import argparse
 
 
-def bianthrone_crystal(vars: Tuple[float]) -> None:
+def bianthrone_crystal(vars: tuple[float]) -> None:
     """Generate POSCAR as a function of the single variable.
-    
+
     Parameters
     -----------
     vars: tuple of float
@@ -127,7 +127,7 @@ Direct
         f.write(output)
 
 
-def MoS2(vars: Tuple[float, ...]) -> None:
+def MoS2(vars: tuple[float, ...]) -> None:
     "Generate POSCAR for MoS2."
     a_axis = float(vars[0])
     c_axis = float(vars[1])
@@ -160,7 +160,7 @@ def MoS2(vars: Tuple[float, ...]) -> None:
 
 
 def generate_poscar(
-    poscar_template: Callable[[Tuple[float, ...]], None], coords: Tuple[float, ...]
+    poscar_template: Callable[[tuple[float, ...]], None], coords: tuple[float, ...]
 ) -> None:
     """Return the POSCAR generate function with arguments.
 
@@ -178,12 +178,12 @@ def generate_poscar(
 
 # -----------
 
-data: Dict[Tuple[float, ...], float] = {}
+data: dict[tuple[float, ...], float] = {}
 
 
 def load_results(
     results: pathlib.Path = pathlib.Path("results.txt"),
-) -> Dict[Tuple[float, ...], float]:
+) -> dict[tuple[float, ...], float]:
     """Load data from "results.txt".
 
     Parameters
@@ -204,7 +204,7 @@ def load_results(
 
     with results.open(mode="r") as f:
         for s_line in f:
-            line_f: Tuple[float, ...] = tuple(
+            line_f: tuple[float, ...] = tuple(
                 [float(x) for x in s_line.strip().split()]
             )
             data[line_f[:-1]] = line_f[-1]
@@ -213,7 +213,7 @@ def load_results(
 
 def run_vasp() -> str:
     """Run vasp in NIMS super computer.
-    
+
     Returns
     ---------
     str
@@ -227,7 +227,7 @@ def run_vasp() -> str:
     return proc.stdout.decode("utf-8")
 
 
-def fetch_total_energy(coords: Union[Tuple[float, ...], np.ndarray]) -> Optional[float]:
+def fetch_total_energy(coords: Union[tuple[float, ...], np.ndarray]) -> Optional[float]:
     """Return the total energy.
 
     If the calculaation has already performed with the axis_1 and axis_2
@@ -272,11 +272,11 @@ if __name__ == "__main__":
     parser.add_argument("variables", type=float, nargs="+")
     args = parser.parse_args()
     #
-    coords: Tuple[float, ...] = tuple(args.variables)
+    coords: tuple[float, ...] = tuple(args.variables)
     results = pathlib.Path("results.txt")
     if results.exists():
         data = load_results(results)
-        lowest_energy_at: Tuple[float, ...] = min(data, key=data.get)
+        lowest_energy_at: tuple[float, ...] = min(data, key=data.get)
         coords = lowest_energy_at
         lowest = data[lowest_energy_at]
     else:

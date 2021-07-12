@@ -2,7 +2,6 @@
 """Collection of Selmeier equation."""
 
 import numpy as np
-from typing import Tuple
 
 
 def air(lambda_micron: float) -> float:
@@ -28,7 +27,7 @@ def air(lambda_micron: float) -> float:
     )
 
 
-def alphaBBO(lambda_micron: float) -> Tuple[float, float]:
+def alphaBBO(lambda_micron: float) -> tuple[float, float]:
     r"""Dispersion of :math:`\alpha`-BBO.
 
     http://www.newlightphotonics.com/Birefringent-Crystals/alpha-BBO-Crystals
@@ -61,7 +60,7 @@ def alphaBBO(lambda_micron: float) -> Tuple[float, float]:
     )
 
 
-def betaBBO(lambda_micron: float) -> Tuple[float, float]:
+def betaBBO(lambda_micron: float) -> tuple[float, float]:
     r"""Return :math:`n_o` and :math:`n_e` of :math:`\beta`-BBO.
 
     http://www.castech.com/manage/upfile/fileload/20170823144544.pdf
@@ -93,7 +92,7 @@ def betaBBO(lambda_micron: float) -> Tuple[float, float]:
     )
 
 
-def quartz(lambda_micron: float) -> Tuple[float, float]:
+def quartz(lambda_micron: float) -> tuple[float, float]:
     r"""Dispersion of crystal quartz.
 
     Optics communications. 2011, vol. 284, issue 12, p. 2683-2686.
@@ -123,7 +122,7 @@ def quartz(lambda_micron: float) -> Tuple[float, float]:
     )
 
 
-def calcite(lambda_micron: float) -> Tuple[float, float]:
+def calcite(lambda_micron: float) -> tuple[float, float]:
     r"""Dispersion of calcite.
 
     (:math:`\textrm{CaCO}_3`).

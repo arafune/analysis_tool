@@ -3,17 +3,17 @@
 import argparse
 import datetime
 import itertools
-from typing import Tuple, Dict, List, Iterable, Union
+from typing import Iterable, Union
 import pathlib
 
-filament: List[str] = ["IK", "PsiK", "R"]
-Alens: List[str] = ["A1", "DeltaA1", "A2", "DeltaA2", "A3", "DeltaA3"]
-PreMono: List[str] = ["EVM", "UVM", "DeltaVM", "DVM", "DeltaDVM"]
-Mono: List[str] = ["UM", "DeltaM", "DM", "DeltaDM"]
-Blens: List[str] = ["B1", "DeltaB1", "B2", "B3", "B4", "DeltaB4"]
-Ana: List[str] = ["UA", "DeltaA", "DA", "DeltaDA"]
-Clens: List[str] = ["C1", "DeltaC1", "C2", "C3", "DeltaC3"]
-Linked: List[str] = [
+filament: list[str] = ["IK", "PsiK", "R"]
+Alens: list[str] = ["A1", "DeltaA1", "A2", "DeltaA2", "A3", "DeltaA3"]
+PreMono: list[str] = ["EVM", "UVM", "DeltaVM", "DVM", "DeltaDVM"]
+Mono: list[str] = ["UM", "DeltaM", "DM", "DeltaDM"]
+Blens: list[str] = ["B1", "DeltaB1", "B2", "B3", "B4", "DeltaB4"]
+Ana: list[str] = ["UA", "DeltaA", "DA", "DeltaDA"]
+Clens: list[str] = ["C1", "DeltaC1", "C2", "C3", "DeltaC3"]
+Linked: list[str] = [
     "UA",
     "DA",
     "B1" "B2",
@@ -30,7 +30,7 @@ Linked: List[str] = [
 
 def label_str(
     labeltext: str,
-) -> Union[Tuple[datetime.datetime, float, float], Tuple[None, None, None]]:
+) -> Union[tuple[datetime.datetime, float, float], tuple[None, None, None]]:
     """Return tuple of date & time, resolution, intensity from 'Label' string.
     
 
@@ -61,8 +61,8 @@ def label_str(
 
 
 def _label_str_to_date(
-    params: List[Dict[str, str]],
-) -> Union[Dict[str, Union[float, datetime.datetime]], Dict[str, None]]:
+    params: list[dict[str, str]],
+) -> Union[dict[str, Union[float, datetime.datetime]], dict[str, None]]:
     for entry in params:
         day_time, res, intensity = label_str(entry["Label"])
         entry["Date"] = day_time
@@ -72,10 +72,10 @@ def _label_str_to_date(
 
 
 def _to_list(
-    params: Dict,
-    *show_values: Tuple,
+    params: dict,
+    *show_values: tuple,
     the_date: datetime.datetime = datetime.datetime(1970, 1, 1, 0, 0, 0)
-) -> List:
+) -> list:
     """Return List of the EELS parameter.
 
     Parameters
@@ -130,7 +130,7 @@ def _md_table(lst: Iterable) -> str:
 
 def load_els_lens_parameter(
     filename: Union[str, pathlib.Path]
-) -> List[Dict[str, Union[str, float]]]:
+) -> list[dict[str, Union[str, float]]]:
     """Parse lens parameter file.
 
     Parameters
@@ -144,7 +144,7 @@ def load_els_lens_parameter(
         EELS parameter data
     """
     container = []
-    an_entry: Dict[str, Union[str, float]]
+    an_entry: dict[str, Union[str, float]]
     with open(filename, "r") as f:
         for line in f:
             if "<D" in line[0:2]:

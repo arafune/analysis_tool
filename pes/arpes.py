@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Module to analyze and show ARPES data."""
 
-from typing import Tuple, Union
+from typing import Union
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interpolate
@@ -26,7 +26,7 @@ class ARPESdata:
         self.second_axis: np.ndarray = np.zeros(0)
         self.second_axis_name = ""
 
-    def energy_start_end(self) -> Tuple[float, float]:
+    def energy_start_end(self) -> tuple[float, float]:
         """Return start and end energies.
 
         Returns

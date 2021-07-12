@@ -6,9 +6,8 @@ Code for vasp calculation results requested by Prof. Komeda (Nov, 2020)
 """
 
 import itertools
-from typing import Dict, List
 
-DIFF_FROM_SERIES_INDEX: Dict[str, int] = {
+DIFF_FROM_SERIES_INDEX: dict[str, int] = {
     "C": -1,
     "H": 255,
     "N": 383,
@@ -18,7 +17,7 @@ DIFF_FROM_SERIES_INDEX: Dict[str, int] = {
 }
 
 
-molecule1: Dict[str, List[int]] = {
+molecule1: dict[str, list[int]] = {
     "C_up": [
         136,
         227,
@@ -95,7 +94,7 @@ molecule1: Dict[str, List[int]] = {
 }
 
 
-molecule2: Dict[str, List[int]] = {
+molecule2: dict[str, list[int]] = {
     "C_up": [
         135,
         228,
@@ -171,7 +170,7 @@ molecule2: Dict[str, List[int]] = {
     "Ce": [2],
 }
 
-molecule3: Dict[str, List[int]] = {
+molecule3: dict[str, list[int]] = {
     "C_up": [
         134,
         225,
@@ -248,7 +247,7 @@ molecule3: Dict[str, List[int]] = {
 }
 
 
-molecule4: Dict[str, List[int]] = {
+molecule4: dict[str, list[int]] = {
     "C_up": [
         133,
         137,
@@ -324,15 +323,15 @@ molecule4: Dict[str, List[int]] = {
     "Ce": [4],
 }
 
-molecules: List[Dict[str, List[int]]] = [molecule1, molecule2, molecule3, molecule4]
-site_names: List[str] = ["C", "H", "N"]
-positions: List[str] = ["up", "low"]
+molecules: list[dict[str, list[int]]] = [molecule1, molecule2, molecule3, molecule4]
+site_names: list[str] = ["C", "H", "N"]
+positions: list[str] = ["up", "low"]
 
 
 def series_index(
-    molecule: Dict[str, List[int]],
-    diff_from_series_index: Dict[str, int] = DIFF_FROM_SERIES_INDEX,
-) -> List[int]:
+    molecule: dict[str, list[int]],
+    diff_from_series_index: dict[str, int] = DIFF_FROM_SERIES_INDEX,
+) -> list[int]:
     """Return series index (begin with "0") of molecule"""
     series = []
     for site, index in molecule.items():

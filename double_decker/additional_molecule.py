@@ -3,14 +3,13 @@
 """Module for analyzing the CePc2 on monolayer CePc2 on Au(111) vasp calculation
 Code for vasp calculation results requested by Prof. Komeda (Nov, 2020)
 
-(2x2) 
+(2x2)
 """
 
 import itertools
-from typing import Dict, List
 from double_decker import two_by_two as two_by_two
 
-DIFF_FROM_SERIES_INDEX: Dict[str, int] = {
+DIFF_FROM_SERIES_INDEX: dict[str, int] = {
     "C": -1,
     "H": 319,  # <- 255
     "N": 479,  # <- 383
@@ -20,11 +19,11 @@ DIFF_FROM_SERIES_INDEX: Dict[str, int] = {
 }
 
 
-molecule1: Dict[str, List[int]] = two_by_two.molecule1
-molecule2: Dict[str, List[int]] = two_by_two.molecule2
-molecule3: Dict[str, List[int]] = two_by_two.molecule3
-molecule4: Dict[str, List[int]] = two_by_two.molecule4
-molecule5: Dict[str, List[int]] = {
+molecule1: dict[str, list[int]] = two_by_two.molecule1
+molecule2: dict[str, list[int]] = two_by_two.molecule2
+molecule3: dict[str, list[int]] = two_by_two.molecule3
+molecule4: dict[str, list[int]] = two_by_two.molecule4
+molecule5: dict[str, list[int]] = {
     "C_low": list(range(257, 289)),
     "C_up": list(range(289, 321)),
     "H_low": list(range(129, 145)),

@@ -15,11 +15,11 @@ import pathlib
 import imageio
 import rawpy
 import numpy as np
-from numpy.typing import ArrayLike
+from numpy.typing import NDArray
 
 
 def crop(
-    pic: ArrayLike, x: int = 890, y: int = 1974, side_length: int = 1800
+    pic: NDArray[np.float64], x: int = 890, y: int = 1974, side_length: int = 1800
 ) -> np.ndarray:
     """Return cropping data of the gray scale
 
@@ -44,12 +44,12 @@ def crop(
         return pic[x : x + side_length, y : y + side_length, :]
 
 
-def rgb2gray(rgb: np.ndarray) -> np.ndarray:
+def rgb2gray(rgb: NDArray[np.float64]) -> NDArray[np.float64]:
     """Return Gray scale data.
 
 
     0.2989 * R + 0.5870 * G + 0.1140 * B
-    is the Matlab algorithm.  While it seems reasonable, it is not taken here for keeping the linearlity.
+    is the Matlab algorithm.  While it seems reasonable, it is not taken here for keeping the linearity.
 
     Parameters
     -----------

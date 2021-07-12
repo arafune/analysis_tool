@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Module to analyze and show SPECS calib1d data."""
 
-from typing import Union, Optional, List
+from typing import Union, Optional
 import numpy as np
-from numpy.typing import ArrayLike
+from numpy.typing import NDArray
 from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
@@ -29,8 +29,8 @@ class Calib1d:
         file_name: str
             calib1d data file name.  Suffix is .calib1d.
         """
-        self.positions: ArrayLike = []
-        self.shifts: ArrayLike = []
+        self.positions: NDAArray[np.float64] = []
+        self.shifts: NDArray[np.float64] = []
         self.header: OrderedDict[str, Optional[str]] = OrderedDict()
         if file_name:
             with open(file_name, "r") as fileread:
@@ -40,7 +40,7 @@ class Calib1d:
                             line = "#\n" + line
                         self._read_header(line)
                     else:
-                        data: List[str] = line.split(" ")
+                        data: list[str] = line.split(" ")
                         self.positions.append(float(data[0]))
                         self.shifts.append(float(data[1]))
                 self.positions = np.array(self.positions)

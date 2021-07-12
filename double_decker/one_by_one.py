@@ -4,9 +4,7 @@ Code for vasp calculation results requested by Prof. Komeda (Nov, 2020)
 (1x1) lattice
 """
 
-from typing import Dict, List
-
-DIFF_FROM_WHOLE_INDEX: Dict[str, int] = {
+DIFF_FROM_WHOLE_INDEX: dict[str, int] = {
     "C": -1,
     "H": 63,
     "N": 95,
@@ -14,7 +12,7 @@ DIFF_FROM_WHOLE_INDEX: Dict[str, int] = {
     "Au": 112,
 }  # 基本的には使わない。
 
-molecule: Dict[str, List[int]] = {
+molecule: dict[str, list[int]] = {
     "C_low": list(range(32)),
     "C_up": list(range(32, 64)),
     "H_low": list(range(64, 80)),

@@ -3,15 +3,15 @@
 
 import argparse
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import Union
 from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 
-def load_log(file_name: Union[str, Path]) -> Tuple[List[datetime], List[Tuple[float]]]:
-    date_time: List[datetime] = []
-    data: List[List[float]] = []
+def load_log(file_name: Union[str, Path]) -> tuple[list[datetime], list[tuple[float]]]:
+    date_time: list[datetime] = []
+    data: list[list[float]] = []
     with open(file_name, mode="r") as f:
         for line in f:
             tmp = line.split("\t")
@@ -21,9 +21,9 @@ def load_log(file_name: Union[str, Path]) -> Tuple[List[datetime], List[Tuple[fl
 
 
 def plotting(
-    date_time: List[datetime],
-    data: List[Tuple[float]],
-    ignores: List[str] = [],
+    date_time: list[datetime],
+    data: list[tuple[float]],
+    ignores: list[str] = [],
 ) -> Figure:
     fig: Figure = plt.figure(figsize=(8.2, 11.9))
     num_plots: int = 5
@@ -38,7 +38,7 @@ def plotting(
     elif "t_tc" in ignores:
         num_plots = num_plots - 1
     #
-    axs: List = []
+    axs: list = []
     i = 0
     num_graphs = 1
     if "pres_p" not in ignores:
