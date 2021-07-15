@@ -19,13 +19,13 @@ from numpy.typing import NDArray
 
 
 def crop(
-    pic: NDArray[np.float_], x: int = 890, y: int = 1974, side_length: int = 1800
-) -> NDArray[np.float_]:
+    pic: NDArray[np.float64], x: int = 890, y: int = 1974, side_length: int = 1800
+) -> NDArray[np.float64]:
     """Return cropping data of the gray scale
 
     Parameters
     -----------
-    gray: numpy.ndarray
+    gray: NDArray
         grayscale data
     x: int
         x-point of the corner
@@ -36,7 +36,7 @@ def crop(
 
     Returns
     ----------
-    numpy.ndarray
+    NDArray
     """
     if pic.ndim == 2:
         return pic[x : x + side_length, y : y + side_length]
@@ -53,11 +53,11 @@ def rgb2gray(rgb: NDArray[np.float64]) -> NDArray[np.float64]:
 
     Parameters
     -----------
-    rgb: numpy.ndarray
+    rgb: NDArray
 
     Returns
     ---------
-    numpy.ndarray
+    NDArray
     """
     # return rgb[:, :, 0] * 0.2989 + rgb[:, :, 1] * 0.5870 + rgb[:, :, 2] * 0.1140
     return rgb[:, :, 1]  # Take the green signal
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     for cr2_file in args.CR2file:
         p = pathlib.Path(cr2_file)
         raw_data: rawpy.RawPy = rawpy.imread(str(p))
-        data: np.ndarray = raw_data.postprocess(
+        data: NDArray[np.float64] = raw_data.postprocess(
             use_camera_wb=False,
             no_auto_bright=True,
             no_auto_scale=True,
