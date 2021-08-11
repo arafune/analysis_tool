@@ -7,6 +7,7 @@ from typing import Union
 from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 
 
 def load_log(file_name: Union[str, Path]) -> tuple[list[datetime], list[tuple[float]]]:
@@ -38,7 +39,7 @@ def plotting(
     elif "t_tc" in ignores:
         num_plots = num_plots - 1
     #
-    axs: list = []
+    axs: list[Axes] = []
     i = 0
     num_graphs = 1
     if "pres_p" not in ignores:
