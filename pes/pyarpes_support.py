@@ -8,6 +8,7 @@ from typing import no_type_check
 from typing import Union
 import numpy as np
 import xarray as xr
+import re
 
 
 def itx_common_head(itxdata: list[str]) -> dict[str, str]:
@@ -114,7 +115,6 @@ def load_itx_multi(path_to_file: str) -> list[xr.DataArray]:
 def load_sp2_datatype(path_to_file: str) -> xr.DataArray:
     """sp2 file loader
 
-
     sp2 file contains the "single" spectrum data
 
     Parameters
@@ -127,4 +127,30 @@ def load_sp2_datatype(path_to_file: str) -> xr.DataArray:
     xr.DataArray
         [description]
     """
-    pass
+    params: dict[str, str] = {}
+    data: Union[list[float], np.ndarray] = []
+    pixels: tuple[int, int] = ()
+    with open(path_to_file, "rt") as sp2file:
+        for line in sp2file:
+            if line.startswith("#"):
+                try:
+                    params[line[2:].split("=", maxsplit=1)[0]] = params[
+                        line[2:].split("=", maxsplit=1)[1]
+                    ]
+                except IndexError:
+                    pass
+            elif line.startswith("P"):
+                pass
+            else:
+                pixels = (int(line.split()[0]), int(line.split()[1]))
+            if pixels:
+                data.append(float(line))
+    data = np.array(data).reshape(pixels)
+    e_range = [float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["X Range"])]
+    a_range = [float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["Y Range"])]
+    coords = {
+        "phi": np.deg2rad(np.linspace(a_range[0], a_range[1], pixels[1])),
+        "eV": np.linspace(e_range[0], e_range[1], pixels[0]),
+    }
+    a_range = [float(i) for i in re.findall("-?[0-9]+\.?[0-9]*", params["Y Range"])]
+    xr.DataArray(np.array(data), coords=coords, dims=["phi", "eV"], attrs=attrs)
