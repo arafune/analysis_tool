@@ -5,7 +5,7 @@
 
 from pathlib import Path
 from typing import no_type_check
-from typing import Union
+from typing import Union, Optional
 import numpy as np
 import xarray as xr
 import re
@@ -74,7 +74,7 @@ def itx_core(
                     params["energy_unit"] = setscale[3]
                 elif setscale[0] == "d":
                     attrs = common_attrs
-                    attrs.update[params]
+                    attrs.update(params)
                     attrs["count_unit"] = setscale[3]
                     coords = {"phi": np.deg2rad(angle), "eV": energy}
                     section = ""
@@ -129,7 +129,7 @@ def load_sp2_datatype(path_to_file: str) -> xr.DataArray:
     """
     params: dict[str, str] = {}
     data: Union[list[float], np.ndarray] = []
-    pixels: tuple[int, int] = ()
+    pixels: Optional[tuple[int, int]] = None
     with open(path_to_file, "rt") as sp2file:
         for line in sp2file:
             if line.startswith("#"):
