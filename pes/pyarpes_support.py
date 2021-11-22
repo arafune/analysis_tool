@@ -4,45 +4,45 @@
 
 from pathlib import Path
 from typing import no_type_check
-from typing import Union, Optional
+from typing import Union, Optional, List, Tuple, Dict
 import numpy as np
 import xarray as xr
 import re
 
 
-def itx_common_head(itxdata: list[str]) -> dict[str, str]:
+def itx_common_head(itxdata: List[str]) -> Dict[str, str]:
     """Parse Common head part
 
     Parameters
     ----------
-    itxdata : list[str]
+    itxdata : List[str]
         Contents of itx data file (return on readlines())
 
     Returns
     -------
-    dict[str, str]
+    Dict[str, str]
         Common head data
     """
-    common_params: dict[str, str] = {}
+    common_params: Dict[str, str] = {}
     for line in itxdata:
         if line.startswith("X //Acquisition Parameters"):
             break
         else:
-            linedata: list[str] = line[3:].split(":", maxsplit=1)
+            linedata: List[str] = line[3:].split(":", maxsplit=1)
             common_params[linedata[0]] = linedata[1]
     return common_params
 
 
 def itx_core(
-    itxdata: list[str], common_attrs: dict[str, str] = {}, multi: bool = False
-) -> Union[xr.DataArray, list[xr.DataArray]]:
+    itxdata: List[str], common_attrs: Dict[str, str] = {}, multi: bool = False
+) -> Union[xr.DataArray, List[xr.DataArray]]:
     section: str = ""
-    params: dict[str, str] = {}
-    pixels: tuple[int, int] = (0, 0)
+    params: Dict[str, str] = {}
+    pixels: Tuple[int, int] = (0, 0)
     angle: np.ndarray
     energy: np.ndarray
-    data: list[list[float]] = []
-    datasets: list[xr.DataArray] = []
+    data: List[List[float]] = []
+    datasets: List[xr.DataArray] = []
     name: str = ""
     for line in itxdata:
         if line.startswith("X //Acquisition Parameters"):
@@ -50,11 +50,11 @@ def itx_core(
             params = {}
         elif line.startswith("WAVES/S/N"):
             section = "data"
-        if section is "params":
+        if section == "params":
             linedata = line[3:].split("=", maxsplit=1)
             if len(linedata) > 2:
                 params[linedata[0]] = linedata[1]
-        elif section is "data":
+        elif section == "data":
             if line.startswith("WAVES/S/N"):
                 pixels = (
                     int(line[11:].split(")")[0].split(",")[0]),
@@ -102,17 +102,17 @@ def itx_core(
 
 def load_itx_single(path_to_file: str) -> xr.DataArray:
     with open(path_to_file, "rt") as itxfile:
-        itxdata: list[str] = itxfile.readlines()
-    common_head: dict[str, str] = itx_common_head(itxdata)
+        itxdata: List[str] = itxfile.readlines()
+    common_head: Dict[str, str] = itx_common_head(itxdata)
     if itxdata.count("BEGIN") != 1:
         raise RuntimeError("This file contains multi spectra. Use load_itx_multi")
     return itx_core(itxdata, common_head, False)
 
 
-def load_itx_multi(path_to_file: str) -> list[xr.DataArray]:
+def load_itx_multi(path_to_file: str) -> List[xr.DataArray]:
     with open(path_to_file, "rt") as itxfile:
-        itxdata: list[str] = itxfile.readlines()
-    common_head: dict[str, str] = itx_common_head(itxdata)
+        itxdata: List[str] = itxfile.readlines()
+    common_head: Dict[str, str] = itx_common_head(itxdata)
     return itx_core(itxdata, common_head, True)
 
 
@@ -131,9 +131,9 @@ def load_sp2_datatype(path_to_file: str) -> xr.DataArray:
     xr.DataArray
         [description]
     """
-    params: dict[str, str] = {}
-    data: Union[list[float], np.ndarray] = []
-    pixels: Optional[tuple[int, int]] = None
+    params: Dict[str, str] = {}
+    data: Union[List[float], np.ndarray] = []
+    pixels: Optional[Tuple[int, int]] = None
     with open(path_to_file, "rt") as sp2file:
         for line in sp2file:
             if line.startswith("#"):
@@ -152,9 +152,9 @@ def load_sp2_datatype(path_to_file: str) -> xr.DataArray:
     data = np.array(data).reshape(pixels)
     e_range = [float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["X Range"])]
     a_range = [float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["Y Range"])]
-    coords = {
-        "phi": np.deg2rad(np.linspace(a_range[0], a_range[1], pixels[1])),
-        "eV": np.linspace(e_range[0], e_range[1], pixels[0]),
-    }
-    a_range = [float(i) for i in re.findall("-?[0-9]+\.?[0-9]*", params["Y Range"])]
+    if pixels:
+        coords = {
+            "phi": np.deg2rad(np.linspace(a_range[0], a_range[1], pixels[1])),
+            "eV": np.linspace(e_range[0], e_range[1], pixels[0]),
+        }
     return xr.DataArray(np.array(data), coords=coords, dims=["phi", "eV"], attrs=params)
