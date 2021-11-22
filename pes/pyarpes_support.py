@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 """pyarpes plugin for SpecsLab Prodigy"""
 
 from pathlib import Path
@@ -44,6 +43,7 @@ def itx_core(
     energy: np.ndarray
     data: list[list[float]] = []
     datasets: list[xr.DataArray] = []
+    name: str = ""
     for line in itxdata:
         if line.startswith("X //Acquisition Parameters"):
             section = "params"
@@ -60,6 +60,7 @@ def itx_core(
                     int(line[11:].split(")")[0].split(",")[0]),
                     int(line[11:].split(")")[0].split(",")[1]),
                 )
+                name = (line.split(maxsplit=1)[-1])[1:-1]
             elif line.startswith("X SetScale"):
                 setscale = line.split(",", maxsplit=5)
                 if setscale[0] == "x":
@@ -85,6 +86,7 @@ def itx_core(
                                 coords=coords,
                                 dims=["phi", "eV"],
                                 attrs=attrs,
+                                name=name,
                             )
                         )
                 elif line.startswith("BEGIN") or line.startswith("END"):
@@ -93,7 +95,9 @@ def itx_core(
                     data.append([float(i) for i in line.split()])
     if multi:
         return datasets
-    return xr.DataArray(np.array(data), coords=coords, dims=["phi", "eV"], attrs=attrs)
+    return xr.DataArray(
+        np.array(data), coords=coords, dims=["phi", "eV"], attrs=attrs, name=name
+    )
 
 
 def load_itx_single(path_to_file: str) -> xr.DataArray:
@@ -153,4 +157,4 @@ def load_sp2_datatype(path_to_file: str) -> xr.DataArray:
         "eV": np.linspace(e_range[0], e_range[1], pixels[0]),
     }
     a_range = [float(i) for i in re.findall("-?[0-9]+\.?[0-9]*", params["Y Range"])]
-    xr.DataArray(np.array(data), coords=coords, dims=["phi", "eV"], attrs=attrs)
+    return xr.DataArray(np.array(data), coords=coords, dims=["phi", "eV"], attrs=params)
