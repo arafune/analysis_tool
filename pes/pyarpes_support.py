@@ -10,7 +10,7 @@ import xarray as xr
 import re
 
 
-def itx_common_head(itxdata: List[str]) -> Dict[str, str]:
+def _itx_common_head(itxdata: List[str]) -> Dict[str, str]:
     """Parse Common head part
 
     Parameters
@@ -24,16 +24,16 @@ def itx_common_head(itxdata: List[str]) -> Dict[str, str]:
         Common head data
     """
     common_params: Dict[str, str] = {}
-    for line in itxdata:
+    for line in itxdata[1:]:
         if line.startswith("X //Acquisition Parameters"):
             break
         else:
-            linedata: List[str] = line[3:].split(":", maxsplit=1)
-            common_params[linedata[0]] = linedata[1]
+            linedata: List[str] = line[4:].split(":", maxsplit=1)
+            common_params[linedata[0]] = linedata[1].strip()
     return common_params
 
 
-def itx_core(
+def _itx_core(
     itxdata: List[str], common_attrs: Dict[str, str] = {}, multi: bool = False
 ) -> Union[xr.DataArray, List[xr.DataArray]]:
     section: str = ""
@@ -45,15 +45,21 @@ def itx_core(
     datasets: List[xr.DataArray] = []
     name: str = ""
     for line in itxdata:
-        if line.startswith("X //Acquisition Parameters"):
+        if line.startswith("X //Acquisition"):
             section = "params"
             params = {}
         elif line.startswith("WAVES/S/N"):
             section = "data"
         if section == "params":
-            linedata = line[3:].split("=", maxsplit=1)
-            if len(linedata) > 2:
-                params[linedata[0]] = linedata[1]
+            linedata = [i.strip() for i in line[4:].split("=", maxsplit=1)]
+            if len(linedata) > 1:
+                try:
+                    params[linedata[0]] = int(linedata[1])
+                except ValueError:
+                    try:
+                        params[linedata[0]] = float(linedata[1])
+                    except ValueError:
+                        params[linedata[0]] = linedata[1]
         elif section == "data":
             if line.startswith("WAVES/S/N"):
                 pixels = (
@@ -63,20 +69,20 @@ def itx_core(
                 name = (line.split(maxsplit=1)[-1])[1:-1]
             elif line.startswith("X SetScale"):
                 setscale = line.split(",", maxsplit=5)
-                if setscale[0] == "x":
+                if "x" in setscale[0]:
                     angle = np.linspace(
                         float(setscale[1]), float(setscale[2]), num=pixels[0]
                     )
-                    params["angle_unit"] = setscale[3]
-                elif setscale[0] == "y":
+                    params["angle_unit"] = setscale[3][2:-1]
+                elif "y" in setscale[0]:
                     energy = np.linspace(
                         float(setscale[1]), float(setscale[2]), num=pixels[1]
                     )
-                    params["energy_unit"] = setscale[3]
-                elif setscale[0] == "d":
+                    params["energy_unit"] = setscale[3][2:-1]
+                elif "d" in setscale[0]:
                     attrs = common_attrs
                     attrs.update(params)
-                    attrs["count_unit"] = setscale[3]
+                    attrs["count_unit"] = (setscale[3])[2:-1]
                     coords = {"phi": np.deg2rad(angle), "eV": energy}
                     section = ""
                     if multi:
@@ -89,31 +95,39 @@ def itx_core(
                                 name=name,
                             )
                         )
-                elif line.startswith("BEGIN") or line.startswith("END"):
-                    pass
-                else:
-                    data.append([float(i) for i in line.split()])
-    if multi:
-        return datasets
-    return xr.DataArray(
-        np.array(data), coords=coords, dims=["phi", "eV"], attrs=attrs, name=name
-    )
+                    else:
+                        return xr.DataArray(
+                            np.array(data),
+                            coords=coords,
+                            dims=["phi", "eV"],
+                            attrs=attrs,
+                            name=name,
+                        )
+            elif line.startswith("BEGIN"):
+                pass
+            elif line.startswith("END"):
+                pass
+            else:
+                data.append([float(i) for i in line.split()])
+
+    return datasets
 
 
 def load_itx_single(path_to_file: str) -> xr.DataArray:
     with open(path_to_file, "rt") as itxfile:
         itxdata: List[str] = itxfile.readlines()
-    common_head: Dict[str, str] = itx_common_head(itxdata)
+        itxdata = list(map(str.rstrip, itxdata))
+    common_head: Dict[str, str] = _itx_common_head(itxdata)
     if itxdata.count("BEGIN") != 1:
         raise RuntimeError("This file contains multi spectra. Use load_itx_multi")
-    return itx_core(itxdata, common_head, False)
+    return _itx_core(itxdata, common_head, False)
 
 
 def load_itx_multi(path_to_file: str) -> List[xr.DataArray]:
     with open(path_to_file, "rt") as itxfile:
         itxdata: List[str] = itxfile.readlines()
-    common_head: Dict[str, str] = itx_common_head(itxdata)
-    return itx_core(itxdata, common_head, True)
+    common_head: Dict[str, str] = _itx_common_head(itxdata)
+    return _itx_core(itxdata, common_head, True)
 
 
 def load_sp2_datatype(path_to_file: str) -> xr.DataArray:
