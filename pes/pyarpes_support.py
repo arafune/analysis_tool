@@ -152,18 +152,28 @@ def load_sp2_datatype(path_to_file: str) -> xr.DataArray:
         for line in sp2file:
             if line.startswith("#"):
                 try:
-                    params[line[2:].split("=", maxsplit=1)[0]] = params[
-                        line[2:].split("=", maxsplit=1)[1]
-                    ]
+                    params[line[2:].split("=", maxsplit=1)[0].strip()] = int(
+                        line[2:].split("=", maxsplit=1)[1].strip()
+                    )
+                except ValueError:
+                    try:
+                        params[line[2:].split("=", maxsplit=1)[0].strip()] = float(
+                            line[2:].split("=", maxsplit=1)[1].strip()
+                        )
+                    except ValueError:
+                        params[line[2:].split("=", maxsplit=1)[0].strip()] = (
+                            line[2:].split("=", maxsplit=1)[1].strip()
+                        )
                 except IndexError:
                     pass
             elif line.startswith("P"):
                 pass
             else:
-                pixels = (int(line.split()[0]), int(line.split()[1]))
-            if pixels:
-                data.append(float(line))
-    data = np.array(data).reshape(pixels)
+                if pixels:
+                    data.append(float(line))
+                else:
+                    pixels = (int(line.split()[0]), int(line.split()[1]))
+    data = np.array(data).reshape(pixels).T
     e_range = [float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["X Range"])]
     a_range = [float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["Y Range"])]
     if pixels:
