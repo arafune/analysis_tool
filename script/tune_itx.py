@@ -63,15 +63,13 @@ if not specified, use standard output""",
                     setscalex: list[str] = line.split()
                     new_scale_x_left = float(setscalex[3][:-1]) / args.angle_correction
                     new_scale_x_right = float(setscalex[4][:-1]) / args.angle_correction
-                    note: str = (
-                        """X Note /NOCR 'ID_{:03}' "angle_correction:{}"\r\n""".format(
-                            id, args.angle_correction
-                        )
+                    note: str = r"""X Note /NOCR 'ID_{:03}' "\r\nangle_correction:{}" """.format(
+                        id, args.angle_correction
                     )
                     command_part = " ".join(line.split()[:-1])
                     line = (
                         note
-                        + """X SetScale/I x, {}, {}, {} {} 'ID_{:03}'\r\n""".format(
+                        + """\r\nX SetScale/I x, {}, {}, {} {} 'ID_{:03}'\r\n""".format(
                             new_scale_x_left,
                             new_scale_x_right,
                             setscalex[5],
