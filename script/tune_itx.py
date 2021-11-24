@@ -20,6 +20,7 @@ if __name__ == "__main__":
         help="""output file name.
 if not specified, use standard output""",
     )
+    parser.add_argument("--angle_correction", type=float, metavar="Angle coefficient")
     parser.add_argument("itx_file")
     args = parser.parse_args()
     user_comment: str = ""
@@ -56,7 +57,32 @@ if not specified, use standard output""",
                     "X Note /NOCR " + "'ID_" + str(id).zfill(3) + "'" + ' "'
                     r"\r\nExcitation_energy:" + excitation_energy + '"' + "\r\n"
                 )
-            if line.startswith("X SetScale"):
+            if line.startswith("X SetScale/I x"):
+                if args.angle_correction:
+                    ## 1.3088 が 2021/11/24の解析から求めた値
+                    setscalex: list[str] = line.split()
+                    new_scale_x_left = float(setscalex[3][:-1]) / args.angle_correction
+                    new_scale_x_right = float(setscalex[4][:-1]) / args.angle_correction
+                    note: str = (
+                        """X Note /NOCR 'ID_{:03}' "angle_correction:{}"\r\n""".format(
+                            id, args.angle_correction
+                        )
+                    )
+                    command_part = " ".join(line.split()[:-1])
+                    line = (
+                        note
+                        + """X SetScale/I x, {}, {}, {} {} 'ID_{:03}'\r\n""".format(
+                            new_scale_x_left,
+                            new_scale_x_right,
+                            setscalex[5],
+                            setscalex[6],
+                            id,
+                        )
+                    )
+                else:
+                    command_part = " ".join(line.split()[:-1])
+                    line = command_part + " 'ID_" + str(id).zfill(3) + "'\r\n"
+            if line.startswith("X SetScale/I y") or line.startswith("X SetScale/I d"):
                 command_part = " ".join(line.split()[:-1])
                 line = command_part + " 'ID_" + str(id).zfill(3) + "'\r\n"
             if args.output:
