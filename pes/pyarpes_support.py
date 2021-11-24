@@ -172,13 +172,13 @@ def load_sp2_datatype(path_to_file: str) -> xr.DataArray:
                 if pixels:
                     data.append(float(line))
                 else:
-                    pixels = (int(line.split()[0]), int(line.split()[1]))
-    data = np.array(data).reshape(pixels).T
+                    pixels = (int(line.split()[1]), int(line.split()[0]))
+    data = np.array(data).reshape(pixels)
     e_range = [float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["X Range"])]
     a_range = [float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["Y Range"])]
     if pixels:
         coords = {
-            "phi": np.deg2rad(np.linspace(a_range[0], a_range[1], pixels[1])),
-            "eV": np.linspace(e_range[0], e_range[1], pixels[0]),
+            "phi": np.deg2rad(np.linspace(a_range[0], a_range[1], pixels[0])),
+            "eV": np.linspace(e_range[0], e_range[1], pixels[1]),
         }
     return xr.DataArray(np.array(data), coords=coords, dims=["phi", "eV"], attrs=params)
