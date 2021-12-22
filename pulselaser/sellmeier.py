@@ -154,3 +154,26 @@ def calcite(lambda_micron: float) -> tuple[float, float]:
             + 1.15662475 * lambda_micron ** 2 / (lambda_micron ** 2 - 100)
         ),
     )
+
+
+def phase_matching_angle_bbo(fundamental_micron: float) -> float:
+    """Phase matching angle of beta-BBO for SHG
+
+    Parameters
+    ----------
+    fundamental_micron : float
+        wavelength of fundamental light
+
+    Returns
+    -------
+    float
+        Phase matching angle (Unit: Degree)
+    """
+    sin2theta = (
+        (betaBBO(fundamental_micron)[0]) ** (-2)
+        - (betaBBO(fundamental_micron / 2)[0] ** (-2))
+    ) / (
+        (betaBBO(fundamental_micron / 2)[1]) ** (-2)
+        - (betaBBO(fundamental_micron / 2)[0] ** (-2))
+    )
+    return np.rad2deg(np.arcsin(np.sqrt(sin2theta)))
