@@ -12,7 +12,7 @@ from __future__ import annotations
 import io
 import struct
 from types import MethodType
-from typing import Any, IO, Union, Optional
+from typing import Any, IO
 
 
 class ExtStruct(struct.Struct):
