@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """bader analysis"""
 
-
+from __future__ import annotations
 import argparse
 import bz2
 from pathlib import Path
 import subprocess
-from typing import Union
 import vaspy
 from vaspy.chgcar import CHGCAR
 
@@ -19,9 +18,9 @@ def ref_chgcar(aeccar0: CHGCAR, aeccar2: CHGCAR) -> None:
 
 
 def run_bader(
-    logfile_path: Union[Path, str],
-    chgcar_path: Union[Path, str],
-    chgcar_sum_path: Union[Path, str],
+    logfile_path: Path|str,
+    chgcar_path: Path|str,
+    chgcar_sum_path: Path|str,
 ) -> None:
     if isinstance(chgcar_path, str):
         chgcar_path = Path(chgcar_path)

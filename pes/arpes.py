@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Module to analyze and show ARPES data."""
 
-from typing import Union
+from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interpolate
@@ -250,7 +250,7 @@ def make_arpesband(
 
 
 def momentum(
-    energy: Union[float, np.ndarray], angle_deg: Union[float, np.ndarray]
-) -> Union[float, np.ndarray]:
+    energy: float|np.ndarray, angle_deg: float|np.ndarray
+) -> float|np.ndarray:
     degrees: float = np.pi / 180.0
     return 0.512410908328 * np.sqrt(energy) * np.sin(angle_deg * degrees)

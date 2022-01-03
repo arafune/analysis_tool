@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 
 """pyarpes plugin for SpecsLab Prodigy"""
+from __future__ import annotations
 
 from pathlib import Path
 from typing import no_type_check
-from typing import Union, Optional, List, Tuple, Dict
 import numpy as np
 import xarray as xr
 import re
 
 
-def _itx_common_head(itxdata: List[str]) -> Dict[str, str]:
+def _itx_common_head(itxdata: list[str]) -> dict[str, str]:
     """Parse Common head part
 
     Parameters
     ----------
-    itxdata : List[str]
+    itxdata : list[str]
         Contents of itx data file (return on readlines())
 
     Returns
@@ -23,26 +23,26 @@ def _itx_common_head(itxdata: List[str]) -> Dict[str, str]:
     Dict[str, str]
         Common head data
     """
-    common_params: Dict[str, str] = {}
+    common_params: dict[str, str] = {}
     for line in itxdata[1:]:
         if line.startswith("X //Acquisition Parameters"):
             break
         else:
-            linedata: List[str] = line[4:].split(":", maxsplit=1)
+            linedata: list[str] = line[4:].split(":", maxsplit=1)
             common_params[linedata[0]] = linedata[1].strip()
     return common_params
 
 
 def _itx_core(
-    itxdata: List[str], common_attrs: Dict[str, str] = {}, multi: bool = False
-) -> Union[xr.DataArray, List[xr.DataArray]]:
+    itxdata: list[str], common_attrs: dict[str, str] = {}, multi: bool = False
+) -> xr.DataArray|list[xr.DataArray]:
     section: str = ""
-    params: Dict[str, str] = {}
-    pixels: Tuple[int, int] = (0, 0)
+    params: dict[str, str] = {}
+    pixels: tuple[int, int] = (0, 0)
     angle: np.ndarray
     energy: np.ndarray
-    data: List[List[float]] = []
-    datasets: List[xr.DataArray] = []
+    data: list[list[float]] = []
+    datasets: list[xr.DataArray] = []
     name: str = ""
     for line in itxdata:
         if line.startswith("X //Acquisition"):
@@ -115,18 +115,18 @@ def _itx_core(
 
 def load_itx_single(path_to_file: str) -> xr.DataArray:
     with open(path_to_file, "rt") as itxfile:
-        itxdata: List[str] = itxfile.readlines()
+        itxdata: list[str] = itxfile.readlines()
         itxdata = list(map(str.rstrip, itxdata))
-    common_head: Dict[str, str] = _itx_common_head(itxdata)
+    common_head: dict[str, str] = _itx_common_head(itxdata)
     if itxdata.count("BEGIN") != 1:
         raise RuntimeError("This file contains multi spectra. Use load_itx_multi")
     return _itx_core(itxdata, common_head, False)
 
 
-def load_itx_multi(path_to_file: str) -> List[xr.DataArray]:
+def load_itx_multi(path_to_file: str) -> list[xr.DataArray]:
     with open(path_to_file, "rt") as itxfile:
-        itxdata: List[str] = itxfile.readlines()
-    common_head: Dict[str, str] = _itx_common_head(itxdata)
+        itxdata: list[str] = itxfile.readlines()
+    common_head: dict[str, str] = _itx_common_head(itxdata)
     return _itx_core(itxdata, common_head, True)
 
 
@@ -145,9 +145,9 @@ def load_sp2_datatype(path_to_file: str) -> xr.DataArray:
     xr.DataArray
         [description]
     """
-    params: Dict[str, str] = {}
-    data: Union[List[float], np.ndarray] = []
-    pixels: Optional[Tuple[int, int]] = None
+    params: dict[str, str] = {}
+    data: list[float]|np.ndarray = []
+    pixels: tuple[int, int]|None = None
     with open(path_to_file, "rt") as sp2file:
         for line in sp2file:
             if line.startswith("#"):

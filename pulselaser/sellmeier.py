@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Collection of Selmeier equation."""
 
+from __future__ import annotations
 import numpy as np
 
 

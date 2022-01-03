@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Module to analyze and show ARPES data."""
 
-from typing import Union
+from __future__ import annotations
 
 
 def wavelength2eV(wavelength_nm: float) -> float:

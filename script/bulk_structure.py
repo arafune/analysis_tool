@@ -2,12 +2,13 @@
 
 """Search for optimized bulk structure in vasp"""
 
+from __future__ import annotations
 import os
 import math
 import pathlib
 import glob
 import subprocess
-from typing import Callable, Optional, Union
+from typing import Callable, Optional
 import numpy as np
 from scipy.optimize import minimize
 import argparse
@@ -227,7 +228,7 @@ def run_vasp() -> str:
     return proc.stdout.decode("utf-8")
 
 
-def fetch_total_energy(coords: Union[tuple[float, ...], np.ndarray]) -> Optional[float]:
+def fetch_total_energy(coords: tuple[float, ...]|np.ndarray) -> float|None:
     """Return the total energy.
 
     If the calculaation has already performed with the axis_1 and axis_2
