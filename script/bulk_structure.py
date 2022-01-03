@@ -8,7 +8,7 @@ import math
 import pathlib
 import glob
 import subprocess
-from typing import Callable, Optional
+from typing import Callable
 import numpy as np
 from scipy.optimize import minimize
 import argparse
