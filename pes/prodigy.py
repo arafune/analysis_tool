@@ -34,8 +34,7 @@ def _itx_common_head(itxdata: list[str]) -> dict[str, str]:
 
 
 def _itx_core(
-    itxdata: list[str], common_attrs: dict[str, str] = {}, multi: bool = False
-) -> xr.DataArray|list[xr.DataArray]:
+    itxdata: list[str], common_attrs: dict[str, str] = {}) -> xr.DataArray:
     section: str = ""
     params: dict[str, str] = {}
     pixels: tuple[int, int] = (0, 0)
@@ -44,12 +43,14 @@ def _itx_core(
     data: list[list[float]] = []
     datasets: list[xr.DataArray] = []
     name: str = ""
+    params = {}
     for line in itxdata:
-        if line.startswith("X //Acquisition"):
+        if line.startswith("X //"):
             section = "params"
-            params = {}
         elif line.startswith("WAVES/S/N"):
             section = "data"
+        elif line.startswith("IGOR"):
+            pass
         if section == "params":
             linedata = [i.strip() for i in line[4:].split("=", maxsplit=1)]
             if len(linedata) > 1:
@@ -80,57 +81,57 @@ def _itx_core(
                     )
                     params["energy_unit"] = setscale[3][2:-1]
                 elif "d" in setscale[0]:
-                    attrs = common_attrs
-                    attrs.update(params)
-                    attrs["count_unit"] = (setscale[3])[2:-1]
-                    coords = {"phi": np.deg2rad(angle), "eV": energy}
-                    section = ""
-                    if multi:
-                        datasets.append(
-                            xr.DataArray(
-                                np.array(data),
-                                coords=coords,
-                                dims=["phi", "eV"],
-                                attrs=attrs,
-                                name=name,
-                            )
-                        )
-                    else:
-                        return xr.DataArray(
-                            np.array(data),
-                            coords=coords,
-                            dims=["phi", "eV"],
-                            attrs=attrs,
-                            name=name,
-                        )
+                    params["count_unit"] = setscale[3][2:-1]
+
             elif line.startswith("BEGIN"):
                 pass
             elif line.startswith("END"):
                 pass
             else:
                 data.append([float(i) for i in line.split()])
+    attrs = common_attrs
+    attrs.update(params)
+    coords = {"phi": np.deg2rad(angle), "eV": energy}
+    attrs['angle_unit'] = 'rad (theta_y)'
+    section = ""
+    return xr.DataArray(   ##  ここでは単にDataArray を返す。複数Waveのバージョンはこの関数を繰り返すだけで良いわけだから。
+            np.array(data),
+            coords=coords,
+            dims=["phi", "eV"],
+            attrs=attrs,
+            name=name,
+        )
 
-    return datasets
 
 
-def load_itx_single(path_to_file: str) -> xr.DataArray:
+def load_itx(path_to_file: str) -> xr.DataArray:
+    """_summary_
+
+    Parameters
+    ----------
+    path_to_file : str
+        _description_
+
+    Returns
+    -------
+    xr.DataArray|list[xr.DataArray]
+        _description_
+
+    Raises
+    ------
+    RuntimeError
+        _description_
+    """
     with open(path_to_file, "rt") as itxfile:
         itxdata: list[str] = itxfile.readlines()
         itxdata = list(map(str.rstrip, itxdata))
     common_head: dict[str, str] = _itx_common_head(itxdata)
     if itxdata.count("BEGIN") != 1:
         raise RuntimeError("This file contains multi spectra. Use load_itx_multi")
-    return _itx_core(itxdata, common_head, False)
+    return _itx_core(itxdata, common_head)
 
 
-def load_itx_multi(path_to_file: str) -> list[xr.DataArray]:
-    with open(path_to_file, "rt") as itxfile:
-        itxdata: list[str] = itxfile.readlines()
-    common_head: dict[str, str] = _itx_common_head(itxdata)
-    return _itx_core(itxdata, common_head, True)
-
-
-def load_sp2_datatype(path_to_file: str) -> xr.DataArray:
+def load_sp2(path_to_file: str) -> xr.DataArray:
     """sp2 file loader
 
     sp2 file contains the "single" spectrum data
@@ -148,7 +149,7 @@ def load_sp2_datatype(path_to_file: str) -> xr.DataArray:
     params: dict[str, str] = {}
     data: list[float]|np.ndarray = []
     pixels: tuple[int, int]|None = None
-    with open(path_to_file, "rt") as sp2file:
+    with open(path_to_file, "rt", encoding='Windows-1252') as sp2file:
         for line in sp2file:
             if line.startswith("#"):
                 try:
