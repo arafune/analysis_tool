@@ -11,6 +11,7 @@ import re
 
 __all__ = ["load_itx", "load_sp2"]
 
+
 def _itx_common_head(itxdata: list[str]) -> dict[str, str]:
     """Parse Common head part
 
@@ -34,8 +35,21 @@ def _itx_common_head(itxdata: list[str]) -> dict[str, str]:
     return common_params
 
 
-def _itx_core(
-    itxdata: list[str], common_attrs: dict[str, str] = {}) -> xr.DataArray:
+def _itx_core(itxdata: list[str], common_attrs: dict[str, str] = {}) -> xr.DataArray:
+    """_summary_
+
+    Parameters
+    ----------
+    itxdata : list[str]
+        _description_
+    common_attrs : dict[str, str], optional
+        _description_, by default {}
+
+    Returns
+    -------
+    xr.DataArray
+        _description_
+    """
     section: str = ""
     params: dict[str, str] = {}
     pixels: tuple[int, int] = (0, 0)
@@ -94,16 +108,15 @@ def _itx_core(
     attrs = common_attrs
     attrs.update(params)
     coords = {"phi": np.deg2rad(angle), "eV": energy}
-    attrs['angle_unit'] = 'rad (theta_y)'
+    attrs["angle_unit"] = "rad (theta_y)"
     section = ""
-    return xr.DataArray(   ##  ここでは単にDataArray を返す。複数Waveのバージョンはこの関数を繰り返すだけで良いわけだから。
-            np.array(data),
-            coords=coords,
-            dims=["phi", "eV"],
-            attrs=attrs,
-            name=name,
-        )
-
+    return xr.DataArray(  ##  ここでは単にDataArray を返す。複数Waveのバージョンはこの関数を繰り返すだけで良いわけだから。
+        np.array(data),
+        coords=coords,
+        dims=["phi", "eV"],
+        attrs=attrs,
+        name=name,
+    )
 
 
 def load_itx(path_to_file: str) -> xr.DataArray:
@@ -148,10 +161,10 @@ def load_sp2(path_to_file: str) -> xr.DataArray:
     xr.DataArray
         [description]
     """
-    params: dict[str, str|float] = {}
-    data: list[float]|np.ndarray = []
-    pixels: tuple[int, int]|None = None
-    with open(path_to_file, "rt", encoding='Windows-1252') as sp2file:
+    params: dict[str, str | float] = {}
+    data: list[float] | np.ndarray = []
+    pixels: tuple[int, int] | None = None
+    with open(path_to_file, "rt", encoding="Windows-1252") as sp2file:
         for line in sp2file:
             if line.startswith("#"):
                 try:
