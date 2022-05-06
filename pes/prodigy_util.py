@@ -9,6 +9,7 @@ import numpy as np
 import xarray as xr
 import re
 
+__all__ = ["load_itx", "load_sp2"]
 
 def _itx_common_head(itxdata: list[str]) -> dict[str, str]:
     """Parse Common head part
@@ -114,7 +115,7 @@ def load_itx(path_to_file: str) -> xr.DataArray:
 
     Returns
     -------
-    xr.DataArray|list[xr.DataArray]
+    xr.DataArray
         _description_
 
     Raises
@@ -146,7 +147,7 @@ def load_sp2(path_to_file: str) -> xr.DataArray:
     xr.DataArray
         [description]
     """
-    params: dict[str, str] = {}
+    params: dict[str, str|float] = {}
     data: list[float]|np.ndarray = []
     pixels: tuple[int, int]|None = None
     with open(path_to_file, "rt", encoding='Windows-1252') as sp2file:
