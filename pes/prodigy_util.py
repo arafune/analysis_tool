@@ -90,6 +90,7 @@ def _itx_core(
                 pass
             else:
                 data.append([float(i) for i in line.split()])
+    common_attrs["spectrum_type"] = "cut"
     attrs = common_attrs
     attrs.update(params)
     coords = {"phi": np.deg2rad(angle), "eV": energy}
@@ -178,6 +179,7 @@ def load_sp2(path_to_file: str) -> xr.DataArray:
     data = np.array(data).reshape(pixels)
     e_range = [float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["X Range"])]
     a_range = [float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["Y Range"])]
+    params["spectrum_type"] = "cut"
     if pixels:
         coords = {
             "phi": np.deg2rad(np.linspace(a_range[0], a_range[1], pixels[0])),
