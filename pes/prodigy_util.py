@@ -32,6 +32,7 @@ def _itx_common_head(itxdata: list[str]) -> dict[str, str]:
         else:
             linedata: list[str] = line[4:].split(":", maxsplit=1)
             common_params[linedata[0]] = linedata[1].strip()
+            # Comment の処理
     return common_params
 
 
@@ -56,7 +57,6 @@ def _itx_core(itxdata: list[str], common_attrs: dict[str, str] = {}) -> xr.DataA
     angle: np.ndarray
     energy: np.ndarray
     data: list[list[float]] = []
-    datasets: list[xr.DataArray] = []
     name: str = ""
     params = {}
     for line in itxdata:
@@ -119,7 +119,7 @@ def _itx_core(itxdata: list[str], common_attrs: dict[str, str] = {}) -> xr.DataA
     )
 
 
-def load_itx(path_to_file: str) -> xr.DataArray:
+def load_itx(path_to_file: str, **kwargs: dict[str, str | float]) -> xr.DataArray:
     """_summary_
 
     Parameters
@@ -143,10 +143,13 @@ def load_itx(path_to_file: str) -> xr.DataArray:
     common_head: dict[str, str] = _itx_common_head(itxdata)
     if itxdata.count("BEGIN") != 1:
         raise RuntimeError("This file contains multi spectra. Use load_itx_multi")
-    return _itx_core(itxdata, common_head)
+    data = _itx_core(itxdata, common_head)
+    for k, v in kwargs.items():
+        data.attrs[k] = v
+    return data
 
 
-def load_sp2(path_to_file: str) -> xr.DataArray:
+def load_sp2(path_to_file: str, **kwags: dict[str, str | float]) -> xr.DataArray:
     """sp2 file loader
 
     sp2 file contains the "single" spectrum data
@@ -198,4 +201,6 @@ def load_sp2(path_to_file: str) -> xr.DataArray:
             "phi": np.deg2rad(np.linspace(a_range[0], a_range[1], pixels[0])),
             "eV": np.linspace(e_range[0], e_range[1], pixels[1]),
         }
+    for k, v in kwags:
+        params[k] = v
     return xr.DataArray(np.array(data), coords=coords, dims=["phi", "eV"], attrs=params)

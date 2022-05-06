@@ -2,6 +2,8 @@
 """Plot pressure log of phoibos system"""
 
 from __future__ import annotations
+from contextlib import contextmanager
+from typing import Iterable
 import argparse
 from pathlib import Path
 from datetime import datetime
@@ -39,7 +41,7 @@ def plotting(
     elif "t_tc" in ignores:
         num_plots = num_plots - 1
     #
-    axs: list[Axes] = []
+    axs: list[plt.Axes] = []
     i = 0
     num_graphs = 1
     if "pres_p" not in ignores:

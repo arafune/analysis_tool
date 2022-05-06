@@ -5,7 +5,11 @@ from pathlib import Path
 import numpy as np
 
 import xarray as xr
-from arpes.endstations import HemisphericalEndstation, add_endstation
+from arpes.endstations import (
+    HemisphericalEndstation,
+    SingleFileEndstation,
+    add_endstation,
+)
 from arpes.utilities import clean_keys
 import arpes.xarray_extensions
 from pes.prodigy_util import load_itx, load_sp2
@@ -16,7 +20,7 @@ __all__ = [
 ]
 
 
-class SPDEndstation(HemisphericalEndstation):
+class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
     """Implements itx and sp2 files from the Prodigy.
 
     Parameters
@@ -37,6 +41,7 @@ class SPDEndstation(HemisphericalEndstation):
     _TOLERATED_EXTENSIONS = {".itx", ".sp2"}
 
     RENAME_KEYS = {
+        "Excitation Energy": "hv"
         # "itxやsp2で使われている名前": "pyarpes で使う名前",
     }
 
@@ -48,43 +53,39 @@ class SPDEndstation(HemisphericalEndstation):
         "analyzer_radius": 100,
         "analyzer_type": "hemispherical",
         "mcp_voltage": None,
+        #
+        "alpha": np.pi / 2,
+        "chi": 0,
+        "theta": 0,
+        "psi": 0,
     }
 
-    # def resolve_frame_locations(self, scan_desc: dict = None): ## 多分いらない。
-    #     """There is only a single file for the MBS loader, so this is simple."""
-    #     return [scan_desc.get("path", scan_desc.get("file"))]
+    def postprocess_final(self, data: xr.Dataset, scan_desc: dict = None):
+        """Performs final data normalization.
 
-    # def postprocess_final(self, data: xr.Dataset, scan_desc: dict = None): ## 多分要らない
-    #    """Performs final data normalization.
-    #
-    #    Because the MBS format does not come from a proper ARPES DAQ setup,
-    #    we have to attach a bunch of missing coordinates with blank values
-    #    in order to fit the data model.
-    #    """
-    #    warnings.warn(
-    #        "Loading from text format misses metadata. You will need to supply "
-    #        "missing coordinates as appropriate."
-    #    )
-    #    data.attrs["psi"] = float(data.attrs["psi"])
-    #    for s in data.S.spectra:
-    #        s.attrs["psi"] = float(s.attrs["psi"])
-    #
-    #    defaults = {
-    #        "x": np.nan,
-    #        "y": np.nan,
-    #        "z": np.nan,
-    #        "theta": 0,
-    #        "beta": 0,
-    #        "chi": 0,
-    #        "alpha": np.nan,
-    #        "hv": np.nan,
-    #    }
-    #    for k, v in defaults.items():
-    #        data.attrs[k] = v
-    #        for s in data.S.spectra:
-    #            s.attrs[k] = v
-    #
-    #    return super().postprocess_final(data, scan_desc)
+        Parameters
+        ----------
+        data : xr.Dataset
+            _description_
+        scan_desc : dict, optional
+            _description_, by default None
+        """
+        defaults = {
+            "x": np.nan,
+            "y": np.nan,
+            "z": np.nan,
+            "theta": 0,
+            "beta": 0,
+            "chi": 0,
+            "alpha": np.pi / 2,
+            "hv": np.nan,
+        }
+        print(data.attrs)
+        for k, v in defaults.items():
+            data.attrs[k] = data.attrs.get(k, v)
+            for s in data.S.spectra:
+                s.attrs[k] = s.attrs.get(k, v)
+        return super().postprocess_final(data, scan_desc)
 
     def load_single_frame(
         self, frame_path: str = None, scan_desc: dict = None, **kwargs
@@ -106,11 +107,13 @@ class SPDEndstation(HemisphericalEndstation):
         file = Path(frame_path)
 
         if file.suffix == ".itx":
-            data: xr.DataArray = load_itx(frame_path)
+            data: xr.DataArray = load_itx(frame_path, **kwargs)
             return xr.Dataset({"spectrum": data}, attrs=data.attrs)
         elif file.suffix == ".sp2":
-            data: xr.DataArray = load_sp2(frame_path)
+            data: xr.DataArray = load_sp2(frame_path, **kwargs)
             return xr.Dataset({"spectrum": data}, attrs=data.attrs)
+        else:
+            raise RuntimeError("Data file must be ended with .itx or .sp2")
 
 
 add_endstation(SPDEndstation)

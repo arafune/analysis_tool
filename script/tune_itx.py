@@ -6,8 +6,15 @@
     など、 "Spectrum" の項目をWave名として割り当てる仕様になっている。
     しかし、一つの.sleファイルで一意性を有しているのは "Spectrum ID"
     なので、そちらを用いた方がよい。
-"""
 
+bash
+cat *itx > all.itx
+gsed -i -e "/IGOR/d" all.itx
+gsed -i -e "1i IGOR" all.itx
+
+みたいなsedを後に行うと、igor で all.itx を読み込めば良いので便利
+"""
+from __future__ import annotations
 import sys
 import argparse
 
@@ -24,7 +31,8 @@ if not specified, use standard output""",
     parser.add_argument("itx_file")
     args = parser.parse_args()
     user_comment: str = ""
-    id: int
+    excitation_energy : str  = ""
+    id: int|None = None
     with open(args.itx_file) as itx_file:
         if args.output:
             output = open(args.output, "w")
@@ -36,8 +44,8 @@ if not specified, use standard output""",
                     user_comment = line.split("=", maxsplit=1)[1].strip()
                 except IndexError:
                     user_comment = ""
-            if line.startswith("X //Kinetic Energy"):
-                excitation_energy: str = line.split("=", maxsplit=1)[1].strip()
+            if line.startswith("X ///Excitation Energy"):
+                excitation_energy = line.split("=", maxsplit=1)[1].strip()
             if line.startswith("WAVES/S/N"):
                 command_part: str = line.split(maxsplit=1)[0]
                 line = command_part + " 'ID_" + str(id).zfill(3) + "'\r\n"
