@@ -4,8 +4,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import no_type_check
+from typing import no_type_check, Any
 import numpy as np
+from numpy.typing import NDArray
 import xarray as xr
 import re
 
@@ -54,8 +55,8 @@ def _itx_core(itxdata: list[str], common_attrs: dict[str, str] = {}) -> xr.DataA
     section: str = ""
     params: dict[str, str] = {}
     pixels: tuple[int, int] = (0, 0)
-    angle: np.ndarray
-    energy: np.ndarray
+    angle: NDArray[np.float64]
+    energy: NDArray[np.float64]
     data: list[list[float]] = []
     name: str = ""
     params = {}
@@ -110,7 +111,7 @@ def _itx_core(itxdata: list[str], common_attrs: dict[str, str] = {}) -> xr.DataA
     coords = {"phi": np.deg2rad(angle), "eV": energy}
     attrs["angle_unit"] = "rad (theta_y)"
     section = ""
-    return xr.DataArray(  ##  ここでは単にDataArray を返す。複数Waveのバージョンはこの関数を繰り返すだけで良いわけだから。
+    return xr.DataArray(
         np.array(data),
         coords=coords,
         dims=["phi", "eV"],
@@ -142,14 +143,16 @@ def load_itx(path_to_file: str, **kwargs: dict[str, str | float]) -> xr.DataArra
         itxdata = list(map(str.rstrip, itxdata))
     common_head: dict[str, str] = _itx_common_head(itxdata)
     if itxdata.count("BEGIN") != 1:
-        raise RuntimeError("This file contains multi spectra. Use load_itx_multi")
+        raise RuntimeError(
+            "This file contains multi spectra. Use the file Prodigy produces"
+        )
     data = _itx_core(itxdata, common_head)
     for k, v in kwargs.items():
         data.attrs[k] = v
     return data
 
 
-def load_sp2(path_to_file: str, **kwags: dict[str, str | float]) -> xr.DataArray:
+def load_sp2(path_to_file: str, **kwargs: dict[str, str | float]) -> xr.DataArray:
     """sp2 file loader
 
     sp2 file contains the "single" spectrum data
@@ -201,6 +204,6 @@ def load_sp2(path_to_file: str, **kwags: dict[str, str | float]) -> xr.DataArray
             "phi": np.deg2rad(np.linspace(a_range[0], a_range[1], pixels[0])),
             "eV": np.linspace(e_range[0], e_range[1], pixels[1]),
         }
-    for k, v in kwags:
+    for k, v in kwargs.items():
         params[k] = v
     return xr.DataArray(np.array(data), coords=coords, dims=["phi", "eV"], attrs=params)
