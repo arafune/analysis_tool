@@ -41,7 +41,15 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
     _TOLERATED_EXTENSIONS = {".itx", ".sp2"}
 
     RENAME_KEYS = {
-        "Excitation Energy": "hv"
+        "Excitation Energy": "hv",
+        "WorkFunction": "workfunction",
+        "WF": "workfunction",
+        "Lens Mode": "lens_mode",
+        "lensmode": "lens_mode",
+        "Pass Energy": "pass_energy",
+        "Ep": "pass_energy",
+        "DetectorVoltage": "mcp_voltage",
+        "Detector Voltage": "mcp_voltage",
         # "itxやsp2で使われている名前": "pyarpes で使う名前",
     }
 
@@ -52,7 +60,6 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         "perpendicular_deflectors": False,
         "analyzer_radius": 100,
         "analyzer_type": "hemispherical",
-        "mcp_voltage": None,
         #
         "alpha": np.pi / 2,
         "chi": 0,
@@ -80,7 +87,6 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
             "alpha": np.pi / 2,
             "hv": np.nan,
         }
-        print(data.attrs)
         for k, v in defaults.items():
             data.attrs[k] = data.attrs.get(k, v)
             for s in data.S.spectra:
