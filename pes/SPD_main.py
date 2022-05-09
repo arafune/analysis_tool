@@ -48,7 +48,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         "lensmode": "lens_mode",
         "Pass Energy": "pass_energy",
         "Ep": "pass_energy",
-        "DetectorVoltage": "mcp_voltage",
+        "DetectorVoltage [V]": "mcp_voltage",
         "Detector Voltage": "mcp_voltage",
         # "itxやsp2で使われている名前": "pyarpes で使う名前",
     }
