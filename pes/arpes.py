@@ -194,7 +194,7 @@ class ARPESband(ARPESdata):
         self.data[0] = np.tile(angles, (len(energies), 1)).T.flatten()
         self.data[1] = np.tile(energies, len(angles))
         self.data[0] = (
-            0.512410908328 * np.sqrt(self.data[1]) * np.sin(self.data[0] * degrees)
+            0.5123167219534328 * np.sqrt(self.data[1]) * np.sin(self.data[0] * degrees)
         )
         self.data[2] = intensities.ravel()
         assert len(self.data[0]) == len(self.data[1]) == len(self.data[2])
@@ -250,7 +250,7 @@ def make_arpesband(
 
 
 def momentum(
-    energy: float|np.ndarray, angle_deg: float|np.ndarray
-) -> float|np.ndarray:
+    energy: float | np.ndarray, angle_deg: float | np.ndarray
+) -> float | np.ndarray:
     degrees: float = np.pi / 180.0
-    return 0.512410908328 * np.sqrt(energy) * np.sin(angle_deg * degrees)
+    return 0.5123167219534328 * np.sqrt(energy) * np.sin(angle_deg * degrees)
