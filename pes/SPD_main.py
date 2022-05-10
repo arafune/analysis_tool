@@ -3,17 +3,16 @@ import warnings
 from pathlib import Path
 
 import numpy as np
-
 import xarray as xr
+
+import arpes.xarray_extensions
 from arpes.endstations import (
     HemisphericalEndstation,
     SingleFileEndstation,
     add_endstation,
 )
 from arpes.utilities import clean_keys
-import arpes.xarray_extensions
 from pes.prodigy_util import load_itx, load_sp2
-
 
 __all__ = [
     "SPDEndstation",
@@ -47,7 +46,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         "Lens Mode": "lens_mode",
         "lensmode": "lens_mode",
         "Pass Energy": "pass_energy",
-        "Ep": "pass_energy",
+        "Pass Energy (Target) [eV]": "pass_energy",
         "DetectorVoltage [V]": "mcp_voltage",
         "Detector Voltage": "mcp_voltage",
         # "itxやsp2で使われている名前": "pyarpes で使う名前",

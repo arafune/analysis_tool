@@ -3,12 +3,13 @@
 """pyarpes plugin for SpecsLab Prodigy"""
 from __future__ import annotations
 
-from pathlib import Path
-from typing import no_type_check, Any
-import numpy as np
-from numpy.typing import NDArray
-import xarray as xr
 import re
+from pathlib import Path
+from typing import Any, no_type_check
+
+import numpy as np
+import xarray as xr
+from numpy.typing import NDArray
 
 __all__ = ["load_itx", "load_sp2"]
 
@@ -38,7 +39,7 @@ def _itx_common_head(itxdata: list[str]) -> dict[str, str]:
 
 
 def _itx_core(itxdata: list[str], common_attrs: dict[str, str] = {}) -> xr.DataArray:
-    """_summary_
+    """Parse itx file
 
     Parameters
     ----------
@@ -120,13 +121,15 @@ def _itx_core(itxdata: list[str], common_attrs: dict[str, str] = {}) -> xr.DataA
     )
 
 
-def load_itx(path_to_file: str, **kwargs: dict[str, str | float]) -> xr.DataArray:
-    """_summary_
+def load_itx(
+    path_to_file: Path | str, **kwargs: dict[str, str | float]
+) -> xr.DataArray:
+    """Load and parse the (single) itx data.
 
     Parameters
     ----------
-    path_to_file : str
-        _description_
+    path_to_file : Path | str
+        Path to itx file.
 
     Returns
     -------
@@ -152,20 +155,20 @@ def load_itx(path_to_file: str, **kwargs: dict[str, str | float]) -> xr.DataArra
     return data
 
 
-def load_sp2(path_to_file: str, **kwargs: dict[str, str | float]) -> xr.DataArray:
-    """sp2 file loader
-
-    sp2 file contains the "single" spectrum data
+def load_sp2(
+    path_to_file: Path | str, **kwargs: dict[str, str | float]
+) -> xr.DataArray:
+    """Load and parse sp2 file
 
     Parameters
     ----------
-    path_to_file : str
-        [description]
+    path_to_file : Path | str
+        Path to sp2 file
 
     Returns
     -------
     xr.DataArray
-        [description]
+        _description_
     """
     params: dict[str, str | float] = {}
     data: list[float] | np.ndarray = []
