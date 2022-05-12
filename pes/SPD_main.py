@@ -49,7 +49,6 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         "Pass Energy (Target) [eV]": "pass_energy",
         "DetectorVoltage [V]": "mcp_voltage",
         "Detector Voltage": "mcp_voltage",
-        # "itxやsp2で使われている名前": "pyarpes で使う名前",
     }
 
     MERGE_ATTRS = {
