@@ -2,11 +2,13 @@
 """Module to analyze and show SPECS calib1d data."""
 
 from __future__ import annotations
-import numpy as np
-from numpy.typing import NDArray
+
 from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
+
+import numpy as np
+from numpy.typing import NDArray
 
 
 class Calib1d:

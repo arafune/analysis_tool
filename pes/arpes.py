@@ -2,6 +2,7 @@
 """Module to analyze and show ARPES data."""
 
 from __future__ import annotations
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interpolate
