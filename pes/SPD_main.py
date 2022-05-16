@@ -49,6 +49,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         "Pass Energy (Target) [eV]": "pass_energy",
         "DetectorVoltage [V]": "mcp_voltage",
         "Detector Voltage": "mcp_voltage",
+        "Spectrum ID": "id",
     }
 
     MERGE_ATTRS = {
@@ -109,7 +110,6 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
             _description_
         """
         file = Path(frame_path)
-
         if file.suffix == ".itx":
             data: xr.DataArray = load_itx(frame_path, **kwargs)
             return xr.Dataset({"spectrum": data}, attrs=data.attrs)
