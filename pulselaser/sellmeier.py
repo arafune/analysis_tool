@@ -2,6 +2,7 @@
 """Collection of Selmeier equation."""
 
 from __future__ import annotations
+
 import numpy as np
 
 
@@ -50,13 +51,13 @@ def alphaBBO(lambda_micron: float) -> tuple[float, float]:
     return (
         np.sqrt(
             2.67579
-            + 0.02099 / (lambda_micron ** 2 - 0.00470)
-            - 0.00528 * lambda_micron ** 2
+            + 0.02099 / (lambda_micron**2 - 0.00470)
+            - 0.00528 * lambda_micron**2
         ),
         np.sqrt(
             2.31197
-            + 0.01184 / (lambda_micron ** 2 - 0.01607)
-            - 0.00400 * lambda_micron ** 2
+            + 0.01184 / (lambda_micron**2 - 0.01607)
+            - 0.00400 * lambda_micron**2
         ),
     )
 
@@ -82,13 +83,13 @@ def betaBBO(lambda_micron: float) -> tuple[float, float]:
     return (
         np.sqrt(
             2.7359
-            + 0.01878 / (lambda_micron ** 2 - 0.01822)
-            - 0.01354 * lambda_micron ** 2
+            + 0.01878 / (lambda_micron**2 - 0.01822)
+            - 0.01354 * lambda_micron**2
         ),
         np.sqrt(
             2.3753
-            + 0.01224 / (lambda_micron ** 2 - 0.01667)
-            - 0.01516 * lambda_micron ** 2
+            + 0.01224 / (lambda_micron**2 - 0.01667)
+            - 0.01516 * lambda_micron**2
         ),
     )
 
@@ -112,13 +113,13 @@ def quartz(lambda_micron: float) -> tuple[float, float]:
     return (
         np.sqrt(
             1.28604141
-            + 1.07044083 * lambda_micron ** 2 / (lambda_micron ** 2 - 1.00585997 * 1e-2)
-            + 1.10202242 * lambda_micron ** 2 / (lambda_micron ** 2 - 100)
+            + 1.07044083 * lambda_micron**2 / (lambda_micron**2 - 1.00585997 * 1e-2)
+            + 1.10202242 * lambda_micron**2 / (lambda_micron**2 - 100)
         ),
         np.sqrt(
             1.28851804
-            + 1.09509924 * lambda_micron ** 2 / (lambda_micron ** 2 - 1.02101864 * 1e-2)
-            + 1.15662475 * lambda_micron ** 2 / (lambda_micron ** 2 - 100)
+            + 1.09509924 * lambda_micron**2 / (lambda_micron**2 - 1.02101864 * 1e-2)
+            + 1.15662475 * lambda_micron**2 / (lambda_micron**2 - 100)
         ),
     )
 
@@ -146,15 +147,31 @@ def calcite(lambda_micron: float) -> tuple[float, float]:
     return (
         np.sqrt(
             1.28604141
-            + 1.07044083 * lambda_micron ** 2 / (lambda_micron ** 2 - 1.00585997 * 1e-2)
-            + 1.10202242 * lambda_micron ** 2 / (lambda_micron ** 2 - 100)
+            + 1.07044083 * lambda_micron**2 / (lambda_micron**2 - 1.00585997 * 1e-2)
+            + 1.10202242 * lambda_micron**2 / (lambda_micron**2 - 100)
         ),
         np.sqrt(
             1.28851804
-            + 1.09509924 * lambda_micron ** 2 / (lambda_micron ** 2 - 1.02101864 * 1e-2)
-            + 1.15662475 * lambda_micron ** 2 / (lambda_micron ** 2 - 100)
+            + 1.09509924 * lambda_micron**2 / (lambda_micron**2 - 1.02101864 * 1e-2)
+            + 1.15662475 * lambda_micron**2 / (lambda_micron**2 - 100)
         ),
     )
+
+
+def mgf2(lambda_micron: float) -> tuple[float, float]:
+    no = np.sqrt(
+        1
+        + 0.4876 * lambda_micron**2 / (lambda_micron**2 - 0.0434**2)
+        + 0.3988 * lambda_micron**2 / (lambda_micron**2 - 0.0946**2)
+        + 2.3120 * lambda_micron**2 / (lambda_micron**2 - 23.7936**2)
+    )
+    ne = np.sqrt(
+        1
+        + 0.4134 * lambda_micron**2 / (lambda_micron**2 - 0.0368**2)
+        + 0.5050 * lambda_micron**2 / (lambda_micron**2 - 0.0908**2)
+        + 2.4905 * lambda_micron**2 / (lambda_micron**2 - 23.7720**2)
+    )
+    return (no, ne)
 
 
 def phase_matching_angle_bbo(fundamental_micron: float) -> float:
