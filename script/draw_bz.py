@@ -2,24 +2,18 @@
 
 
 from __future__ import annotations
-from typing import Literal
-import unittest
-import dash
-from dash import dcc, html, Input, Output, State
-import dash_daq as daq
-import plotly.graph_objects as go
-import tempfile
+
 import shutil
+import tempfile
 from pathlib import Path
+
+import dash
 import numpy as np
-
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-
-from scipy.spatial import Delaunay
-
+from dash import Input, Output, State, dcc, html
 from eband.bz import get_bz_3d
-
+from plotly.subplots import make_subplots
+from scipy.spatial import Delaunay
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
