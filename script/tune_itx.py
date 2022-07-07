@@ -31,19 +31,19 @@ if not specified, use standard output""",
     parser.add_argument("itx_file")
     args = parser.parse_args()
     user_comment: str = ""
-    excitation_energy : str  = ""
-    id: int|None = None
+    excitation_energy: str = ""
+    id: str = ""
     with open(args.itx_file) as itx_file:
         if args.output:
             output = open(args.output, "w")
         for line in itx_file:
             if line.startswith("X //Spectrum ID"):
-                id = int(line.split("=")[1])
+                id = line.split("=")[1].strip()
             if "User Comment" in line:
                 try:
-                    user_comment = line.split("=", maxsplit=1)[1].strip()
+                    user_comment += line.split("=", maxsplit=1)[1].strip() + "\r\n"
                 except IndexError:
-                    user_comment = ""
+                    user_comment += ""
             if line.startswith("X ///Excitation Energy"):
                 excitation_energy = line.split("=", maxsplit=1)[1].strip()
             if line.startswith("WAVES/S/N"):

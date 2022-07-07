@@ -19,21 +19,20 @@ import sys
 import argparse
 
 
-def tune(itx_file, angle_correction: float | None = None) -> list[str]:
-
-    modified_itx_file = []
+def tune(itx_file: str, angle_correction: float = 0) -> list[str]:
+    modified_itx: list[str] = []
     line: str = ""
-    id: int = 0
+    id: str = ""
     user_comment: str = ""
-    excitation_energy: str = "0"
+    excitation_energy: str = ""
     for line in itx_file:
         if line.startswith("X //Spectrum ID"):
-            id = int(line.split("=")[1])
+            id = line.split("=")[1].strip()
         if "User Comment" in line:
             try:
-                user_comment = line.split("=", maxsplit=1)[1].strip()
+                user_comment += line.split("=", maxsplit=1)[1].strip() + "\r\n"
             except IndexError:
-                user_comment = ""
+                user_comment += ""
         if line.startswith("X ///Excitation Energy"):
             excitation_energy = line.split("=", maxsplit=1)[1].strip()
         if line.startswith("WAVES/S/N"):
@@ -49,7 +48,7 @@ def tune(itx_file, angle_correction: float | None = None) -> list[str]:
                 + ' "'
                 + user_comment
                 + '"'
-                + "\r\n"
+                # + "\r\n"
             )
             line += (
                 "X Note /NOCR " + "'ID_" + str(id).zfill(3) + "'" + ' "'
