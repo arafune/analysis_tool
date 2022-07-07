@@ -30,10 +30,10 @@ def tune(itx_file: str, angle_correction: float = 0) -> list[str]:
             id = line.split("=")[1].strip()
         if "User Comment" in line:
             try:
-                user_comment += line.split("=", maxsplit=1)[1].strip() + "\r\n"
+                user_comment += line.split("=", maxsplit=1)[1].strip()
             except IndexError:
                 user_comment += ""
-        if line.startswith("X ///Excitation Energy"):
+        if line.startswith("X //Excitation Energy"):
             excitation_energy = line.split("=", maxsplit=1)[1].strip()
         if line.startswith("WAVES/S/N"):
             command_part: str = line.split(maxsplit=1)[0]
@@ -48,7 +48,7 @@ def tune(itx_file: str, angle_correction: float = 0) -> list[str]:
                 + ' "'
                 + user_comment
                 + '"'
-                # + "\r\n"
+                + "\r\n"
             )
             line += (
                 "X Note /NOCR " + "'ID_" + str(id).zfill(3) + "'" + ' "'
