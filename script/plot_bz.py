@@ -66,7 +66,7 @@ if __name__ == "__main__":
     for shift in np.array(
         [
             [0, 0, 0],
-            2 * np.dot(special_kpoints["E"], icell),
+            # 2 * np.dot(special_kpoints["E"], icell),
         ]
     ):
         sx, sy, sz = shift

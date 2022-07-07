@@ -124,8 +124,6 @@ def update_reciprocal(
     b1, b2, b3 = np.linalg.norm(icell, axis=1)
     # special_kpoints = get_special_points(cell)
     Verts_bz, Edges_bz, Facets_bz = get_bz_3d(icell)
-    # print(Verts_bz)
-    # print(np.max(Verts_bz))
     range_value = np.max(np.abs(Verts_bz)) * 1.2
     icell_str = "{} {} {} \n{} {} {}\n{} {} {}\n".format(
         icell[0][0],
@@ -161,18 +159,6 @@ def update_reciprocal(
             )
         )
 
-    bz_facet_clrs = [
-        "#636EFA",
-        "#EF553B",
-        "#00CC96",
-        "#AB63FA",
-        "#FFA15A",
-        "#19D3F3",
-        "#FF6692",
-        "#B6E880",
-        "#FF97FF",
-        "#FECB52",
-    ]
     for shift in np.array(
         [
             [0, 0, 0],
@@ -213,7 +199,6 @@ def update_reciprocal(
                     ),
                 )
             )
-
         # the facets
         edges_of_facets = list(np.sort(np.unique([len(ff) for ff in Facets_bz])))
         for fi, ff in enumerate(Facets_bz):
@@ -230,8 +215,6 @@ def update_reciprocal(
                         z=z + sz,
                         opacity=0.3,
                         hoverinfo="skip",
-                        # color=bz_facet_clrs[face_clr_id],
-                        # color=bz_facet_clrs[fi % len(bz_facet_clrs)],
                         color="gray",
                         i=[0],
                         j=[1],
@@ -239,7 +222,6 @@ def update_reciprocal(
                     )
                 )
 
-    ############################################################
     camera = dict(
         up=dict(x=0, y=0, z=1),
         center=dict(x=0, y=0, z=0),
@@ -260,11 +242,9 @@ def update_reciprocal(
         yaxis_tickvals=[],
         zaxis_tickvals=[],
     )
-    # margin=dict(l=0, r=0, t=20, b=20)
     fig.update_layout(
         width=640,
         height=640,
-        # margin=margin,
         showlegend=False,
         scene=scene,
     )
