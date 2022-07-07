@@ -19,7 +19,7 @@ import sys
 import argparse
 
 
-def tune(itx_file, angle_correction: float | None = None) -> str:
+def tune(itx_file: str, angle_correction: float | None = None) -> str:
     """_summary_
 
     Parameters
@@ -33,14 +33,16 @@ def tune(itx_file, angle_correction: float | None = None) -> str:
         _description_
     """
     modified_itx_file = []
+    user_comment: str = ""
+    id: str = ""
     for line in itx_file:
         if line.startswith("X //Spectrum ID"):
-            id = int(line.split("=")[1])
+            id = line.split("=")[1].strip()
         if "User Comment" in line:
             try:
-                user_comment = line.split("=", maxsplit=1)[1].strip()
+                user_comment += line.split("=", maxsplit=1)[1].strip() + "\r\n"
             except IndexError:
-                user_comment = ""
+                user_comment += ""
         if line.startswith("X ///Excitation Energy"):
             excitation_energy = line.split("=", maxsplit=1)[1].strip()
         if line.startswith("WAVES/S/N"):
@@ -56,7 +58,7 @@ def tune(itx_file, angle_correction: float | None = None) -> str:
                 + ' "'
                 + user_comment
                 + '"'
-                + "\r\n"
+                # + "\r\n"
             )
             line += (
                 "X Note /NOCR " + "'ID_" + str(id).zfill(3) + "'" + ' "'
@@ -66,11 +68,11 @@ def tune(itx_file, angle_correction: float | None = None) -> str:
             if angle_correction:
                 ## 1.3088 が 2021/11/24の解析から求めた値
                 setscalex: list[str] = line.split()
-                new_scale_x_left = float(setscalex[3][:-1]) / args.angle_correction
-                new_scale_x_right = float(setscalex[4][:-1]) / args.angle_correction
+                new_scale_x_left = float(setscalex[3][:-1]) / angle_correction
+                new_scale_x_right = float(setscalex[4][:-1]) / angle_correction
                 note: str = (
                     r"""X Note /NOCR 'ID_{:03}' "\r\nangle_correction:{}" """.format(
-                        id, args.angle_correction
+                        id, angle_correction
                     )
                 )
                 command_part = " ".join(line.split()[:-1])
