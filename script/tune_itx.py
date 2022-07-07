@@ -17,6 +17,21 @@ gsed -i -e "1i IGOR" all.itx
 from __future__ import annotations
 import sys
 import argparse
+from pes.itx import tune
+
+from logging import DEBUG, INFO, Formatter, StreamHandler, getLogger
+
+LOGLEVEL = DEBUG
+logger = getLogger(__name__)
+fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
+formatter = Formatter(fmt)
+handler = StreamHandler()
+handler.setLevel(LOGLEVEL)
+logger.setLevel(LOGLEVEL)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.propagate = False
+
 
 if __name__ == "__main__":
     parser: argparse.ArgumentParser = argparse.ArgumentParser()
@@ -27,73 +42,25 @@ if __name__ == "__main__":
         help="""output file name.
 if not specified, use standard output""",
     )
-    parser.add_argument("--angle_correction", type=float, metavar="Angle coefficient")
-    parser.add_argument("itx_file")
+    parser.add_argument(
+        "--angle_correction",
+        type=float,
+        metavar="Angle coefficient",
+        help="Angle correction coefficient (Usually not needed). Note that this is *not* offset.",
+    )
+    parser.add_argument(
+        "itx_files", metavar="itx_file", nargs="+", help="itx file to be handled"
+    )
     args = parser.parse_args()
-    user_comment: str = ""
-    excitation_energy: str = ""
-    id: str = ""
-    with open(args.itx_file) as itx_file:
-        if args.output:
-            output = open(args.output, "w")
-        for line in itx_file:
-            if line.startswith("X //Spectrum ID"):
-                id = line.split("=")[1].strip()
-            if "User Comment" in line:
-                try:
-                    user_comment += line.split("=", maxsplit=1)[1].strip() + "\r\n"
-                except IndexError:
-                    user_comment += ""
-            if line.startswith("X ///Excitation Energy"):
-                excitation_energy = line.split("=", maxsplit=1)[1].strip()
-            if line.startswith("WAVES/S/N"):
-                command_part: str = line.split(maxsplit=1)[0]
-                line = command_part + " 'ID_" + str(id).zfill(3) + "'\r\n"
-            if line.startswith("END") and user_comment:
-                line = (
-                    "END\r\n"
-                    + "X Note /NOCR "
-                    + "'ID_"
-                    + str(id).zfill(3)
-                    + "'"
-                    + ' "'
-                    + user_comment
-                    + '"'
-                    + "\r\n"
-                )
-                line += (
-                    "X Note /NOCR " + "'ID_" + str(id).zfill(3) + "'" + ' "'
-                    r"\r\nExcitation_energy:" + excitation_energy + '"' + "\r\n"
-                )
-            if line.startswith("X SetScale/I x"):
-                if args.angle_correction:
-                    ## 1.3088 が 2021/11/24の解析から求めた値
-                    setscalex: list[str] = line.split()
-                    new_scale_x_left = float(setscalex[3][:-1]) / args.angle_correction
-                    new_scale_x_right = float(setscalex[4][:-1]) / args.angle_correction
-                    note: str = r"""X Note /NOCR 'ID_{:03}' "\r\nangle_correction:{}" """.format(
-                        id, args.angle_correction
-                    )
-                    command_part = " ".join(line.split()[:-1])
-                    line = (
-                        note
-                        + """\r\nX SetScale/I x, {}, {}, {} {} 'ID_{:03}'\r\n""".format(
-                            new_scale_x_left,
-                            new_scale_x_right,
-                            setscalex[5],
-                            setscalex[6],
-                            id,
-                        )
-                    )
-                else:
-                    command_part = " ".join(line.split()[:-1])
-                    line = command_part + " 'ID_" + str(id).zfill(3) + "'\r\n"
-            if line.startswith("X SetScale/I y") or line.startswith("X SetScale/I d"):
-                command_part = " ".join(line.split()[:-1])
-                line = command_part + " 'ID_" + str(id).zfill(3) + "'\r\n"
-            if args.output:
-                output.write(line.strip() + "\r\n")
-            else:
-                sys.stdout.write(line.strip() + "\r\n")
+    logger.debug(args)
+    corrected_itx: list[str] = []
+    for itx_file in args.itx_files:
+        logger.info("itx_file name:{}".format(itx_file))
+        with open(itx_file, "r") as itx:
+            corrected_itx += tune(itx)
+    corrected_itx = ["IGOR\r\n"] + [i for i in corrected_itx if i != "IGOR\r\n"]
     if args.output:
-        output.close()
+        with open(args.output, "w") as output_file:
+            output_file.write("".join(corrected_itx))
+    else:
+        print("".join(corrected_itx))
