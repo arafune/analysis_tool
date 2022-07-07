@@ -16,10 +16,23 @@ gsed -i -e "1i IGOR" all.itx
 """
 from __future__ import annotations
 import sys
+from typing import IO
 import argparse
+from logging import DEBUG, INFO, Formatter, StreamHandler, getLogger
+
+LOGLEVEL = INFO
+logger = getLogger(__name__)
+fmt = "%(asctime)s %(levelname)s %(name)s :%(message)s"
+formatter = Formatter(fmt)
+handler = StreamHandler()
+handler.setLevel(LOGLEVEL)
+logger.setLevel(LOGLEVEL)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.propagate = False
 
 
-def tune(itx_file: str, angle_correction: float = 0) -> list[str]:
+def tune(itx_file: IO[str], angle_correction: float = 0) -> list[str]:
     modified_itx: list[str] = []
     line: str = ""
     id: str = ""
