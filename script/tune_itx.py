@@ -30,7 +30,7 @@ handler.setLevel(LOGLEVEL)
 logger.setLevel(LOGLEVEL)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-logger.propagate = False
+logger.propagate = True
 
 
 if __name__ == "__main__":
