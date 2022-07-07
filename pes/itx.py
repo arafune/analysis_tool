@@ -19,20 +19,13 @@ import sys
 import argparse
 
 
-def tune(itx_file, angle_correction: float | None = None) -> str:
-    """_summary_
+def tune(itx_file, angle_correction: float | None = None) -> list[str]:
 
-    Parameters
-    ----------
-    itx_file : _type_
-        _description_
-
-    Returns
-    -------
-    str
-        _description_
-    """
     modified_itx_file = []
+    line: str = ""
+    id: int = 0
+    user_comment: str = ""
+    excitation_energy: str = "0"
     for line in itx_file:
         if line.startswith("X //Spectrum ID"):
             id = int(line.split("=")[1])
@@ -66,11 +59,11 @@ def tune(itx_file, angle_correction: float | None = None) -> str:
             if angle_correction:
                 ## 1.3088 が 2021/11/24の解析から求めた値
                 setscalex: list[str] = line.split()
-                new_scale_x_left = float(setscalex[3][:-1]) / args.angle_correction
-                new_scale_x_right = float(setscalex[4][:-1]) / args.angle_correction
+                new_scale_x_left: float = float(setscalex[3][:-1]) / angle_correction
+                new_scale_x_right: float = float(setscalex[4][:-1]) / angle_correction
                 note: str = (
                     r"""X Note /NOCR 'ID_{:03}' "\r\nangle_correction:{}" """.format(
-                        id, args.angle_correction
+                        id, angle_correction
                     )
                 )
                 command_part = " ".join(line.split()[:-1])
@@ -90,5 +83,5 @@ def tune(itx_file, angle_correction: float | None = None) -> str:
         if line.startswith("X SetScale/I y") or line.startswith("X SetScale/I d"):
             command_part = " ".join(line.split()[:-1])
             line = command_part + " 'ID_" + str(id).zfill(3) + "'\r\n"
-        modified_itx_file.append(line.strip() + "\r\n")
-    return "".join(modified_itx_file)
+        modified_itx.append(line.strip() + "\r\n")
+    return modified_itx
