@@ -29,7 +29,7 @@ handler.setLevel(LOGLEVEL)
 logger.setLevel(LOGLEVEL)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-logger.propagate = False
+logger.propagate = True
 
 
 def tune(itx_file: IO[str], angle_correction: float = 0) -> list[str]:
@@ -69,31 +69,31 @@ def tune(itx_file: IO[str], angle_correction: float = 0) -> list[str]:
             )
         if line.startswith("X SetScale/I x"):
             if angle_correction:
-                ## 1.3088 が 2021/11/24の解析から求めた値
-                setscalex: list[str] = line.split()
-                new_scale_x_left: float = float(setscalex[3][:-1]) / angle_correction
-                new_scale_x_right: float = float(setscalex[4][:-1]) / angle_correction
+                # 1.3088 が 2021/11/24の解析から求めた値
+                scale_x: list[str] = line.split()
+                new_scale_x_left: float = float(scale_x[1]) / angle_correction
+                new_scale_x_right: float = float(scale_x[2]) / angle_correction
                 note: str = (
                     r"""X Note /NOCR 'ID_{:03}' "\r\nangle_correction:{}" """.format(
                         id, angle_correction
                     )
                 )
-                command_part = " ".join(line.split()[:-1])
+                command_part = " ".join(line.split(",")[:-1])
                 line = (
                     note
-                    + """\r\nX SetScale/I x, {}, {}, {} {} 'ID_{:03}'\r\n""".format(
+                    + """\r\nX SetScale/I x, {}, {}, {} 'ID_{:03}'\r\n""".format(
                         new_scale_x_left,
                         new_scale_x_right,
-                        setscalex[5],
-                        setscalex[6],
+                        scale_x[5],
                         id,
                     )
                 )
             else:
-                command_part = " ".join(line.split()[:-1])
-                line = command_part + " 'ID_" + str(id).zfill(3) + "'\r\n"
+                command_part = ", ".join(line.split(",")[:-1])
+                logger.debug("command_part: {}".format(command_part))
+                line = command_part + ", 'ID_" + str(id).zfill(3) + "'\r\n"
         if line.startswith("X SetScale/I y") or line.startswith("X SetScale/I d"):
-            command_part = " ".join(line.split()[:-1])
-            line = command_part + " 'ID_" + str(id).zfill(3) + "'\r\n"
+            command_part = ", ".join(line.split(",")[:-1])
+            line = command_part + ", 'ID_" + str(id).zfill(3) + "'\r\n"
         modified_itx.append(line.strip() + "\r\n")
     return modified_itx
