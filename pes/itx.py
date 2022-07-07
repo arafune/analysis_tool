@@ -81,7 +81,7 @@ def tune(itx_file: IO[str], angle_correction: float = 0) -> list[str]:
                 command_part = " ".join(line.split(",")[:-1])
                 line = (
                     note
-                    + """\r\nX SetScale/I x, {}, {}, {} 'ID_{:03}'\r\n""".format(
+                    + ""\r\nX SetScale/I x, {}, {}, {} 'ID_{:03}'\r\n"".format(
                         new_scale_x_left,
                         new_scale_x_right,
                         scale_x[5],
