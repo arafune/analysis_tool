@@ -171,7 +171,7 @@ def load_sp2(
         _description_
     """
     params: dict[str, str | float] = {}
-    data: list[float] | np.ndarray = []
+    data: list[float] | NDArray[np.float_] = []
     pixels: tuple[int, int] | None = None
     with open(path_to_file, "rt", encoding="Windows-1252") as sp2file:
         for line in sp2file:

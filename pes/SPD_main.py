@@ -2,13 +2,16 @@
 import warnings
 from pathlib import Path
 
+import arpes.xarray_extensions
 import numpy as np
 import xarray as xr
-
-import arpes.xarray_extensions
-from arpes.endstations import (HemisphericalEndstation, SingleFileEndstation,
-                               add_endstation)
+from arpes.endstations import (
+    HemisphericalEndstation,
+    SingleFileEndstation,
+    add_endstation,
+)
 from arpes.utilities import clean_keys
+
 from pes.prodigy_util import load_itx, load_sp2
 
 __all__ = [
