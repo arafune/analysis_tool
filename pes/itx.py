@@ -7,12 +7,6 @@
     しかし、一つの.sleファイルで一意性を有しているのは "Spectrum ID"
     なので、そちらを用いた方がよい。
 
-bash
-cat *itx > all.itx
-gsed -i -e "/IGOR/d" all.itx
-gsed -i -e "1i IGOR" all.itx
-
-みたいなsedを後に行うと、igor で all.itx を読み込めば良いので便利
 """
 from __future__ import annotations
 import sys
