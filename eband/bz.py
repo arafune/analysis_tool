@@ -1,8 +1,9 @@
-from scipy.spatial import Voronoi
 import numpy as np
+from numpy.typing import NDArray
+from scipy.spatial import Voronoi
 
 
-def get_bz_3d(cell):
+def get_bz_3d(cell: NDArray[np.float_]):
     """
     Generate the Brillouin Zone of a given cell.
     The BZ is the Wigner-Seitz cell of the reciprocal lattice,
@@ -15,7 +16,7 @@ def get_bz_3d(cell):
     https://docs.scipy.org/doc/scipy/reference/tutorial/spatial.html#voronoi-diagrams
     """
 
-    cell = np.asarray(cell, dtype=float)
+    cell: NDArray[np.float_] = np.asarray(cell, dtype=float)
     assert cell.shape == (3, 3)
 
     px, py, pz = np.tensordot(cell, np.mgrid[-1:2, -1:2, -1:2], axes=[0, 0])
@@ -26,12 +27,6 @@ def get_bz_3d(cell):
     bz_facets = []
     bz_ridges = []
     bz_vertices = []
-
-    # for rid in vor.ridge_vertices:
-    #     if( np.all(np.array(rid) >= 0) ):
-    #         bz_ridges.append(vor.vertices[np.r_[rid, [rid[0]]]])
-    #         bz_facets.append(vor.vertices[rid])
-
     for pid, rid in zip(vor.ridge_points, vor.ridge_vertices):
         # WHY 13 ????
         # The Voronoi ridges/facets are perpendicular to the lines drawn between the

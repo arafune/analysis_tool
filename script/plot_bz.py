@@ -2,25 +2,24 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from ase.dft.kpoints import get_special_points
-
 import plotly.graph_objects as go
+from ase.dft.kpoints import get_special_points
+from numpy.typing import NDArray
 from plotly.subplots import make_subplots
-
 from scipy.spatial import Delaunay
 
 from eband.bz import get_bz_3d
 
 if __name__ == "__main__":
     #    cell = np.array([[0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]])
-    cell = np.array(
+    cell: NDArray[np.float_] = np.array(
         [
             [3.4690000000, 0.0, 0.0000000000],
             [0.0, 6.3299999237, 0.0000000000],
             [0.0000000000, -0.9467946412, 13.8276234542],
         ]
     )
-    icell = np.linalg.inv(cell).T
+    icell: NDArray[np.float_] = np.linalg.inv(cell).T
     b1, b2, b3 = np.linalg.norm(icell, axis=1)
 
     special_kpoints = get_special_points(cell)

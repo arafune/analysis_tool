@@ -18,9 +18,9 @@ def ref_chgcar(aeccar0: CHGCAR, aeccar2: CHGCAR) -> None:
 
 
 def run_bader(
-    logfile_path: Path|str,
-    chgcar_path: Path|str,
-    chgcar_sum_path: Path|str,
+    logfile_path: Path | str,
+    chgcar_path: Path | str,
+    chgcar_sum_path: Path | str,
 ) -> None:
     if isinstance(chgcar_path, str):
         chgcar_path = Path(chgcar_path)

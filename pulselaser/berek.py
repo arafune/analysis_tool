@@ -3,10 +3,11 @@
 
 
 import numpy as np
+
 from pulselaser.sellmeier import mgf2
 
 
-def retardance( lambda_micron: float, tilt_angle_degree: float) -> float:
+def retardance(lambda_micron: float, tilt_angle_degree: float) -> float:
     """Return the retardance R (in waves)
 
     Parameters
@@ -28,8 +29,8 @@ def retardance( lambda_micron: float, tilt_angle_degree: float) -> float:
         * np.sqrt(mgf2(lambda_micron)[0] ** 2 - np.sin(theta) ** 2)
         * (
             np.sqrt(
-                (1 - (1/mgf2(lambda_micron)[1] ** (2)) * np.sin(theta) ** 2)
-                / (1 - (1/mgf2(lambda_micron)[0] ** (2)) * np.sin(theta) ** 2)
+                (1 - (1 / mgf2(lambda_micron)[1] ** (2)) * np.sin(theta) ** 2)
+                / (1 - (1 / mgf2(lambda_micron)[0] ** (2)) * np.sin(theta) ** 2)
             )
             - 1
         )
