@@ -16,3 +16,4 @@ test/pes/cover
 .coverage
 htmlcov
 typings
+pes/doc/logs
