@@ -33,7 +33,7 @@ def wavelength2eV(wavelength_nm: float) -> float:
     float
         Photon enery in eV unit.
     """
-    planck_const: float = 6.62607015e-34  ##
+    planck_const: float = 6.62607015e-34  # J unit
     planck_const_eV: float = 4.135667696e-15
     light_velocity: int = 299792458
 

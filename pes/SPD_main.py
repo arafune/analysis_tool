@@ -41,7 +41,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
 
     RENAME_KEYS = {
         "Excitation Energy": "hv",
-        "WorkFunction": "workfunction",
+        "WorkFunction": "workfunction", # Workfunction of ANALYZER (Don't confuse sample_workfunction)
         "WF": "workfunction",
         "Lens Mode": "lens_mode",
         "lensmode": "lens_mode",
@@ -114,7 +114,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
             data: xr.DataArray = load_itx(frame_path, **kwargs)
             return xr.Dataset({"spectrum": data}, attrs=data.attrs)
         elif file.suffix == ".sp2":
-            data: xr.DataArray = load_sp2(frame_path, **kwargs)
+            data = load_sp2(frame_path, **kwargs)
             return xr.Dataset({"spectrum": data}, attrs=data.attrs)
         else:
             raise RuntimeError("Data file must be ended with .itx or .sp2")

@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any, no_type_check
 
 import numpy as np
 import xarray as xr
@@ -14,12 +13,12 @@ from numpy.typing import NDArray
 __all__ = ["load_itx", "load_sp2"]
 
 
-def _itx_common_head(itxdata: list[str]) -> dict[str, str]:
+def _itx_common_head(itx_data: list[str]) -> dict[str, str]:
     """Parse Common head part
 
     Parameters
     ----------
-    itxdata : list[str]
+    itx_data : list[str]
         Contents of itx data file (return on readlines())
 
     Returns
@@ -28,22 +27,22 @@ def _itx_common_head(itxdata: list[str]) -> dict[str, str]:
         Common head data
     """
     common_params: dict[str, str] = {}
-    for line in itxdata[1:]:
+    for line in itx_data[1:]:
         if line.startswith("X //Acquisition Parameters"):
             break
         else:
-            linedata: list[str] = line[4:].split(":", maxsplit=1)
-            common_params[linedata[0]] = linedata[1].strip()
+            line_data: list[str] = line[4:].split(":", maxsplit=1)
+            common_params[line_data[0]] = line_data[1].strip()
             # Comment の処理
     return common_params
 
 
-def _itx_core(itxdata: list[str], common_attrs: dict[str, str] = {}) -> xr.DataArray:
+def _itx_core(itx_data: list[str], common_attrs: dict[str, str] = {}) -> xr.DataArray:
     """Parse itx file
 
     Parameters
     ----------
-    itxdata : list[str]
+    itx_data : list[str]
         _description_
     common_attrs : dict[str, str], optional
         _description_, by default {}
@@ -61,7 +60,7 @@ def _itx_core(itxdata: list[str], common_attrs: dict[str, str] = {}) -> xr.DataA
     data: list[list[float]] = []
     name: str = ""
     params = {}
-    for line in itxdata:
+    for line in itx_data:
         if line.startswith("X //"):
             section = "params"
         elif line.startswith("WAVES/S/N"):
@@ -69,15 +68,15 @@ def _itx_core(itxdata: list[str], common_attrs: dict[str, str] = {}) -> xr.DataA
         elif line.startswith("IGOR"):
             pass
         if section == "params":
-            linedata = [i.strip() for i in line[4:].split("=", maxsplit=1)]
-            if len(linedata) > 1:
+            line_data = [i.strip() for i in line[4:].split("=", maxsplit=1)]
+            if len(line_data) > 1:
                 try:
-                    params[linedata[0]] = int(linedata[1])
+                    params[line_data[0]] = int(line_data[1])
                 except ValueError:
                     try:
-                        params[linedata[0]] = float(linedata[1])
+                        params[line_data[0]] = float(line_data[1])
                     except ValueError:
-                        params[linedata[0]] = linedata[1]
+                        params[line_data[0]] = line_data[1]
         elif section == "data":
             if line.startswith("WAVES/S/N"):
                 pixels = (
@@ -141,15 +140,15 @@ def load_itx(
     RuntimeError
         _description_
     """
-    with open(path_to_file, "rt") as itxfile:
-        itxdata: list[str] = itxfile.readlines()
-        itxdata = list(map(str.rstrip, itxdata))
-    common_head: dict[str, str] = _itx_common_head(itxdata)
-    if itxdata.count("BEGIN") != 1:
+    with open(path_to_file, "rt") as itx_file:
+        itx_data: list[str] = itx_file.readlines()
+        itx_data = list(map(str.rstrip, itx_data))
+    common_head: dict[str, str] = _itx_common_head(itx_data)
+    if itx_data.count("BEGIN") != 1:
         raise RuntimeError(
             "This file contains multi spectra. Use the file Prodigy produces"
         )
-    data = _itx_core(itxdata, common_head)
+    data = _itx_core(itx_data, common_head)
     for k, v in kwargs.items():
         data.attrs[k] = v
     return data
