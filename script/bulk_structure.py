@@ -3,15 +3,17 @@
 """Search for optimized bulk structure in vasp"""
 
 from __future__ import annotations
-import os
-import math
-import pathlib
+
+import argparse
 import glob
+import math
+import os
+import pathlib
 import subprocess
 from typing import Callable
+
 import numpy as np
 from scipy.optimize import minimize
-import argparse
 
 
 def bianthrone_crystal(vars: tuple[float]) -> None:
@@ -228,7 +230,7 @@ def run_vasp() -> str:
     return proc.stdout.decode("utf-8")
 
 
-def fetch_total_energy(coords: tuple[float, ...]|np.ndarray) -> float|None:
+def fetch_total_energy(coords: tuple[float, ...] | np.ndarray) -> float | None:
     """Return the total energy.
 
     If the calculaation has already performed with the axis_1 and axis_2

@@ -2,11 +2,12 @@
 
 
 from __future__ import annotations
+
 import argparse
 import datetime
 import itertools
-from typing import Iterable
 from pathlib import Path
+from typing import Iterable
 
 filament: list[str] = ["IK", "PsiK", "R"]
 Alens: list[str] = ["A1", "DeltaA1", "A2", "DeltaA2", "A3", "DeltaA3"]
@@ -32,7 +33,7 @@ Linked: list[str] = [
 
 def label_str(
     labeltext: str,
-) -> tuple[datetime.datetime, float, float]|tuple[None, None, None]:
+) -> tuple[datetime.datetime, float, float] | tuple[None, None, None]:
     """Return tuple of date & time, resolution, intensity from 'Label' string.
 
 
@@ -65,7 +66,7 @@ def label_str(
 def _to_list(
     params: dict,
     *show_values: tuple,
-    the_date: datetime.datetime = datetime.datetime(1970, 1, 1, 0, 0, 0)
+    the_date: datetime.datetime = datetime.datetime(1970, 1, 1, 0, 0, 0),
 ) -> list:
     """Return List of the EELS parameter.
 
@@ -119,9 +120,7 @@ def _md_table(lst: Iterable) -> str:
     return output
 
 
-def load_els_lens_parameter(
-    filename: str|Path
-) -> list[dict[str, str|float]]:
+def load_els_lens_parameter(filename: str | Path) -> list[dict[str, str | float]]:
     """Parse lens parameter file.
 
     Parameters
@@ -135,7 +134,7 @@ def load_els_lens_parameter(
         EELS parameter data
     """
     container = []
-    an_entry: dict[str, str|float]
+    an_entry: dict[str, str | float]
     with open(filename, "r") as f:
         for line in f:
             if "<D" in line[0:2]:
@@ -150,7 +149,7 @@ def load_els_lens_parameter(
                 continue
             else:
                 try:
-                    value: int|float|str = int(line.strip().split("\t")[2])
+                    value: int | float | str = int(line.strip().split("\t")[2])
                 except ValueError:
                     try:
                         value = float(line.strip().split("\t")[2])

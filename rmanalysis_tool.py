@@ -6,13 +6,14 @@ Created on Nov. 25 (2016).
 @author: Ryuichi Arafune
 """
 
-if __name__ == '__main__':
-    import sys
+if __name__ == "__main__":
     import os
-    logfile = sys.argv[1] if len(sys.argv) > 1 else 'install-analysis_tool.txt'
+    import sys
+
+    logfile = sys.argv[1] if len(sys.argv) > 1 else "install-analysis_tool.txt"
     file = open(logfile)
     for line in file:
-        line = line.rstrip('\n')
+        line = line.rstrip("\n")
         try:
             os.remove(line)
         except FileNotFoundError:

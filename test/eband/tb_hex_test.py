@@ -1,4 +1,4 @@
-#/usr/bin/env python3
+# /usr/bin/env python3
 """Unit test for tb_hex_test."""
 
 import os
@@ -16,5 +16,6 @@ class Test_TightBinding(object):
         length_kg = tb_hex.distance(self.testhex0.kg)
         np.testing.assert_array_almost_equal(length_kg[-1], 2.7925268031909276)
         np.testing.assert_equal(self.testhex0.kg[0][-1], 0)
-        np.testing.assert_equal(self.testhex0.energy(0, 0),
-                                (6.16227766016838, -0.16227766016837952))
+        np.testing.assert_equal(
+            self.testhex0.energy(0, 0), (6.16227766016838, -0.16227766016837952)
+        )

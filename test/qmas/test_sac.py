@@ -18,8 +18,7 @@ class Test_SAC_file:
         self.sac = sac.SACObject(datafile)
 
     def test_parameters(self):
-        """Check read parameters.
-        """
+        """Check read parameters."""
         assert 1 == self.sac.n_cyc
         assert 1567616602 == self.sac.start_time
         assert 2 == self.sac.n_dbc

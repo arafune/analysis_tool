@@ -23,7 +23,7 @@ class Calib1d:
     SL_Version: str = "4.57.1-r83491"
     SL_Build_Date: str = "2019-06-19 10:39:02 UTC"
 
-    def __init__(self, file_name: str|Path = "") -> None:
+    def __init__(self, file_name: str | Path = "") -> None:
         """Initialization.
 
         Parameters
@@ -33,7 +33,7 @@ class Calib1d:
         """
         self.positions: NDAArray[np.float64] = []
         self.shifts: NDArray[np.float64] = []
-        self.header: OrderedDict[str, str|None] = OrderedDict()
+        self.header: OrderedDict[str, str | None] = OrderedDict()
         if file_name:
             with open(file_name, "r") as fileread:
                 for line in fileread:

@@ -28,7 +28,7 @@ def dispersion_k(k: float, e0: float, mass: float = 1.0) -> float:
     float
         Energy in eV unit measured from the vacuum level.
     """
-    return e0 + (1 / (0.512410908328 * np.sqrt(mass)) ** 2) * k ** 2
+    return e0 + (1 / (0.512410908328 * np.sqrt(mass)) ** 2) * k**2
 
 
 def dispersion_angle(theta_degree: float, e0: float, mass: float = 1.0) -> float:

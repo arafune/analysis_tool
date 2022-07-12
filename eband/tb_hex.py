@@ -80,7 +80,7 @@ class Band:
         root_part = np.sqrt(
             ((eps_1 - eps_2) ** 2) / 4.0
             + 4.0
-            * t ** 2
+            * t**2
             * (
                 1 / 4
                 + np.cos(kx * self.lattice * np.sqrt(3) / 2)

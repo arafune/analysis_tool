@@ -2,6 +2,7 @@
 """RS2323C monitoring/sniffing tool
 """
 import datetime
+
 import serial
 
 BAUD_RATE = 9600  # whatever baudrate you are listening to

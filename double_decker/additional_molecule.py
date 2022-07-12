@@ -7,6 +7,7 @@ Code for vasp calculation results requested by Prof. Komeda (Nov, 2020)
 """
 
 import itertools
+
 from double_decker import two_by_two as two_by_two
 
 DIFF_FROM_SERIES_INDEX: dict[str, int] = {

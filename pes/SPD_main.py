@@ -5,11 +5,8 @@ from pathlib import Path
 import arpes.xarray_extensions
 import numpy as np
 import xarray as xr
-from arpes.endstations import (
-    HemisphericalEndstation,
-    SingleFileEndstation,
-    add_endstation,
-)
+from arpes.endstations import (HemisphericalEndstation, SingleFileEndstation,
+                               add_endstation)
 from arpes.utilities import clean_keys
 
 from pes.prodigy_util import load_itx, load_sp2
@@ -41,7 +38,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
 
     RENAME_KEYS = {
         "Excitation Energy": "hv",
-        "WorkFunction": "workfunction", # Workfunction of ANALYZER (Don't confuse sample_workfunction)
+        "WorkFunction": "workfunction",  # Workfunction of ANALYZER (Don't confuse sample_workfunction)
         "WF": "workfunction",
         "Lens Mode": "lens_mode",
         "lensmode": "lens_mode",

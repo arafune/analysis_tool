@@ -5,8 +5,7 @@ import numpy as np
 
 
 def H(kx, ky, delta):
-    return np.array([[delta / 2.0, kx - ky * 1.0j],
-                     [kx + ky * 1.0j, -delta / 2.0]])
+    return np.array([[delta / 2.0, kx - ky * 1.0j], [kx + ky * 1.0j, -delta / 2.0]])
 
 
 numk = 500
@@ -27,10 +26,10 @@ dux_c = dux[:, 0]
 dux_v = dux[:, 1]
 duy_c = duy[:, 0]
 duy_v = duy[:, 1]
-#cur_c = np.imag(np.diag(-2.0 * np.dot(np.conjugate(dux_c), duy_c.T)))
-#cur_v = np.imag(np.diag(-2.0 * np.dot(np.conjugate(dux_v), duy_v.T)))
-cur_c = np.imag(-2.0 * np.einsum('ij, ij -> i', np.conjugate(dux_c), duy_c))
-cur_v = np.imag(-2.0 * np.einsum('ij, ij -> i', np.conjugate(dux_v), duy_v))
+# cur_c = np.imag(np.diag(-2.0 * np.dot(np.conjugate(dux_c), duy_c.T)))
+# cur_v = np.imag(np.diag(-2.0 * np.dot(np.conjugate(dux_v), duy_v.T)))
+cur_c = np.imag(-2.0 * np.einsum("ij, ij -> i", np.conjugate(dux_c), duy_c))
+cur_v = np.imag(-2.0 * np.einsum("ij, ij -> i", np.conjugate(dux_v), duy_v))
 plt.plot(path, eigenc, label="conduction")
 plt.plot(path, eigenv, label="valence")
 plt.plot(path, cur_v, label="Berry conduction")

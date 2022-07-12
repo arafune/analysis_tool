@@ -2,10 +2,12 @@
 """bader analysis"""
 
 from __future__ import annotations
+
 import argparse
 import bz2
-from pathlib import Path
 import subprocess
+from pathlib import Path
+
 import vaspy
 from vaspy.chgcar import CHGCAR
 

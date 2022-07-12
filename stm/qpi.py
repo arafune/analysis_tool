@@ -4,11 +4,13 @@
 Module to extract the line profile data about QPI results.
 """
 
-import os.path
 from __future__ import annotations
+
+import os.path
+from typing import Sequence
+
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
-from typing import Sequence
 
 
 class QPI:

@@ -9,10 +9,11 @@
 
 """
 from __future__ import annotations
-import sys
-from typing import IO
+
 import argparse
+import sys
 from logging import DEBUG, INFO, Formatter, StreamHandler, getLogger
+from typing import IO
 
 LOGLEVEL = INFO
 logger = getLogger(__name__)
@@ -73,14 +74,11 @@ def tune(itx_file: IO[str], angle_correction: float = 0) -> list[str]:
                     )
                 )
                 command_part = " ".join(line.split(",")[:-1])
-                line = (
-                    note
-                    + ""\r\nX SetScale/I x, {}, {}, {} 'ID_{:03}'\r\n"".format(
-                        new_scale_x_left,
-                        new_scale_x_right,
-                        scale_x[5],
-                        id,
-                    )
+                line = note + +"\r\nX SetScale/I x, {}, {}, {} 'ID_{:03}'\r\n".format(
+                    new_scale_x_left,
+                    new_scale_x_right,
+                    scale_x[5],
+                    id,
                 )
             else:
                 command_part = ", ".join(line.split(",")[:-1])

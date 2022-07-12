@@ -35,7 +35,7 @@ class SPLab:
 
     def __init__(self, xmlfile: str) -> None:
         """Initialization.
-        
+
         Parameters
         ------------
         xmlfile: str
@@ -70,12 +70,12 @@ class SPGroup:
 
     def __init__(self, xmlgroup) -> None:
         """Initialization.
-        
+
         Parameters
         -------------
         xmlgroup: xml
             Group data by xml
-        
+
         """
         self.name = xmlgroup[0].text
         self.regions = []
@@ -126,7 +126,7 @@ class SPRegion:
 
     def __init__(self, xmlregion) -> None:
         """Initialization.
-        
+
         Parameters
         ------------
         xmlregion: xml

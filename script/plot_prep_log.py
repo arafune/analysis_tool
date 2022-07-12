@@ -2,17 +2,19 @@
 """Plot pressure log of phoibos system"""
 
 from __future__ import annotations
-from contextlib import contextmanager
-from typing import Iterable
+
 import argparse
-from pathlib import Path
+from contextlib import contextmanager
 from datetime import datetime
+from pathlib import Path
+from typing import Iterable
+
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 
 
-def load_log(file_name: str|Path) -> tuple[list[datetime], list[tuple[float]]]:
+def load_log(file_name: str | Path) -> tuple[list[datetime], list[tuple[float]]]:
     date_time: list[datetime] = []
     data: list[list[float]] = []
     with open(file_name, mode="r") as f:

@@ -12,9 +12,10 @@ to evaluate numerically. """
 
 import argparse
 import pathlib
+
 import imageio
-import rawpy
 import numpy as np
+import rawpy
 from numpy.typing import NDArray
 
 

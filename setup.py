@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from distutils.core import setup
 import sys
+from distutils.core import setup
 
 reqpkgs = ["numpy", "lxml"]
 setup(
@@ -13,6 +13,7 @@ setup(
     description="Python tools for analyzing experimental data (STM, LPES,,,)",
     py_moddules=["stm.qpi" "stm.rhksm4"],
     requires=reqpkgs,
-    data_files=[("etc", ["rmanalysis_tool.py"]),],
+    data_files=[
+        ("etc", ["rmanalysis_tool.py"]),
+    ],
 )
-

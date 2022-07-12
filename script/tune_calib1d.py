@@ -12,9 +12,9 @@ Spectraの数が少ないときに起きる？）。これを1次関数でフィ
 """
 
 import argparse
-from pes.calib1d import Calib1d
-
 from logging import DEBUG, INFO, Formatter, StreamHandler, getLogger
+
+from pes.calib1d import Calib1d
 
 LOGLEVEL = INFO
 logger = getLogger(__name__)
