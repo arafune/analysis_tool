@@ -54,7 +54,7 @@ if not specified, use standard output""",
             corrected_itx += tune(itx)
     corrected_itx = ["IGOR\r\n"] + [i for i in corrected_itx if i != "IGOR\r\n"]
     if args.output:
-        with open(args.output, "w") as output_file:
-            output_file.write("".join(corrected_itx))
+        with open(args.output, "wb") as output_file:
+            output_file.write(("".join(corrected_itx)).encode(encoding="utf-8"))
     else:
         print("".join(corrected_itx))
