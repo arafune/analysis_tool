@@ -1,14 +1,34 @@
 #! /usr/bin/env python3
 """Convert to tiff image file from the LEED picture taken by EOS Kiss X5
 
-Format of the output tiff file is:
+The "correction" functionality, which the commercial cameras have, it
+needless one.
 
+(To reresent the intensity as the charge of the CCD, such "correction functionality"
+should be removed.)
+
+So, this code:
     * No white balance added
     * No auto scale added
     * No auto bright added
     * 16 bit (The brightest is 65536.)
 
-to evaluate numerically. """
+to evaluate numerically.
+
+
+How to use
+On windows:
+
+$items = Get-ChildItem . -File *.CR2
+
+foreach ($item in $items) {
+python3 crom_leed_pic.py $item
+}
+
+Mac & Linux:
+(as usual)
+
+"""
 
 import argparse
 import pathlib
@@ -20,8 +40,8 @@ from numpy.typing import NDArray
 
 
 def crop(
-    pic: NDArray[np.float64], x: int = 890, y: int = 1974, side_length: int = 1800
-) -> NDArray[np.float64]:
+    pic: NDArray[np.float64], x: int = 946, y: int = 1460, side_length: int = 1600
+) -> NDArray[np.float_]:
     """Return cropping data of the gray scale
 
     Parameters
@@ -82,7 +102,7 @@ if __name__ == "__main__":
             use_camera_wb=False,
             no_auto_bright=True,
             no_auto_scale=True,
-            gamma=(1, 1),  # この値が線形性を作る鍵っぽい。露光時間ー強度の関係が線形に近くなる。2020/10/23
+            gamma=(1, 1),  #  This value is a key to "linear relation"
             output_bps=16,
         )
         if not args.color:
