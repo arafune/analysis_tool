@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import dash
 import numpy as np
 import plotly.graph_objects as go
@@ -23,40 +21,29 @@ app = dash.Dash(
 )
 
 
-a1_x_input = dcc.Input(
-    id="a1_x", type="number", debounce=True, placeholder="a1_x", value=0
-)
-a1_y_input = dcc.Input(
-    id="a1_y", type="number", debounce=True, placeholder="a1_y", value=0.5
-)
-a1_z_input = dcc.Input(
-    id="a1_z", type="number", debounce=True, placeholder="a1_z", value=0.5
-)
-a2_x_input = dcc.Input(
-    id="a2_x", type="number", debounce=True, placeholder="a2_x", value=0.5
-)
-a2_y_input = dcc.Input(
-    id="a2_y", type="number", debounce=True, placeholder="a2_y", value=0
-)
-a2_z_input = dcc.Input(
-    id="a2_z", type="number", debounce=True, placeholder="a2_z", value=0.5
-)
-a3_x_input = dcc.Input(
-    id="a3_x", type="number", debounce=True, placeholder="a3_x", value=0.5
-)
-a3_y_input = dcc.Input(
-    id="a3_y", type="number", debounce=True, placeholder="a3_y", value=0.5
-)
-a3_z_input = dcc.Input(
-    id="a3_z", type="number", debounce=True, placeholder="a3_z", value=0
-)
-#
+def input_for_lattice(index: int, axis: str):
+    return dcc.Input(
+        id=f"a{index}_{axis}",
+        type="number",
+        debounce=True,
+        placeholder=f"a{index}_{axis}",
+        value=0,
+    )
+
+
 draw_bz_button = html.Button("Draw BZ", id="draw_bz_button", n_clicks=0)
 
 
-a1 = html.Div([html.P("a1"), a1_x_input, a1_y_input, a1_z_input])
-a2 = html.Div([html.P("a2"), a2_x_input, a2_y_input, a2_z_input])
-a3 = html.Div([html.P("a3"), a3_x_input, a3_y_input, a3_z_input])
+def make_a_axis(id: int):
+    return html.Div(
+        [
+            html.P(f"a{id}"),
+            input_for_lattice(id, "x"),
+            input_for_lattice(id, "y"),
+            input_for_lattice(id, "z"),
+        ]
+    )
+
 
 reciprocal_lattice = html.P(id="reciprocal")
 magnification = dcc.Input(
@@ -66,9 +53,9 @@ magnification = dcc.Input(
 
 app.layout = html.Div(
     [
-        a1,
-        a2,
-        a3,
+        make_a_axis(1),
+        make_a_axis(2),
+        make_a_axis(3),
         # html.Div([draw_bz_button, magnification]),
         draw_bz_button,
         reciprocal_lattice,
