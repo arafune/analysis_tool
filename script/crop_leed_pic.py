@@ -22,7 +22,7 @@ On windows:
 $items = Get-ChildItem . -File *.CR2
 
 foreach ($item in $items) {
-python3 crom_leed_pic.py $item
+python3 crop_leed_pic.py $item
 }
 
 Mac & Linux:
