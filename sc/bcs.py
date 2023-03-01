@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.typing import NDArray
+from numpy.typing import ArrayLike, NDArray
 
 
 def gap_function(
@@ -73,7 +73,7 @@ def conv_gap(
     omega:
         Energy
     energy_axis: NDArray[np.float]
-        Energy axis (Used in interpolation process)
+        Energy axis (Used in interpolation process internally)
     omega: float
         Energy (eV)
     delta: float
@@ -89,7 +89,9 @@ def conv_gap(
         The tunneling current
     """
     the_gap = gap_function(energy_axis, delta, n_0)
+    # the_gap = gap_function(extend_energy_axis(omega))
     the_dfd = diff_fd(energy_axis, temperature)
+    # the_dfd = diff_fd(extend_energy_axis(omegaa), temperature)
     return np.interp(
         omega,
         energy_axis,
