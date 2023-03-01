@@ -3,7 +3,7 @@ from numpy.typing import NDArray
 from scipy.spatial import Voronoi
 
 
-def get_bz_3d(cell: NDArray[np.float_]):
+def get_bz_3d(input_cell: NDArray[np.float_]):
     """
     Generate the Brillouin Zone of a given cell.
     The BZ is the Wigner-Seitz cell of the reciprocal lattice,
@@ -16,7 +16,7 @@ def get_bz_3d(cell: NDArray[np.float_]):
     https://docs.scipy.org/doc/scipy/reference/tutorial/spatial.html#voronoi-diagrams
     """
 
-    cell: NDArray[np.float_] = np.asarray(cell, dtype=float)
+    cell: NDArray[np.float_] = np.asarray(input_cell, dtype=float)
     assert cell.shape == (3, 3)
 
     px, py, pz = np.tensordot(cell, np.mgrid[-1:2, -1:2, -1:2], axes=[0, 0])
