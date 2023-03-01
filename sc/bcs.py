@@ -1,8 +1,10 @@
 import numpy as np
-from numpy.typing import ArrayLike, NDArray
+from numpy.typing import NDArray
 
 
-def gap_function(omega: np.ndarray, delta: float, n_0: float) -> np.ndarray:
+def gap_function(
+    omega: NDArray[np.float_], delta: float, n_0: float
+) -> NDArray[np.float_]:
     """Returns BCS gap function
 
 
@@ -18,7 +20,7 @@ def gap_function(omega: np.ndarray, delta: float, n_0: float) -> np.ndarray:
     return n_0 * np.real((np.abs(omega) / np.emath.sqrt(omega**2 - delta**2)))
 
 
-def diff_fd(omega: np.ndarray, temp: float) -> np.ndarray:
+def diff_fd(omega: NDArray[np.float_], temp: float) -> NDArray[np.float_]:
     """Return differential of the Fermi-Dirac distribution
 
     Paramters
@@ -28,13 +30,13 @@ def diff_fd(omega: np.ndarray, temp: float) -> np.ndarray:
     temp: float
         Temperature (Kelvin)
     """
-    k = 8.617333262e-5  # (mev)
+    k = 8.617333262e-5  # (eV)
     return -np.exp(omega / (k * temp)) / (
         (1 + np.exp(omega / (k * temp))) ** 2 * k * temp
     )
 
 
-def extend_energy_axis(energy_axis: np.ndarray) -> np.ndarray:
+def extend_energy_axis(energy_axis: NDArray[np.float_]) -> NDArray[np.float_]:
     """Return the array extended.
 
     Parameters
@@ -48,8 +50,8 @@ def extend_energy_axis(energy_axis: np.ndarray) -> np.ndarray:
         _description_
     """
     # expand the energy region
-    min_energy: float = np.min(energy_axis)
-    max_energy: float = np.max(energy_axis)
+    min_energy: ArrayLike = np.min(energy_axis)
+    max_energy: ArrayLike = np.max(energy_axis)
     return np.linspace(
         (min_energy + max_energy) / 2 - (max_energy - min_energy),
         (min_energy + max_energy) / 2 + (max_energy - min_energy),
@@ -58,8 +60,12 @@ def extend_energy_axis(energy_axis: np.ndarray) -> np.ndarray:
 
 
 def conv_gap(
-    omega: float, energy_axis: np.ndarray, delta: float, n_0: float, temperature: float
-) -> float:
+    omega: float,
+    energy_axis: NDArray[np.float_],
+    delta: float,
+    n_0: float,
+    temperature: float,
+) -> NDArray[np.float_]:
     """Returns the BCS gap function convoluted by differentiated Fermi-Dirac.
 
     Parameters
