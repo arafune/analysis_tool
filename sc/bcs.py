@@ -3,7 +3,7 @@ from numpy.typing import ArrayLike, NDArray
 
 
 def gap_function(
-    omega: NDArray[np.float_], delta: float, n_0: float
+    omega: NDArray[np.float_], delta: float, n_0: float, offset_x: float = 0
 ) -> NDArray[np.float_]:
     """Returns BCS gap function
 
@@ -15,9 +15,47 @@ def gap_function(
     delta: float
         Energy gap (eV)
     n_0: float
-        :Scaling factor
+        Scaling factor
+    offset_x: float
+        offset value about energy axis
     """
-    return n_0 * np.real((np.abs(omega) / np.emath.sqrt(omega**2 - delta**2)))
+    return n_0 * np.real(
+        (
+            np.abs((omega - offset_x))
+            / np.emath.sqrt((omega - offset_x) ** 2 - delta**2)
+        )
+    )
+
+
+def dynes(
+    omega: NDArray[np.float_],
+    delta: float,
+    gamma: float,
+    n_0: float,
+    offset_x: float = 0,
+) -> NDArray[np.float_]:
+    """Return Dynes function
+
+    Parameters
+    -----------
+    omega: float
+        Energy  (eV)
+    delta: float
+        Energy gap (eV)
+    gamma: float
+        damping const (eV)
+    n_0: float
+        Scaling factor
+    offset_x: float
+        offset value about energy axis
+
+    """
+    return n_0 * np.real(
+        np.abs(
+            (omega - offset_x + (1.0j) * gamma)
+            / (np.emath.sqrt((omega - offset_x + (1.0j) * gamma) ** 2 - delta**2))
+        )
+    )
 
 
 def diff_fd(omega: NDArray[np.float_], temp: float) -> NDArray[np.float_]:
@@ -65,6 +103,7 @@ def conv_gap(
     delta: float,
     n_0: float,
     temperature: float,
+    offset_x: float = 0,
 ) -> NDArray[np.float_]:
     """Returns the BCS gap function convoluted by differentiated Fermi-Dirac.
 
@@ -82,13 +121,62 @@ def conv_gap(
         Scale parameter
     temperature: float
         temperature (Kelvin)
+    offset_x: float
+        offset value about energy axis (default=0)
 
     Returns
     -------
     float:
         The tunneling current
     """
-    the_gap = gap_function(energy_axis, delta, n_0)
+    the_gap = gap_function(energy_axis, delta, n_0, offset_x)
+    # the_gap = gap_function(extend_energy_axis(omega))
+    the_dfd = diff_fd(energy_axis, temperature)
+    # the_dfd = diff_fd(extend_energy_axis(omegaa), temperature)
+    return np.interp(
+        omega,
+        energy_axis,
+        np.convolve(the_gap, -the_dfd, "same")
+        * np.abs(energy_axis[0] - energy_axis[1]),
+    )
+
+
+def conv_dynes(
+    omega: float,
+    energy_axis: NDArray[np.float_],
+    delta: float,
+    gamma: float,
+    n_0: float,
+    temperature: float,
+    offset_x: float = 0,
+) -> NDArray[np.float_]:
+    """Returns the BCS gap function convoluted by differentiated Fermi-Dirac.
+
+    Parameters
+    -----------
+    omega:
+        Energy
+    energy_axis: NDArray[np.float]
+        Energy axis (Used in interpolation process internally)
+    omega: float
+        Energy (eV)
+    delta: float
+        Energy (eV)
+    gamma: float
+        Damping constant (eV)
+    n_0: float
+        Scale parameter
+    temperature: float
+        temperature (Kelvin)
+    offset_x: float
+        offset value about energy axis (default=0)
+
+    Returns
+    -------
+    float:
+        The tunneling current
+    """
+    the_gap = dynes(energy_axis, delta, gamma, n_0, offset_x)
     # the_gap = gap_function(extend_energy_axis(omega))
     the_dfd = diff_fd(energy_axis, temperature)
     # the_dfd = diff_fd(extend_energy_axis(omegaa), temperature)
