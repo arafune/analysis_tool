@@ -130,7 +130,7 @@ def conv_gap(
         The tunneling current
     """
     the_gap = gap_function(energy_axis, delta, n_0, offset_x)
-    # the_gap = gap_function(extend_energy_axis(omega))
+    # the_gap = gap_function(extend_energy_axis(omega), delta, n_0, offset_x)
     the_dfd = diff_fd(energy_axis, temperature)
     # the_dfd = diff_fd(extend_energy_axis(omegaa), temperature)
     return np.interp(
@@ -150,7 +150,7 @@ def conv_dynes(
     temperature: float,
     offset_x: float = 0,
 ) -> NDArray[np.float_]:
-    """Returns the BCS gap function convoluted by differentiated Fermi-Dirac.
+    """Returns the Dynes function convoluted by differentiated Fermi-Dirac.
 
     Parameters
     -----------
@@ -177,7 +177,7 @@ def conv_dynes(
         The tunneling current
     """
     the_gap = dynes(energy_axis, delta, gamma, n_0, offset_x)
-    # the_gap = gap_function(extend_energy_axis(omega))
+    # the_gap = dynes(extend_energy_axis(omega), delta, gamma, n_0, offset_x)
     the_dfd = diff_fd(energy_axis, temperature)
     # the_dfd = diff_fd(extend_energy_axis(omegaa), temperature)
     return np.interp(
