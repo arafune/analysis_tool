@@ -7,7 +7,6 @@ def gap_function(
 ) -> NDArray[np.float_]:
     """Returns BCS gap function
 
-
     Parameters
     -----------
     omega: float
