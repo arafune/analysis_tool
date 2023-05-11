@@ -17,6 +17,11 @@ def gap_function(
         Scaling factor
     offset_x: float
         offset value about energy axis
+
+    Returns
+    -------
+    float:
+        The differentiated tunneling current
     """
     return n_0 * np.real(
         (
@@ -48,6 +53,10 @@ def dynes(
     offset_x: float
         offset value about energy axis
 
+    Returns
+    -------
+    float:
+        The differentiated tunneling current
     """
     return n_0 * np.real(
         np.abs(
@@ -126,7 +135,7 @@ def conv_gap(
     Returns
     -------
     float:
-        The tunneling current
+        The differentiated tunneling current
     """
     the_gap = gap_function(energy_axis, delta, n_0, offset_x)
     # the_gap = gap_function(extend_energy_axis(omega), delta, n_0, offset_x)
@@ -173,7 +182,7 @@ def conv_dynes(
     Returns
     -------
     float:
-        The tunneling current
+        The differentiated tunneling current
     """
     the_gap = dynes(energy_axis, delta, gamma, n_0, offset_x)
     # the_gap = dynes(extend_energy_axis(omega), delta, gamma, n_0, offset_x)
