@@ -6,10 +6,63 @@ from __future__ import annotations
 import numpy as np
 
 
+def BK7(lambda_micron: float, second_derivative: bool = False) -> float:
+    r"""Dispersion of BK7"""
+    a = 1.03961212
+    b = 0.00600069867
+    c = 0.231792344
+    d = 0.0200179144
+    e = 1.01046945
+    f = 103.560653
+
+    n2 = (
+        1
+        + a * lambda_micron**2 / (lambda_micron**2 - b)
+        + c * lambda_micron**2 / (lambda_micron**2 - d)
+        + e * lambda_micron**2 / (lambda_micron**2 - f)
+    )
+    if second_derivative:
+        return (
+            -4
+            * lambda_micron**2
+            * (
+                (a * b) / (b - lambda_micron**2) ** 2
+                + (c * d) / (d - lambda_micron**2) ** 2
+                + (e * f) / (f - lambda_micron**2) ** 2
+            )
+            ** 2
+            + 2
+            * (
+                1
+                + (a * lambda_micron**2) / (-b + lambda_micron**2)
+                + (c * lambda_micron**2) / (-d + lambda_micron**2)
+                + (e * lambda_micron**2) / (-f + lambda_micron**2)
+            )
+            * (
+                (-2 * a * b * (b + 3 * lambda_micron**2))
+                / (b - lambda_micron**2) ** 3
+                - (2 * c * d * (d + 3 * lambda_micron**2))
+                / (d - lambda_micron**2) ** 3
+                - (2 * e * f * (f + 3 * lambda_micron**2))
+                / (f - lambda_micron**2) ** 3
+            )
+        ) / (
+            4.0
+            * (
+                1
+                + (a * lambda_micron**2) / (-b + lambda_micron**2)
+                + (c * lambda_micron**2) / (-d + lambda_micron**2)
+                + (e * lambda_micron**2) / (-f + lambda_micron**2)
+            )
+            ** 1.5
+        )
+    return np.sqrt(n2)
+
+
 def air(lambda_micron: float, second_derivative: bool = False) -> float:
     r"""Dispersion of air.
 
-    https://refractiveindex.info/?shelf=other&book=air&page=Ciddor
+    https://refractiveindelambda_micron.info/?shelf=other&book=air&page=Ciddor
 
     Parameters
     -----------
@@ -24,7 +77,7 @@ def air(lambda_micron: float, second_derivative: bool = False) -> float:
         :math:`n`
 
     """
-    a = 0.057912105
+    a = 0.05792105
     b = 238.0185
     c = 0.00167917
     d = 57.362
@@ -135,7 +188,7 @@ def quartz(lambda_micron: float) -> tuple[float, float]:
 def calcite(lambda_micron: float) -> tuple[float, float]:
     r"""Dispersion of calcite.
 
-    (:math:`\textrm{CaCO}_3`).
+    (:math:`\texrm{CaCO}_3`).
 
     http://www.redoptronics.com/Calcite-crystal.html
 
