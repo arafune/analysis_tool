@@ -55,6 +55,10 @@ pulselaser.sellmeier module
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: pulselaser.nlo
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 =================
 PES Package

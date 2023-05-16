@@ -1,62 +1,199 @@
 #!/usr/bin/env python3
-"""Collection of Selmeier equation."""
+"""Collection of Sellmeier equation."""
 
 from __future__ import annotations
 
 import numpy as np
 
 
-def BK7(lambda_micron: float, second_derivative: bool = False) -> float:
-    r"""Dispersion of BK7"""
-    a = 1.03961212
-    b = 0.00600069867
-    c = 0.231792344
-    d = 0.0200179144
-    e = 1.01046945
-    f = 103.560653
+def three_term_sellmier(lambda_micron, a, b, c, d, e, f) -> float:
+    r"""
+    :math:`n^2 -1 = \frac{a \lambda^2}{\lambda^2 - b} + \frac{c \lambda^2}{\lambda^2 - d} + \frac{e \lambda^2}{\lambda^2 - f}`
 
+
+    Parameters
+    ----------
+    lambda_micron: float
+        wavelength in micron
+    a: float
+        Coefficient a
+    b: float
+        Coefficient b
+    c: float
+        Coefficient c
+    d: float
+        Coefficient d
+    e: float
+        Coefficient e
+    f: float
+        Coefficient f
+
+    Returns
+    -------
+    float
+        Calculated refractive index
+    """
     n2 = (
         1
         + a * lambda_micron**2 / (lambda_micron**2 - b)
         + c * lambda_micron**2 / (lambda_micron**2 - d)
         + e * lambda_micron**2 / (lambda_micron**2 - f)
     )
-    if second_derivative:
-        return (
-            -4
-            * lambda_micron**2
-            * (
-                (a * b) / (b - lambda_micron**2) ** 2
-                + (c * d) / (d - lambda_micron**2) ** 2
-                + (e * f) / (f - lambda_micron**2) ** 2
-            )
-            ** 2
-            + 2
-            * (
-                1
-                + (a * lambda_micron**2) / (-b + lambda_micron**2)
-                + (c * lambda_micron**2) / (-d + lambda_micron**2)
-                + (e * lambda_micron**2) / (-f + lambda_micron**2)
-            )
-            * (
-                (-2 * a * b * (b + 3 * lambda_micron**2))
-                / (b - lambda_micron**2) ** 3
-                - (2 * c * d * (d + 3 * lambda_micron**2))
-                / (d - lambda_micron**2) ** 3
-                - (2 * e * f * (f + 3 * lambda_micron**2))
-                / (f - lambda_micron**2) ** 3
-            )
-        ) / (
-            4.0
-            * (
-                1
-                + (a * lambda_micron**2) / (-b + lambda_micron**2)
-                + (c * lambda_micron**2) / (-d + lambda_micron**2)
-                + (e * lambda_micron**2) / (-f + lambda_micron**2)
-            )
-            ** 1.5
-        )
     return np.sqrt(n2)
+
+
+def second_derivative_three_term_sellmier(lambda_micron, a, b, c, d, e, f) -> float:
+    """Second derivative of the three term sellmier equation
+
+    Parameters
+    ----------
+    lambda_micron: float
+        wavelength in micron
+    a: float
+        Coefficient a
+    b: float
+        Coefficient b
+    c: float
+        Coefficient c
+    d: float
+        Coefficient d
+    e: float
+        Coefficient e
+    f: float
+        Coefficient f
+
+    Returns
+    -------
+    float
+        Calculated refractive index
+    """
+    return (
+        -4
+        * lambda_micron**2
+        * (
+            (a * b) / (b - lambda_micron**2) ** 2
+            + (c * d) / (d - lambda_micron**2) ** 2
+            + (e * f) / (f - lambda_micron**2) ** 2
+        )
+        ** 2
+        + 2
+        * (
+            1
+            + (a * lambda_micron**2) / (-b + lambda_micron**2)
+            + (c * lambda_micron**2) / (-d + lambda_micron**2)
+            + (e * lambda_micron**2) / (-f + lambda_micron**2)
+        )
+        * (
+            (-2 * a * b * (b + 3 * lambda_micron**2)) / (b - lambda_micron**2) ** 3
+            - (2 * c * d * (d + 3 * lambda_micron**2)) / (d - lambda_micron**2) ** 3
+            - (2 * e * f * (f + 3 * lambda_micron**2)) / (f - lambda_micron**2) ** 3
+        )
+    ) / (
+        4.0
+        * (
+            1
+            + (a * lambda_micron**2) / (-b + lambda_micron**2)
+            + (c * lambda_micron**2) / (-d + lambda_micron**2)
+            + (e * lambda_micron**2) / (-f + lambda_micron**2)
+        )
+        ** 1.5
+    )
+
+
+def two_term_serllmier(lambda_micron, a, b, c, d) -> float:
+    r"""
+    :math:`n^2 -1 = \frac{a \lambda^2}{\lambda^2 - b} + \frac{c \lambda^2}{\lambda^2 - d}`
+
+
+    Parameters
+    ----------
+    lambda_micron: float
+        wavelength in micron
+    a: float
+        Coefficient a
+    b: float
+        Coefficient b
+    c: float
+        Coefficient c
+    d: float
+        Coefficient d
+
+    Returns
+    -------
+    float
+        Calculated refractive index
+    """
+    return three_term_sellmier(lambda_micron, a, b, c, d, 0, 0)
+
+
+def second_derivative_two_term_seellmier(lambda_micron, a, b, c, d) -> float:
+    """Second derivative of the two term sellmier equation
+
+    Parameters
+    ----------
+    lambda_micron: float
+        wavelength in micron
+    a: float
+        Coefficient a
+    b: float
+        Coefficient b
+    c: float
+        Coefficient c
+    d: float
+        Coefficient d
+
+    Returns
+    -------
+    float
+        Calculated refractive index
+    """
+    return second_derivative_three_term_sellmier(lambda_micron, a, b, c, d, 0, 0)
+
+
+def BK7(lambda_micron: float, second_derivative: bool = False) -> float:
+    r"""Dispersion of BK7
+
+    https://refractiveindex.info/?shelf=glass&book=BK7&page=SCHOTT
+
+    Parameters
+    -----------
+    lambda_micron: float
+        wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
+    second_derivative: bool
+        if True return :math:`\frac{d^2n}{d\lambda^2}`
+    """
+    a = 1.03961212
+    b = 0.00600069867
+    c = 0.231792344
+    d = 0.0200179144
+    e = 1.01046945
+    f = 103.560653
+    if second_derivative:
+        return second_derivative_three_term_sellmier(lambda_micron, a, b, c, d, e, f)
+    return three_term_sellmier(lambda_micron, a, b, c, d, e, f)
+
+
+def FusedSilica(lambda_micron: float, second_derivative: bool = False) -> float:
+    r"""Dispersion of Fusd Silica
+
+    https://refractiveindex.info/?shelf=glass&book=fused_silica&page=Malitson
+
+    Parameters
+    -----------
+    lambda_micron: float
+        wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
+    second_derivative: bool
+        if True return :math:`\frac{d^2n}{d\lambda^2}`
+    """
+    a = 0.6961663
+    b = 0.06840432
+    c = 0.4079426
+    d = 0.11624142
+    e = 0.8974794
+    f = 9.8961612
+    if second_derivative:
+        return second_derivative_three_term_sellmier(lambda_micron, a, b, c, d, e, f)
+    return three_term_sellmier(lambda_micron, a, b, c, d, e, f)
 
 
 def air(lambda_micron: float, second_derivative: bool = False) -> float:
@@ -75,7 +212,6 @@ def air(lambda_micron: float, second_derivative: bool = False) -> float:
     ----------
     float:
         :math:`n`
-
     """
     a = 0.05792105
     b = 238.0185
@@ -107,7 +243,6 @@ def alphaBBO(lambda_micron: float) -> tuple[float, float]:
     -------
     tuple:
         :math:`n_o` and :math:`n_e`
-
     """
     return (
         np.sqrt(
@@ -186,9 +321,7 @@ def quartz(lambda_micron: float) -> tuple[float, float]:
 
 
 def calcite(lambda_micron: float) -> tuple[float, float]:
-    r"""Dispersion of calcite.
-
-    (:math:`\texrm{CaCO}_3`).
+    r"""Dispersion of calcite.  (:math:`\mathrm{CaCO}_3`).
 
     http://www.redoptronics.com/Calcite-crystal.html
 
