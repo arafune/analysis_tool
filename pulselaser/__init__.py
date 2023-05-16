@@ -23,6 +23,6 @@ def broadening(initial_width_fs: float, gdd: float) -> float:
 
 
 def gvd(lambda_micron: float, d2n: float) -> float:
-    """Return gvd in fs/micron"""
-    light_speed_micron_fs = 299792458e15
-    return lambda_micron**3 / (2 * np.pi * light_speed_micron_fs) * d2n
+    """Return gvd in fs/mm"""
+    light_speed_micron_fs = 0.299792458
+    return lambda_micron**3 / (2 * np.pi * light_speed_micron_fs**2) * d2n * 1e3
