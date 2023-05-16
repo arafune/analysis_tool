@@ -6,7 +6,7 @@ from __future__ import annotations
 import numpy as np
 
 
-def air(lambda_micron: float) -> float:
+def air(lambda_micron: float, second_derivative: bool = False) -> float:
     r"""Dispersion of air.
 
     https://refractiveindex.info/?shelf=other&book=air&page=Ciddor
@@ -15,6 +15,8 @@ def air(lambda_micron: float) -> float:
     -----------
     lambda_micron: float
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
+    second_derivative: bool
+        if True return :math:`\frac{d^2n}{d\lambda^2}`
 
     Returns
     ----------
@@ -22,11 +24,17 @@ def air(lambda_micron: float) -> float:
         :math:`n`
 
     """
-    return (
-        1
-        + 0.05792105 / (238.0185 - lambda_micron ** (-2))
-        + 0.00167917 / (57.362 - lambda_micron ** (-2))
-    )
+    a = 0.057912105
+    b = 238.0185
+    c = 0.00167917
+    d = 57.362
+    if second_derivative:
+        return (2 * a * (1 + 3 * b * lambda_micron**2)) / (
+            -1 + b * lambda_micron**2
+        ) ** 3 + (2 * (c + 3 * c * d * lambda_micron**2)) / (
+            -1 + d * lambda_micron**2
+        ) ** 3
+    return 1 + a / (b - lambda_micron ** (-2)) + c / (d - lambda_micron ** (-2))
 
 
 def alphaBBO(lambda_micron: float) -> tuple[float, float]:
