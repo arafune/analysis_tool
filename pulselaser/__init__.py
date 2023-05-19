@@ -16,6 +16,8 @@ def broadening(initial_width_fs: float, gdd: float) -> float:
     float
         the output pulse width (fs unit)
     """
+    assert initial_width_fs > 0
+    assert gdd > 0
     return (
         np.sqrt(initial_width_fs**4 + 16 * np.log(2) ** 2 * gdd**2)
         / initial_width_fs
@@ -41,15 +43,15 @@ def broadening_after_n(
     float
         the output pulse width (fs unit)
     """
+    assert isinstance(iteration, int)
+    assert iteration > 0
     if iteration == 1:
         return broadening(initial_width_fs, gdd)
     else:
-        return broadening_after_n(
-            broadening_after_n(initial_width_fs, gdd, iteration - 1), gdd, iteration - 1
-        )
+        return broadening(broadening_after_n(initial_width_fs, gdd, iteration - 1), gdd)
 
 
 def gvd(lambda_micron: float, d2n: float) -> float:
-    """Return gvd in fs/mm"""
+    """Return GVD in fs/mm units"""
     light_speed_micron_fs = 0.299792458
     return lambda_micron**3 / (2 * np.pi * light_speed_micron_fs**2) * d2n * 1e3

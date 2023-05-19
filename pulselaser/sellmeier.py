@@ -126,7 +126,7 @@ def two_term_serllmier(lambda_micron, a, b, c, d) -> float:
     return three_term_sellmier(lambda_micron, a, b, c, d, 0, 0)
 
 
-def second_derivative_two_term_seellmier(lambda_micron, a, b, c, d) -> float:
+def second_derivative_two_term_sellmier(lambda_micron, a, b, c, d) -> float:
     """Second derivative of the two term sellmier equation
 
     Parameters
@@ -353,6 +353,18 @@ def calcite(lambda_micron: float) -> tuple[float, float]:
 
 
 def mgf2(lambda_micron: float) -> tuple[float, float]:
+    r"""Dispersion of mgf2
+
+    Parameters
+    ----------
+    lambda_micron: float
+        wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
+
+    Returns
+    --------
+    tuple:
+        :math:`n_o` and :math:`n_e`
+    """
     no = np.sqrt(
         1
         + 0.4876 * lambda_micron**2 / (lambda_micron**2 - 0.0434**2)

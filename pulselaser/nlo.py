@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-"""NLO crystal"""
+"""Calculate the NLO crystal characteristics"""
 import argparse
 from typing import Callable
 

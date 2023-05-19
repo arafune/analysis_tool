@@ -40,34 +40,75 @@ QPI
     :undoc-members:
     :show-inheritance:
 
-
+---------------------
 
 ========================
 Pulselaser Package
 ========================
 
+Module contents
+---------------
+
+.. automodule:: pulselaser
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pulselaser.berek module
+-----------------------
+
+.. automodule:: pulselaser.berek
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pulselaser.nlo module
+---------------------
+
+.. automodule:: pulselaser.nlo
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 pulselaser.sellmeier module
 ---------------------------
 
 .. automodule:: pulselaser.sellmeier
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-.. automodule:: pulselaser.nlo
-    :members:
-    :undoc-members:
-    :show-inheritance:
+
+------------------
 
 =================
 PES Package
 =================
 
-Two modules included.
+The following Two modules are obsolute.
 
-* pes.splab: Load SPecsLab2 data
+* pes.splab: Load SPecsLab2 data  
 * pes.arpes: Analyze ARPES data (Angle-Energy-intensity)
+
+.. automodule:: pes.itx
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pes.lpes_basic
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pes.calib1d
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: pes.prodigy_util
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 .. automodule:: pes.splab
     :members:
@@ -81,6 +122,22 @@ Two modules included.
     :show-inheritance:
 
 
+----------------------------
+
+===============
+SC Package
+===============
+
+Library for calculating superconductor properties.
+
+.. automodule:: sc.bcs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+
+--------------------------------
 
 =================
 EBAND Package
