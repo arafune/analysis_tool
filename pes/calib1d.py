@@ -31,7 +31,7 @@ class Calib1d:
         file_name: str
             calib1d data file name.  Suffix is .calib1d.
         """
-        self.positions: NDAArray[np.float64] = []
+        self.positions: NDArray[np.float64] = []
         self.shifts: NDArray[np.float64] = []
         self.header: OrderedDict[str, str | None] = OrderedDict()
         if file_name:
