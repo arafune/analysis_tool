@@ -6,27 +6,27 @@ from __future__ import annotations
 import numpy as np
 
 
-def three_term_sellmier(lambda_micron, a, b, c, d, e, f) -> float:
+def three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3) -> float:
     r"""
-    :math:`n^2 -1 = \frac{a \lambda^2}{\lambda^2 - b} + \frac{c \lambda^2}{\lambda^2 - d} + \frac{e \lambda^2}{\lambda^2 - f}`
+    :math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - c1} + \frac{B_1 \lambda^2}{\lambda^2 - C_2} + \frac{B_3 \lambda^2}{\lambda^2 - C_3}`
 
 
     Parameters
     ----------
     lambda_micron: float
         wavelength in micron
-    a: float
-        Coefficient a
-    b: float
-        Coefficient b
-    c: float
-        Coefficient c
-    d: float
-        Coefficient d
-    e: float
-        Coefficient e
-    f: float
-        Coefficient f
+    b1: float
+        Coefficient B_1
+    c1: float
+        Coefficient C_1
+    b2: float
+        Coefficient B_2
+    c2: float
+        Coefficient C_2
+    b3: float
+        Coefficient B_3
+    c3: float
+        Coefficient C_3
 
     Returns
     -------
@@ -35,32 +35,34 @@ def three_term_sellmier(lambda_micron, a, b, c, d, e, f) -> float:
     """
     n2 = (
         1
-        + a * lambda_micron**2 / (lambda_micron**2 - b)
-        + c * lambda_micron**2 / (lambda_micron**2 - d)
-        + e * lambda_micron**2 / (lambda_micron**2 - f)
+        + b1 * lambda_micron**2 / (lambda_micron**2 - c1)
+        + b2 * lambda_micron**2 / (lambda_micron**2 - c2)
+        + b3 * lambda_micron**2 / (lambda_micron**2 - c3)
     )
     return np.sqrt(n2)
 
 
-def second_derivative_three_term_sellmier(lambda_micron, a, b, c, d, e, f) -> float:
+def second_derivative_three_term_sellmier(
+    lambda_micron, b1, c1, b2, c2, b3, c3
+) -> float:
     """Second derivative of the three term sellmier equation
 
     Parameters
     ----------
     lambda_micron: float
         wavelength in micron
-    a: float
-        Coefficient a
-    b: float
-        Coefficient b
-    c: float
-        Coefficient c
-    d: float
-        Coefficient d
-    e: float
-        Coefficient e
-    f: float
-        Coefficient f
+    b1: float
+        Coefficient B_1
+    c1: float
+        Coefficient C_1
+    b2: float
+        Coefficient B_2
+    c2: float
+        Coefficient C_2
+    b3: float
+        Coefficient B_2
+    c3: float
+        Coefficient C_3
 
     Returns
     -------
@@ -71,83 +73,87 @@ def second_derivative_three_term_sellmier(lambda_micron, a, b, c, d, e, f) -> fl
         -4
         * lambda_micron**2
         * (
-            (a * b) / (b - lambda_micron**2) ** 2
-            + (c * d) / (d - lambda_micron**2) ** 2
-            + (e * f) / (f - lambda_micron**2) ** 2
+            (b1 * c1) / (c1 - lambda_micron**2) ** 2
+            + (b2 * c2) / (c2 - lambda_micron**2) ** 2
+            + (b3 * c3) / (c3 - lambda_micron**2) ** 2
         )
         ** 2
         + 2
         * (
             1
-            + (a * lambda_micron**2) / (-b + lambda_micron**2)
-            + (c * lambda_micron**2) / (-d + lambda_micron**2)
-            + (e * lambda_micron**2) / (-f + lambda_micron**2)
+            + (b1 * lambda_micron**2) / (-c1 + lambda_micron**2)
+            + (b2 * lambda_micron**2) / (-c2 + lambda_micron**2)
+            + (b3 * lambda_micron**2) / (-c3 + lambda_micron**2)
         )
         * (
-            (-2 * a * b * (b + 3 * lambda_micron**2)) / (b - lambda_micron**2) ** 3
-            - (2 * c * d * (d + 3 * lambda_micron**2)) / (d - lambda_micron**2) ** 3
-            - (2 * e * f * (f + 3 * lambda_micron**2)) / (f - lambda_micron**2) ** 3
+            (-2 * b1 * c1 * (c1 + 3 * lambda_micron**2))
+            / (c1 - lambda_micron**2) ** 3
+            - (2 * b2 * c2 * (c2 + 3 * lambda_micron**2))
+            / (c2 - lambda_micron**2) ** 3
+            - (2 * b3 * c3 * (c3 + 3 * lambda_micron**2))
+            / (c3 - lambda_micron**2) ** 3
         )
     ) / (
         4.0
         * (
             1
-            + (a * lambda_micron**2) / (-b + lambda_micron**2)
-            + (c * lambda_micron**2) / (-d + lambda_micron**2)
-            + (e * lambda_micron**2) / (-f + lambda_micron**2)
+            + (b1 * lambda_micron**2) / (-c1 + lambda_micron**2)
+            + (b2 * lambda_micron**2) / (-c2 + lambda_micron**2)
+            + (b3 * lambda_micron**2) / (-c3 + lambda_micron**2)
         )
         ** 1.5
     )
 
 
-def two_term_serllmier(lambda_micron, a, b, c, d) -> float:
+def two_term_serllmier(lambda_micron, b1, c1, b2, c2) -> float:
     r"""
-    :math:`n^2 -1 = \frac{a \lambda^2}{\lambda^2 - b} + \frac{c \lambda^2}{\lambda^2 - d}`
+    :math:`n^2 -1 = \frac{B1 \lambda^2}{\lambda^2 - C1} + \frac{c \lambda^2}{\lambda^2 - d}`
 
 
     Parameters
     ----------
     lambda_micron: float
         wavelength in micron
-    a: float
-        Coefficient a
-    b: float
-        Coefficient b
-    c: float
-        Coefficient c
-    d: float
-        Coefficient d
+    b1: float
+        Coefficient B_1
+    c1: float
+        Coefficient C_1
+    b2: float
+        Coefficient B_2
+    c2: float
+        Coefficient C_2
 
     Returns
     -------
     float
         Calculated refractive index
     """
-    return three_term_sellmier(lambda_micron, a, b, c, d, 0, 0)
+    return three_term_sellmier(lambda_micron, b1, c1, b2, c2, 0, 0)
 
 
-def second_derivative_two_term_sellmier(lambda_micron, a, b, c, d) -> float:
+def second_derivative_two_term_sellmier(lambda_micron, b1, c1, b2, c2) -> float:
     """Second derivative of the two term sellmier equation
 
     Parameters
     ----------
     lambda_micron: float
         wavelength in micron
-    a: float
-        Coefficient a
-    b: float
-        Coefficient b
-    c: float
-        Coefficient c
-    d: float
-        Coefficient d
+    b1: float
+        Coefficient B_1
+    c1: float
+        Coefficient C_1
+    b2: float
+        Coefficient B_2
+    c2: float
+        Coefficient C_2
 
     Returns
     -------
     float
         Calculated refractive index
     """
-    return second_derivative_three_term_sellmier(lambda_micron, a, b, c, d, 0, 0)
+
+    return second_derivative_three_term_sellmier(lambda_micron, b1, c1, b2, c2, 0, 0)
 
 
 def BK7(lambda_micron: float, second_derivative: bool = False) -> float:
@@ -162,15 +168,17 @@ def BK7(lambda_micron: float, second_derivative: bool = False) -> float:
     second_derivative: bool
         if True return :math:`\frac{d^2n}{d\lambda^2}`
     """
-    a = 1.03961212
-    b = 0.00600069867
-    c = 0.231792344
-    d = 0.0200179144
-    e = 1.01046945
-    f = 103.560653
+    b1 = 1.03961212
+    c1 = 0.00600069867
+    b2 = 0.231792344
+    c2 = 0.0200179144
+    b3 = 1.01046945
+    c3 = 103.560653
     if second_derivative:
-        return second_derivative_three_term_sellmier(lambda_micron, a, b, c, d, e, f)
-    return three_term_sellmier(lambda_micron, a, b, c, d, e, f)
+        return second_derivative_three_term_sellmier(
+            lambda_micron, b1, c1, b2, c2, b3, c3
+        )
+    return three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3)
 
 
 def FusedSilica(lambda_micron: float, second_derivative: bool = False) -> float:
@@ -185,15 +193,17 @@ def FusedSilica(lambda_micron: float, second_derivative: bool = False) -> float:
     second_derivative: bool
         if True return :math:`\frac{d^2n}{d\lambda^2}`
     """
-    a = 0.6961663
-    b = 0.06840432
-    c = 0.4079426
-    d = 0.11624142
-    e = 0.8974794
-    f = 9.8961612
+    b1 = 0.6961663
+    c1 = 0.06840432
+    b2 = 0.4079426
+    c2 = 0.11624142
+    b3 = 0.8974794
+    c3 = 9.8961612
     if second_derivative:
-        return second_derivative_three_term_sellmier(lambda_micron, a, b, c, d, e, f)
-    return three_term_sellmier(lambda_micron, a, b, c, d, e, f)
+        return second_derivative_three_term_sellmier(
+            lambda_micron, b1, c1, b2, c2, b3, c3
+        )
+    return three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3)
 
 
 def air(lambda_micron: float, second_derivative: bool = False) -> float:
@@ -213,17 +223,17 @@ def air(lambda_micron: float, second_derivative: bool = False) -> float:
     float:
         :math:`n`
     """
-    a = 0.05792105
-    b = 238.0185
-    c = 0.00167917
-    d = 57.362
+    b1 = 0.05792105
+    c1 = 238.0185
+    b1 = 0.00167917
+    c2 = 57.362
     if second_derivative:
-        return (2 * a * (1 + 3 * b * lambda_micron**2)) / (
-            -1 + b * lambda_micron**2
-        ) ** 3 + (2 * (c + 3 * c * d * lambda_micron**2)) / (
-            -1 + d * lambda_micron**2
+        return (2 * b1 * (1 + 3 * c1 * lambda_micron**2)) / (
+            -1 + c1 * lambda_micron**2
+        ) ** 3 + (2 * (b1 + 3 * b1 * c2 * lambda_micron**2)) / (
+            -1 + c2 * lambda_micron**2
         ) ** 3
-    return 1 + a / (b - lambda_micron ** (-2)) + c / (d - lambda_micron ** (-2))
+    return 1 + b1 / (c1 - lambda_micron ** (-2)) + b1 / (c2 - lambda_micron ** (-2))
 
 
 def alphaBBO(lambda_micron: float) -> tuple[float, float]:
