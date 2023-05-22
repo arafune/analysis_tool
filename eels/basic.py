@@ -44,7 +44,7 @@ def momentum_transfer(
         Transfered momentum (AA-1 units)
     """
     return (
-        0.512
+        0.5123167219534328
         * np.sqrt(energy_eV)
         * (np.sin(theta_in_deg * DEGREE) - np.sin(theta_out_deg * DEGREE))
     )
