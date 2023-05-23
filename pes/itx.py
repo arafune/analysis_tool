@@ -21,6 +21,8 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = True
 
+DIGIT_ID = 4
+
 
 def property(itx_file: str | os.PathLike[str]) -> dict[str, str | float | NDArray]:
     """Return the property in the header / integrated value
@@ -36,7 +38,7 @@ def property(itx_file: str | os.PathLike[str]) -> dict[str, str | float | NDArra
     """
     property: dict[str, str | float | NDArray] = {}
     mode: str = ""
-    intensities = []
+    intensities: list[str | float] = []
     with open(itx_file) as itx:
         for line in itx:
             if line.startswith("IGOR"):
@@ -93,9 +95,11 @@ def tune(itx_file: IO[str], angle_correction: float = 0) -> list[str]:
     id: str = ""
     user_comment: str = ""
     excitation_energy: str = ""
+    wavename: str = ""
     for line in itx_file:
         if line.startswith("X //Spectrum ID"):
             id = line.split("=")[1].strip()
+            wavename = "ID_" + str(id).zfill(DIGIT_ID)
         if "User Comment" in line:
             try:
                 user_comment += line.split("=", maxsplit=1)[1].strip()
@@ -105,13 +109,12 @@ def tune(itx_file: IO[str], angle_correction: float = 0) -> list[str]:
             excitation_energy = line.split("=", maxsplit=1)[1].strip()
         if line.startswith("WAVES/S/N"):
             command_part: str = line.split(")", maxsplit=1)[0] + ")"
-            line = command_part + " 'ID_" + str(id).zfill(3) + "'\r\n"
+            line = command_part + " '" + wavename + "'\r\n"
         if line.startswith("END") and user_comment:
             line = (
                 "END\r\n"
-                + "X Note /NOCR "
-                + "'ID_"
-                + str(id).zfill(3)
+                + "X Note /NOCR '"
+                + wavename
                 + "'"
                 + ' "'
                 + user_comment
@@ -119,7 +122,7 @@ def tune(itx_file: IO[str], angle_correction: float = 0) -> list[str]:
                 + "\r\n"
             )
             line += (
-                "X Note /NOCR " + "'ID_" + str(id).zfill(3) + "'" + ' "'
+                "X Note /NOCR '" + wavename + "'" + ' "'
                 r"\r\nExcitation_energy:" + excitation_energy + '"' + "\r\n"
             )
         if line.startswith("X SetScale/I x"):
@@ -128,24 +131,22 @@ def tune(itx_file: IO[str], angle_correction: float = 0) -> list[str]:
                 scale_x: list[str] = line.split()
                 new_scale_x_left: float = float(scale_x[1]) / angle_correction
                 new_scale_x_right: float = float(scale_x[2]) / angle_correction
-                note: str = (
-                    r"""X Note /NOCR 'ID_{:03}' "\r\nangle_correction:{}" """.format(
-                        id, angle_correction
-                    )
+                note: str = r"""X Note /NOCR '{}' "\r\nangle_correction:{}" """.format(
+                    wavename, angle_correction
                 )
                 command_part = " ".join(line.split(",")[:-1])
-                line = note + "\r\nX SetScale/I x, {}, {}, {} 'ID_{:03}'\r\n".format(
+                line = note + "\r\nX SetScale/I x, {}, {}, {} '{}'\r\n".format(
                     new_scale_x_left,
                     new_scale_x_right,
                     scale_x[5],
-                    id,
+                    wavename,
                 )
             else:
                 command_part = ", ".join(line.split(",")[:-1])
                 logger.debug("command_part: {}".format(command_part))
-                line = command_part + ", 'ID_" + str(id).zfill(3) + "'\r\n"
+                line = command_part + ", '" + wavename + "'\r\n"
         if line.startswith("X SetScale/I y") or line.startswith("X SetScale/I d"):
             command_part = ", ".join(line.split(",")[:-1])
-            line = command_part + ", 'ID_" + str(id).zfill(3) + "'\r\n"
+            line = command_part + ", '" + wavename + "'\r\n"
         modified_itx.append(line.strip() + "\r\n")
     return modified_itx
