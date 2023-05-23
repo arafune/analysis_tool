@@ -104,7 +104,7 @@ def tune(itx_file: IO[str], angle_correction: float = 0) -> list[str]:
         if line.startswith("X //Excitation Energy"):
             excitation_energy = line.split("=", maxsplit=1)[1].strip()
         if line.startswith("WAVES/S/N"):
-            command_part: str = line.split(maxsplit=1)[0]
+            command_part: str = line.split(")", maxsplit=1)[0] + ")"
             line = command_part + " 'ID_" + str(id).zfill(3) + "'\r\n"
         if line.startswith("END") and user_comment:
             line = (
