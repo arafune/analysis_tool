@@ -21,7 +21,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.propagate = True
 
-DIGIT_ID = 4
+DIGIT_ID = 3
 
 
 def property(itx_file: str | os.PathLike[str]) -> dict[str, str | float | NDArray]:
