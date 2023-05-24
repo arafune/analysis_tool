@@ -63,7 +63,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         "psi": 0,
     }
 
-    def postprocess_final(self, data: xr.Dataset, scan_desc: dict = None):
+    def postprocess_final(self, data: xr.Dataset, scan_desc: dict = {}):
         """Performs final data normalization.
 
         Parameters
@@ -90,7 +90,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         return super().postprocess_final(data, scan_desc)
 
     def load_single_frame(
-        self, frame_path: str = None, scan_desc: dict = None, **kwargs
+        self, frame_path: str = "", scan_desc: dict = {}, **kwargs
     ) -> xr.Dataset:
         """Load a single frame from an PHOIBOS 100 spectrometer with Prodigy.
 
