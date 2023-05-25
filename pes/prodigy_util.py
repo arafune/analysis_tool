@@ -37,7 +37,9 @@ def _itx_common_head(itx_data: list[str]) -> dict[str, str]:
     return common_params
 
 
-def _itx_core(itx_data: list[str], common_attrs: dict[str, str] = {}) -> xr.DataArray:
+def _itx_core(
+    itx_data: list[str], common_attrs: dict[str, str | int | float] = {}
+) -> xr.DataArray:
     """Parse itx file
 
     Parameters
@@ -53,13 +55,12 @@ def _itx_core(itx_data: list[str], common_attrs: dict[str, str] = {}) -> xr.Data
         _description_
     """
     section: str = ""
-    params: dict[str, str] = {}
+    params: dict[str, str | int | float] = {}
     pixels: tuple[int, int] = (0, 0)
     angle: NDArray[np.float64]
     energy: NDArray[np.float64]
     data: list[list[float]] = []
     name: str = ""
-    params = {}
     for line in itx_data:
         if line.startswith("X //"):
             section = "params"
@@ -90,14 +91,21 @@ def _itx_core(itx_data: list[str], common_attrs: dict[str, str] = {}) -> xr.Data
                     angle = np.linspace(
                         float(setscale[1]), float(setscale[2]), num=pixels[0]
                     )
-                    params["angle_unit"] = setscale[3][2:-1]
+                    params["angle_unit"] = setscale[3].strip()[1:-1]
                 elif "y" in setscale[0]:
-                    energy = np.linspace(
-                        float(setscale[1]), float(setscale[2]), num=pixels[1]
-                    )
-                    params["energy_unit"] = setscale[3][2:-1]
+                    if "I" in setscale[0]:
+                        energy = np.linspace(
+                            float(setscale[1]), float(setscale[2]), num=pixels[1]
+                        )
+                    elif "P" in setscale[0]:
+                        energy = np.linspace(
+                            float(setscale[1]),
+                            float(setscale[1]) + float(setscale[2]) * (pixels[1] - 1),
+                            num=pixels[1],
+                        )
+                    params["energy_unit"] = setscale[3].strip()[1:3]
                 elif "d" in setscale[0]:
-                    params["count_unit"] = setscale[3][2:-1]
+                    params["count_unit"] = setscale[3].strip()[1:-1]
 
             elif line.startswith("BEGIN"):
                 pass
