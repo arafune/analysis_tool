@@ -13,7 +13,7 @@ from numpy.typing import NDArray
 __all__ = ["load_itx", "load_sp2"]
 
 
-def _itx_common_head(itx_data: list[str]) -> dict[str, str]:
+def _itx_common_head(itx_data: list[str]) -> dict[str, str | int | float]:
     """Parse Common head part
 
     Parameters
@@ -23,10 +23,10 @@ def _itx_common_head(itx_data: list[str]) -> dict[str, str]:
 
     Returns
     -------
-    Dict[str, str]
+    dict[str, str | int | float]
         Common head data
     """
-    common_params: dict[str, str] = {}
+    common_params: dict[str, str | int | float] = {}
     for line in itx_data[1:]:
         if line.startswith("X //Acquisition Parameters"):
             break
@@ -151,7 +151,7 @@ def load_itx(
     with open(path_to_file, "rt") as itx_file:
         itx_data: list[str] = itx_file.readlines()
         itx_data = list(map(str.rstrip, itx_data))
-    common_head: dict[str, str] = _itx_common_head(itx_data)
+    common_head: dict[str, str | int | float] = _itx_common_head(itx_data)
     if itx_data.count("BEGIN") != 1:
         raise RuntimeError(
             "This file contains multi spectra. Use the file Prodigy produces"
