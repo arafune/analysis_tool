@@ -6,7 +6,15 @@ from __future__ import annotations
 import numpy as np
 
 
-def three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3) -> float:
+def three_term_sellmier(
+    lambda_micron: float,
+    b1: float,
+    c1: float,
+    b2: float,
+    c2: float,
+    b3: float,
+    c3: float,
+) -> float:
     r"""
     :math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - c1} + \frac{B_1 \lambda^2}{\lambda^2 - C_2} + \frac{B_3 \lambda^2}{\lambda^2 - C_3}`
 
@@ -43,7 +51,13 @@ def three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3) -> float:
 
 
 def second_derivative_three_term_sellmier(
-    lambda_micron, b1, c1, b2, c2, b3, c3
+    lambda_micron: float,
+    b1: float,
+    c1: float,
+    b2: float,
+    c2: float,
+    b3: float,
+    c3: float,
 ) -> float:
     """Second derivative of the three term sellmier equation
 
@@ -105,7 +119,9 @@ def second_derivative_three_term_sellmier(
     )
 
 
-def two_term_serllmier(lambda_micron, b1, c1, b2, c2) -> float:
+def two_term_serllmier(
+    lambda_micron: float, b1: float, c1: float, b2: float, c2: float
+) -> float:
     r"""
     :math:`n^2 -1 = \frac{B1 \lambda^2}{\lambda^2 - C1} + \frac{c \lambda^2}{\lambda^2 - d}`
 
@@ -131,7 +147,9 @@ def two_term_serllmier(lambda_micron, b1, c1, b2, c2) -> float:
     return three_term_sellmier(lambda_micron, b1, c1, b2, c2, 0, 0)
 
 
-def second_derivative_two_term_sellmier(lambda_micron, b1, c1, b2, c2) -> float:
+def second_derivative_two_term_sellmier(
+    lambda_micron: float, b1: float, c1: float, b2: float, c2: float
+) -> float:
     """Second derivative of the two term sellmier equation
 
     Parameters
