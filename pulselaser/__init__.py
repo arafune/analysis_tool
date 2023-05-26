@@ -9,7 +9,7 @@ def broadening(initial_width_fs: float, gdd: float) -> float:
     initial_width_fs: float
         initial pulse width (fs unit)
     gdd: float
-        Group delay dispersion (fs^2/mm unit)
+        Group delay dispersion (fs^2 unit)
 
     Returns
     -------
@@ -34,7 +34,7 @@ def broadening_after_n(
     initial_width_fs: float
         initial pulse width (fs unit)
     gdd: float
-        Group delay dispersion (fs^2/mm unit)
+        Group delay dispersion (fs^2 unit)
     iteration: int
         Number of iteration
 
@@ -52,6 +52,6 @@ def broadening_after_n(
 
 
 def gvd(lambda_micron: float, d2n: float) -> float:
-    """Return GVD in fs/mm units"""
+    """Return GVD in fs^2/mm units"""
     light_speed_micron_fs = 0.299792458
     return lambda_micron**3 / (2 * np.pi * light_speed_micron_fs**2) * d2n * 1e3
