@@ -66,7 +66,13 @@ def _itx_core(
         if line.startswith("X //"):
             section = "params"
         elif line.startswith("WAVES/S/N"):
+            pixels = (
+                int(line[11:].split(")")[0].split(",")[0]),
+                int(line[11:].split(")")[0].split(",")[1]),
+            )
+            name = (line.split(maxsplit=1)[-1])[1:-1]
             section = "data"
+            continue
         elif line.startswith("IGOR"):
             pass
         if section == "params":
@@ -80,13 +86,7 @@ def _itx_core(
                     except ValueError:
                         params[line_data[0]] = line_data[1]
         elif section == "data":
-            if line.startswith("WAVES/S/N"):
-                pixels = (
-                    int(line[11:].split(")")[0].split(",")[0]),
-                    int(line[11:].split(")")[0].split(",")[1]),
-                )
-                name = (line.split(maxsplit=1)[-1])[1:-1]
-            elif line.startswith("X SetScale"):
+            if line.startswith("X SetScale"):
                 setscale = line.split(",", maxsplit=5)
                 if "x" in setscale[0]:
                     angle = np.linspace(
@@ -130,7 +130,7 @@ def _itx_core(
 
 
 def load_itx(
-    path_to_file: Path | str, **kwargs: dict[str, str | float]
+    path_to_file: Path | str, **kwargs: dict[str, str | int | float]
 ) -> xr.DataArray:
     """Load and parse the (single) itx data.
 
