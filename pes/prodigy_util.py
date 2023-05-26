@@ -164,7 +164,7 @@ def load_itx(
 
 
 def load_sp2(
-    path_to_file: Path | str, **kwargs: dict[str, str | float]
+    path_to_file: Path | str, **kwargs: dict[str, str | int | float]
 ) -> xr.DataArray:
     """Load and parse sp2 file
 
@@ -179,7 +179,7 @@ def load_sp2(
         _description_
     """
     params: dict[str, str | float] = {}
-    data: list[float] | NDArray[np.float_] = []
+    data: list[float] = []
     pixels: tuple[int, int] | None = None
     with open(path_to_file, "rt", encoding="Windows-1252") as sp2file:
         for line in sp2file:
@@ -206,7 +206,6 @@ def load_sp2(
                     data.append(float(line))
                 else:
                     pixels = (int(line.split()[1]), int(line.split()[0]))
-    data = np.array(data).reshape(pixels)
     e_range = [float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["X Range"])]
     a_range = [float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["Y Range"])]
     params["spectrum_type"] = "cut"
@@ -217,7 +216,9 @@ def load_sp2(
         }
     for k, v in kwargs.items():
         params[k] = v
-    return xr.DataArray(np.array(data), coords=coords, dims=["phi", "eV"], attrs=params)
+    return xr.DataArray(
+        np.array(data).reshape(pixels), coords=coords, dims=["phi", "eV"], attrs=params
+    )
 
 
 def parse_setscale(line: str) -> tuple[str, str, float, float, str]:
