@@ -8,6 +8,7 @@ from pathlib import Path
 
 import numpy as np
 import xarray as xr
+from _typeshed import StrOrLiteralStr
 from numpy.typing import NDArray
 
 __all__ = ["load_itx", "load_sp2"]
@@ -217,3 +218,36 @@ def load_sp2(
     for k, v in kwargs.items():
         params[k] = v
     return xr.DataArray(np.array(data), coords=coords, dims=["phi", "eV"], attrs=params)
+
+
+def parse_setscale(line: str) -> tuple[str, str, float, float, str]:
+    """Parse setscale"""
+    assert "SetScale" in line
+    flag: str
+    dim: str
+    num1: float
+    num2: float
+    unit: str
+    setscale = line.split(",", maxsplit=5)
+    if "/I" in line:
+        flag = "I"
+    elif "/P" in line:
+        flag = "P"
+    else:
+        flag = ""
+    if "x" in setscale[0]:
+        dim = "x"
+    elif "y" in setscale[0]:
+        dim = "y"
+    elif "z" in setscale[0]:
+        dim = "z"
+    elif "t" in setscale[0]:
+        dim = "t"
+    elif "d" in setscale[0]:
+        dim = "d"
+    else:
+        raise RuntimeError("Dimmension is not correct")
+    unit = setscale[3].strip()[1:-1]
+    num1 = float(setscale[1])
+    num2 = float(setscale[2])
+    return (flag, dim, num1, num2, unit)

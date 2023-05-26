@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import os
 from logging import INFO, Formatter, StreamHandler, getLogger
-from typing import IO
+from typing import IO, Literal
 
 import numpy as np
 from numpy.typing import NDArray
@@ -150,3 +150,16 @@ def tune(itx_file: IO[str], angle_correction: float = 0) -> list[str]:
             line = command_part + ", '" + wavename + "'\r\n"
         modified_itx.append(line.strip() + "\r\n")
     return modified_itx
+
+
+def setscale_command(
+    dim: Literal["d", "t", "x", "y", "z"],
+    num1: float,
+    num2: float,
+    unit: str,
+    wavename: str,
+    flag: Literal["/I", "/P"] = "/I",
+) -> str:
+    return """X SetScale{} {}, {}, {}, "{}", '{}'\r\n""".format(
+        flag, dim, num1, num2, unit, wavename
+    )
