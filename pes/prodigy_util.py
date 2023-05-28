@@ -5,10 +5,14 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import xarray as xr
-from _typeshed import StrOrLiteralStr
+
+if TYPE_CHECKING:
+    from _typeshed import StrOrLiteralStr
+
 from numpy.typing import NDArray
 
 __all__ = ["load_itx", "load_sp2"]
