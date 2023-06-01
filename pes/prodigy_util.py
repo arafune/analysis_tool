@@ -10,21 +10,121 @@ from typing import TYPE_CHECKING
 import numpy as np
 import xarray as xr
 
+# from arpes.endstations.fits_utils import CoordsDict
+
 if TYPE_CHECKING:
     from _typeshed import StrOrLiteralStr
 
 from numpy.typing import NDArray
+from spd_controller.Specs.convert import itx
 
 __all__ = ["load_itx", "load_sp2"]
 
 
-def _itx_common_head(itx_data: list[str]) -> dict[str, str | int | float]:
+class ProdigyItx:
+    def __init__(self, path_to_itx_file: Path | str = "") -> None:
+        """Initialization"""
+        self.params: dict[str, str | int | float] = {}
+        self.pixels: tuple[int, int]
+        self.axis_info: dict[str, tuple[str, float, float, str]] = {}
+        self.wavename: str = ""
+        self.intensity: list[list[float]] = []
+        if path_to_itx_file:
+            self.load_and_parse(path_to_itx_file)
+
+    def load_and_parse(self, path_to_itx_file: Path | str) -> None:
+        with open(path_to_itx_file, "rt") as itx_file:
+            itx_data: list[str] = itx_file.readlines()
+            itx_data = list(map(str.rstrip, itx_data))
+        self.params = _itx_common_head(itx_data, analyze_type=True)
+        if itx_data.count("BEGIN") != 1:
+            raise RuntimeError(
+                "This itx file contains more than one spectra. Use the itx file that Prodigy exports."
+            )
+        for line in itx_data:
+            if (
+                line.startswith("IGOR")
+                or line.startswith("BEGIN")
+                or line.startswith("END")
+            ):
+                continue
+            if line.startswith("X //"):
+                continue
+            if line.startswith("WAVES/S/N"):
+                self.pixels = (
+                    int(line[11:].split(")")[0].split(",")[0]),
+                    int(line[11:].split(")")[0].split(",")[1]),
+                )
+                self.wavename = line.split(maxsplit=1)[-1].strip()[1:-1]
+                continue
+            if line.startswith("X SetScale"):
+                tmp = _parse_setscale(line)
+                self.axis_info[tmp[1]] = (tmp[0], tmp[2], tmp[3], tmp[4])
+                continue
+            self.intensity.append([float(i) for i in line.split()])
+
+    def to_data_array(self) -> xr.DataArray:
+        """Export to Xarray"""
+        common_attrs: dict[str, str | int | float] = {}
+        common_attrs["spectrum_type"] = "cut"
+        attrs = common_attrs
+        coords: dict[str, NDArray] = {}
+        # set angle axis
+        if self.axis_info["x"][0] == "I":
+            angle = np.linspace(
+                float(self.axis_info["x"][1]),
+                float(self.axis_info["x"][2]),
+                num=self.pixels[0],
+            )
+            coords["phi"] = np.deg2rad(angle)
+        elif self.axis_info["x"][0] == "P":
+            angle = np.linspace(
+                float(self.axis_info["x"][1]),
+                float(self.axis_info["x"][1])
+                + float(self.axis_info["x"][2]) * (self.pixels[0] - 1),
+                num=self.pixels[0],
+            )
+            coords["phi"] = np.deg2rad(angle)
+        if self.axis_info["y"][0] == "I":
+            coords["eV"] = np.linspace(
+                float(self.axis_info["y"][1]),
+                float(self.axis_info["y"][2]),
+                num=self.pixels[1],
+            )
+        elif self.axis_info["y"][0] == "P":
+            coords["eV"] = np.linspace(
+                float(self.axis_info["y"][1]),
+                float(self.axis_info["y"][1])
+                + float(self.axis_info["y"][2]) * (self.pixels[1] - 1),
+                num=self.pixels[1],
+            )
+        attrs.update(self.params)
+        attrs["angle_unit"] = "rad (theta_y)"
+        if "y" in self.axis_info.keys():
+            attrs["enegy_unit"] = self.axis_info["y"][3]
+        if "d" in self.axis_info.keys():
+            attrs["count_unit"] = self.axis_info["d"][3]
+        return xr.DataArray(
+            np.array(self.intensity),
+            coords=coords,
+            dims=["phi", "eV"],
+            attrs=attrs,
+            name=self.wavename,
+        )
+
+
+def _itx_common_head(
+    itx_data: list[str], analyze_type: bool = False
+) -> dict[str, str | int | float]:
     """Parse Common head part
 
     Parameters
     ----------
     itx_data : list[str]
         Contents of itx data file (return on readlines())
+
+    analyze_type: bool
+        if true the type of the value in head part is analyzed.
 
     Returns
     -------
@@ -33,12 +133,35 @@ def _itx_common_head(itx_data: list[str]) -> dict[str, str | int | float]:
     """
     common_params: dict[str, str | int | float] = {}
     for line in itx_data[1:]:
+        if not line.startswith("X //"):
+            continue
         if line.startswith("X //Acquisition Parameters"):
-            break
-        else:
-            line_data: list[str] = line[4:].split(":", maxsplit=1)
-            common_params[line_data[0]] = line_data[1].strip()
-            # Comment の処理
+            continue
+        if line.startswith("X //User Comment"):
+            user_comment: str = line.split("=", maxsplit=1)[1].strip()
+            common_params["User Comment"] = user_comment
+            line_data: list[str] = user_comment.split(";", maxsplit=1)
+            for item in line_data:
+                try:
+                    key, value = item.split(":")
+                    common_params[key] = value
+                except ValueError:
+                    pass
+        elif "=" in line:
+            line_data = line[4:].split("=", maxsplit=1)
+            common_params[line_data[0].strip()] = line_data[1].strip()
+        elif ":" in line:
+            line_data = line.split(":", maxsplit=1)
+            common_params[line_data[0][4:].strip()] = line_data[1].strip()
+    if analyze_type:
+        for k, v in common_params.items():
+            try:
+                common_params[k] = int(v)
+            except ValueError:
+                try:
+                    common_params[k] = float(v)
+                except ValueError:
+                    common_params[k] = v
     return common_params
 
 
@@ -225,8 +348,18 @@ def load_sp2(
     )
 
 
-def parse_setscale(line: str) -> tuple[str, str, float, float, str]:
-    """Parse setscale"""
+def _parse_setscale(line: str) -> tuple[str, str, float, float, str]:
+    """Parse setscale
+
+    Parameters
+    ----------
+    line: str
+        line should start with "X SetScale"
+
+    Returns
+    -------
+        tuple[str, str, float, float, str]
+    """
     assert "SetScale" in line
     flag: str
     dim: str
@@ -246,10 +379,10 @@ def parse_setscale(line: str) -> tuple[str, str, float, float, str]:
         dim = "y"
     elif "z" in setscale[0]:
         dim = "z"
-    elif "t" in setscale[0]:
-        dim = "t"
     elif "d" in setscale[0]:
         dim = "d"
+    elif " t" in setscale[0]:
+        dim = "t"
     else:
         raise RuntimeError("Dimmension is not correct")
     unit = setscale[3].strip()[1:-1]
