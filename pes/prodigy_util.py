@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import xarray as xr
+from typing_extensions import Literal
 
 # from arpes.endstations.fits_utils import CoordsDict
 
@@ -18,18 +19,30 @@ if TYPE_CHECKING:
 from numpy.typing import NDArray
 from spd_controller.Specs.convert import itx
 
+Measure_type = Literal["FAT", "SFAT"]
 __all__ = ["load_itx", "load_sp2"]
 
 
 class ProdigyItx:
     """
+
+    Parameters
+    -----------
+    path_to_itx_file: Path | str (default = "")
+        path to the itx file
+
     Attributes
     ----------
-    params
-    pixels
-    axis_info
-    wavename
-    intensity
+    params: dict[str, str | int float]
+        The measurement Prameters
+    pixels: tuple[int, int]
+        The number of the pixcels of the intensity map.
+    axis_info: dict[str, tuple[str, float, float, str]]
+        The information of axis
+    wavename: str
+        The name of wave
+    intensity:list[list[float]]
+        The phtoemission intensity
     """
 
     def __init__(self, path_to_itx_file: Path | str = "") -> None:
@@ -53,7 +66,7 @@ class ProdigyItx:
         with open(path_to_itx_file, "rt") as itx_file:
             itx_data: list[str] = itx_file.readlines()
             itx_data = list(map(str.rstrip, itx_data))
-        self.params = _itx_common_head(itx_data, analyze_type=True)
+        self.params = _parse_itx_head(itx_data, analyze_type=True)
         if itx_data.count("BEGIN") != 1:
             raise RuntimeError(
                 "This itx file contains more than one spectra. Use the itx file that Prodigy exports."
@@ -83,11 +96,12 @@ class ProdigyItx:
     def to_data_array(self, **kwargs: dict[str, str | int | float]) -> xr.DataArray:
         """Export to Xarray
 
-
         Returns
         -------
         xr.DataArray
             pyarpess compatibility
+        **kwargs : dict, optional
+            Extra arguments: forward to the attrs of the output xarray.
         """
         common_attrs: dict[str, str | int | float] = {}
         common_attrs["spectrum_type"] = "cut"
@@ -140,6 +154,20 @@ class ProdigyItx:
         return data_array
 
 
+def save_itx(arr: xr.DataArray) -> str:
+    """Export pyarpes spectrum data to itx file
+
+    Parameters
+    ----------
+    arr: xr.DataArray
+
+    Returns
+    str:
+        itx formatted ARPES data
+    """
+    parameters: dict[str, str | int | float]
+
+
 def load_itx(
     path_to_file: Path | str, **kwargs: dict[str, str | int | float]
 ) -> xr.DataArray:
@@ -181,7 +209,7 @@ def load_sp2(
     ------- xr.DataArray _description_"""
     params: dict[str, str | float] = {}
     data: list[float] = []
-    #    pixels: tuple[int, int] = ()
+    pixels: tuple[int, int] = (0, 0)
     coords: dict[str, NDArray] = {}
     with open(path_to_file, "rt", encoding="Windows-1252") as sp2file:
         for line in sp2file:
@@ -204,14 +232,14 @@ def load_sp2(
             elif line.startswith("P"):
                 pass
             else:
-                if "pixels" in locals():
+                if pixels != (0, 0):
                     data.append(float(line))
                 else:
-                    pixels: tuple[int, int] = (
+                    pixels = (
                         int(line.split()[1]),
                         int(line.split()[0]),
                     )
-    if pixels:
+    if pixels != (0, 0):
         if isinstance(params["X Range"], str):
             e_range = [
                 float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["X Range"])
@@ -231,7 +259,107 @@ def load_sp2(
     return data_array
 
 
-def _itx_common_head(
+header_template = """IGOR
+X //Created Date (UTC): {}
+X //Created by: R. Arafune
+X //Acquisition Parameters:
+X //Scan Mode         = {}
+X //User Comment      = {}
+X //Analysis Mode     = UPS
+X //Lens Mode         = {}
+X //Lens Voltage      = {}
+X //Spectrum ID       = {}
+X //Analyzer Slits    = 1:0.5x20\\B:open
+X //Number of Scans   = {}
+X //Number of Samples = {}
+X //Scan Step         = {}
+X //DwellTime         = {}
+X //Excitation Energy = {}
+X //Kinetic Energy    = {}
+X //Pass Energy       = {}
+X //Bias Voltage      = {}
+X //Detector Voltage  = {}
+X //WorkFunction      = 4.401
+"""
+
+
+def _build_itx_header(
+    param: dict,
+    spectrum_id: int,
+    num_scan: int = 1,
+    comment: str = "",
+    measure_mode: Measure_type = "FAT",
+) -> str:
+    """Make itx file header
+
+    Parameters
+    ----------
+    param: dict[ str, str | float | int]
+        Spectrum parameter
+    spectrum_id: int
+        Unique id for spectrum
+    num_scan: int
+        Number of scan.
+    comment: str
+        Comment string.  Used in "//User Comment"
+    measure_mode : Measure_type
+        Measurement mode (FAT/SFAT)
+
+    Returns
+    -------
+    str
+        Header part of itx
+    """
+    if measure_mode == "FAT":
+        mode = "Fixed Analyzer Transmission"
+    else:
+        mode = "Snapshot"
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
+    if param["User Comment"]:
+        comment += ";" + param["User Comment"]
+    return header_template.format(
+        now,
+        mode,
+        comment,
+        param["LensMode"],
+        param["ScanRange"],
+        spectrum_id,
+        num_scan,
+        param["Samples"],
+        param["StepWidth"],
+        param["DwellTime"],
+        param["ExcitationEnergy"],
+        param["StartEnergy"],
+        param["PassEnergy"],
+        param["Bias Voltage Electrons"],
+        param["Detector Voltage"],
+    )
+
+
+def _correct_angle_region(
+    angle_min: float, angle_max: float, num_pixel: int
+) -> tuple[float, float]:
+    """Correct the angle value to fit igor.
+
+    Parameters
+    ----------
+    angle_min: float
+        Minimum angle of emission
+    angle_max: float
+        Maximum angle of emission
+    num_pixel: int
+        The number of pixels for non-energy channels (i.e. angle)
+
+    Returns
+    -------
+    tuple[float, float]
+        minimum angle value and maximum angle value
+    """
+    diff: float = ((angle_max - angle_min) / num_pixel) / 2
+    return angle_min + diff, angle_max - diff
+
+
+def _parse_itx_head(
     itx_data: list[str], analyze_type: bool = False
 ) -> dict[str, str | int | float]:
     """Parse Common head part
@@ -240,7 +368,6 @@ def _itx_common_head(
     ----------
     itx_data : list[str]
         Contents of itx data file (return on readlines())
-
     analyze_type: bool
         if true the type of the value in head part is analyzed.
 
