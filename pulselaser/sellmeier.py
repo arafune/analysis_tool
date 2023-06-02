@@ -43,9 +43,9 @@ def three_term_sellmier(
     """
     n2 = (
         1
-        + b1 * lambda_micron**2 / (lambda_micron**2 - c1)
-        + b2 * lambda_micron**2 / (lambda_micron**2 - c2)
-        + b3 * lambda_micron**2 / (lambda_micron**2 - c3)
+        + b1 * lambda_micron**2 / (lambda_micron**2 - c1**2)
+        + b2 * lambda_micron**2 / (lambda_micron**2 - c2**2)
+        + b3 * lambda_micron**2 / (lambda_micron**2 - c3**2)
     )
     return np.sqrt(n2)
 
@@ -200,7 +200,7 @@ def BK7(lambda_micron: float, second_derivative: bool = False) -> float:
 
 
 def FusedSilica(lambda_micron: float, second_derivative: bool = False) -> float:
-    r"""Dispersion of Fusd Silica
+    r"""Dispersion of Fusd Silica (0.21- 3.71 micron)
 
     https://refractiveindex.info/?shelf=glass&book=fused_silica&page=Malitson
 
@@ -222,6 +222,33 @@ def FusedSilica(lambda_micron: float, second_derivative: bool = False) -> float:
             lambda_micron, b1, c1, b2, c2, b3, c3
         )
     return three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3)
+
+
+def caf2(lambda_micron: float, second_derivative: bool = False) -> float:
+    r"""Dispersion of caf2 (0.15 - 12 micron)
+
+    https://www.thorlabs.co.jp/newgrouppage9.cfm?objectgroup_id=6973&tabname=UV溶融石英(UVFS)
+
+    Parameters
+    -----------
+    lambda_micron: float
+        wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
+    second_derivative: bool
+        if True return :math:`\frac{d^2n}{d\lambda^2}`
+    """
+    b1 = 0.69913
+    c1 = 0.09374
+    b2 = 0.11994
+    c2 = 21.18
+    b3 = 4.35181
+    c3 = 38.46
+    if second_derivative:
+        return second_derivative_three_term_sellmier(
+            lambda_micron, b1, c1, b2, c2, b3, c3
+        )
+    return np.sqrt(
+        three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3) ** 2 + 0.33973
+    )
 
 
 def air(lambda_micron: float, second_derivative: bool = False) -> float:
