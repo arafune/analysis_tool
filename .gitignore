@@ -17,3 +17,4 @@ test/pes/cover
 htmlcov
 typings
 pes/doc/logs
+.virtual_documents/

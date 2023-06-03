@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -17,10 +18,11 @@ if TYPE_CHECKING:
     from _typeshed import StrOrLiteralStr
 
 from numpy.typing import NDArray
-from spd_controller.Specs.convert import itx
 
 Measure_type = Literal["FAT", "SFAT"]
 __all__ = ["load_itx", "load_sp2"]
+
+DIGIT_ID = 3
 
 
 class ProdigyItx:
@@ -154,7 +156,7 @@ class ProdigyItx:
         return data_array
 
 
-def save_itx(arr: xr.DataArray) -> str:
+def _export_itx(arr: xr.DataArray) -> str:
     """Export pyarpes spectrum data to itx file
 
     Parameters
@@ -165,7 +167,60 @@ def save_itx(arr: xr.DataArray) -> str:
     str:
         itx formatted ARPES data
     """
-    parameters: dict[str, str | int | float]
+    start_energy: float = arr.indexes["eV"][0]
+    step_energy: float = arr.indexes["eV"][1] - arr.indexes["eV"][0]
+    end_energy: float = arr.indexes["eV"][-1]
+    parameters = arr.attrs
+    parameters["StartEnergy"] = start_energy
+    parameters["StepWidth"] = step_energy
+    itx_str: str = _build_itx_header(
+        arr.attrs,
+        comment=arr.attrs["User Comment"],
+        measure_mode=arr.attrs["Scan Mode"],
+    )
+    phi_pixel = len(arr.coords["phi"])
+    energy_pixel = len(arr.coords["eV"])
+    wavename = "ID_" + str(parameters["id"]).zfill(DIGIT_ID)
+    itx_str += "WAVES/S/N=({},{}) '{}'\nBEGIN\n".format(
+        phi_pixel, energy_pixel, wavename
+    )
+    try:
+        intensities_list = arr.to_dict()["data_vars"]["spectrum"]["data"]
+    except KeyError:
+        intensities_list = arr.to_dict()["data"]
+    for a_intensities in intensities_list:
+        itx_str += " ".join(map(str, a_intensities)) + "\n"
+    itx_str += "END\n"
+    start_phi_deg: float = np.rad2deg(arr.indexes["phi"][0])
+    end_phi_deg: float = np.rad2deg(arr.indexes["phi"][-1])
+    itx_str += """X SetScale/I x, {}, {}, "deg (theta_y)", '{}'\n""".format(
+        start_phi_deg, end_phi_deg, wavename
+    )
+    itx_str += """X SetScale/I y, {}, {}, "eV", '{}'\n""".format(
+        start_energy, end_energy, wavename
+    )
+    itx_str += """X SetScale/I d, 0, 0, "{}", '{}'\n""".format(
+        parameters["count_unit"], wavename
+    )
+    return itx_str
+
+
+def export_itx(file_name: str | Path, arr: xr.DataArray) -> None:
+    """Export pyarpes spectrum data to itx file
+
+    Parameters
+    ----------
+    file_name: str | Path
+        file name for export
+    arr: xr.DataArray
+        pyarpes DataArray
+    Returns
+    -------
+    str:
+        itx formatted ARPES data
+    """
+    with open(file_name, "w") as itx_file:
+        itx_file.write(_export_itx(arr))
 
 
 def load_itx(
@@ -249,7 +304,11 @@ def load_sp2(
             a_range = [
                 float(i) for i in re.findall(r"-?[0-9]+\.?[0-9]*", params["Y Range"])
             ]
-            coords["phi"] = np.deg2rad(np.linspace(a_range[0], a_range[1], pixels[0]))
+            corrected_angles = _correct_angle_region(a_range[0], a_range[1], pixels[0])
+
+            coords["phi"] = np.deg2rad(
+                np.linspace(corrected_angles[0], corrected_angles[1], pixels[0])
+            )
     params["spectrum_type"] = "cut"
     data_array: xr.DataArray = xr.DataArray(
         np.array(data).reshape(pixels), coords=coords, dims=["phi", "eV"], attrs=params
@@ -269,7 +328,7 @@ X //Analysis Mode     = UPS
 X //Lens Mode         = {}
 X //Lens Voltage      = {}
 X //Spectrum ID       = {}
-X //Analyzer Slits    = 1:0.5x20\\B:open
+X //Analyzer Slits    = {}
 X //Number of Scans   = {}
 X //Number of Samples = {}
 X //Scan Step         = {}
@@ -279,14 +338,12 @@ X //Kinetic Energy    = {}
 X //Pass Energy       = {}
 X //Bias Voltage      = {}
 X //Detector Voltage  = {}
-X //WorkFunction      = 4.401
+X //WorkFunction      = {}
 """
 
 
 def _build_itx_header(
     param: dict,
-    spectrum_id: int,
-    num_scan: int = 1,
     comment: str = "",
     measure_mode: Measure_type = "FAT",
 ) -> str:
@@ -320,19 +377,21 @@ def _build_itx_header(
     return header_template.format(
         now,
         mode,
-        comment,
-        param["LensMode"],
-        param["ScanRange"],
-        spectrum_id,
-        num_scan,
-        param["Samples"],
+        param["User Comment"],
+        param["lens_mode"],
+        param["Lens Voltage"],
+        param["id"],
+        param["Analyzer Slits"],
+        param["Number of Scans"],
+        param["Number of Samples"],
         param["StepWidth"],
         param["DwellTime"],
-        param["ExcitationEnergy"],
+        param["hv"],
         param["StartEnergy"],
-        param["PassEnergy"],
-        param["Bias Voltage Electrons"],
-        param["Detector Voltage"],
+        param["pass_energy"],
+        param["Bias Voltage"],
+        param["mcp_voltage"],
+        param["workfunction"],
     )
 
 
@@ -384,7 +443,12 @@ def _parse_itx_head(
             continue
         if line.startswith("X //User Comment"):
             user_comment: str = line.split("=", maxsplit=1)[1].strip()
-            common_params["User Comment"] = user_comment
+            if "User Comment" in common_params.keys():
+                common_params["User Comment"] = str(
+                    common_params["User Comment"]
+                ) + str(user_comment)
+            else:
+                common_params["User Comment"] = str(user_comment)
             line_data: list[str] = user_comment.split(";", maxsplit=1)
             for item in line_data:
                 try:

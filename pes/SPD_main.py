@@ -90,7 +90,10 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         return super().postprocess_final(data, scan_desc)
 
     def load_single_frame(
-        self, frame_path: str = "", scan_desc: dict = {}, **kwargs
+        self,
+        frame_path: str = "",
+        scan_desc: dict = {},
+        **kwargs: dict[str, str | int | float]
     ) -> xr.Dataset:
         """Load a single frame from an PHOIBOS 100 spectrometer with Prodigy.
 
