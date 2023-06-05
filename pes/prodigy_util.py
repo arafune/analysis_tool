@@ -26,7 +26,7 @@ DIGIT_ID = 3
 
 
 class ProdigyItx:
-    """
+    """Class for Prodigy exported itx file.
 
     Parameters
     -----------
@@ -154,6 +154,11 @@ class ProdigyItx:
         for k, v in kwargs.items():
             data_array.attrs[k] = v
         return data_array
+
+    @property
+    def integrated_intensity(self) -> float:
+        "Return the integrated intensity"
+        return np.sum(np.array(self.intensity))
 
 
 def _export_itx(arr: xr.DataArray) -> str:

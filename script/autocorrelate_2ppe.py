@@ -8,10 +8,9 @@ from logging import INFO, Formatter, StreamHandler, getLogger
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.axes import Axes
-from matplotlib.figure import Figure
+from matplotlib.figure import FigureBase
 
-from pes.itx import property
+from pes.prodigy_util import ProdigyItx
 
 LOGLEVEL = INFO
 logger = getLogger(__name__)
@@ -48,9 +47,9 @@ if __name__ == "__main__":
     autocorrelation = []
     for itx_file in args.itx_files:
         logger.debug("itx_file name:{}".format(itx_file))
-        prop = property(itx_file)
-        integrated_intensity = prop["IntegratedIntensity"]
-        comment_string = prop["User Comment"]
+        prodigy_itx = ProdigyItx(itx_file)
+        integrated_intensity = prodigy_itx.integrated_intensity
+        comment_string = str(prodigy_itx.params["User Comment"])
         comments = {}
         for i in comment_string.split(";"):
             try:
@@ -67,7 +66,7 @@ if __name__ == "__main__":
     else:
         print(np.array(autocorrelation))
     if args.plot:
-        fig: Figure = plt.figure(figsize=(8, 5))
+        fig: FigureBase = plt.figure(figsize=(8, 5))
         axs = fig.add_subplot(111)
         axs.scatter(np.array(autocorrelation).T[0], np.array(autocorrelation).T[1])
         axs.set_xlabel("Delayline position  ( mm )")
