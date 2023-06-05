@@ -51,6 +51,28 @@ def broadening_after_n(
         return broadening(broadening_after_n(initial_width_fs, gdd, iteration - 1), gdd)
 
 
+def gdd(input_pulse_duration_fs: float, output_pulse_duration_fs: float) -> float:
+    """Return the GDD value of the optics
+
+    Parameters
+    ----------
+    input_pulse_duration_fs: float
+        The duration of the input pulse
+    outpu_pulse_duration_fs: float
+        The duration of the output pulse
+
+    Returns
+    -------
+    float
+        GDD value
+    """
+    return (
+        np.sqrt(output_pulse_duration_fs**2 - input_pulse_duration_fs**2)
+        * input_pulse_duration_fs
+        / (4 * np.log(2))
+    )
+
+
 def gvd(lambda_micron: float, d2n: float) -> float:
     """Return GVD in fs^2/mm units"""
     light_speed_micron_fs = 0.299792458
