@@ -3,12 +3,8 @@
 
 from __future__ import annotations
 
-import os
 from logging import INFO, Formatter, StreamHandler, getLogger
 from typing import IO, Literal
-
-import numpy as np
-from numpy.typing import NDArray
 
 LOGLEVEL = INFO
 logger = getLogger(__name__)
