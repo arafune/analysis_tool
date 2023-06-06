@@ -154,7 +154,7 @@ class ProdigyItx:
         return np.sum(np.array(self.intensity))
 
 
-def _export_itx(arr: xr.DataArray, add_notes: bool = False) -> str:
+def convert_itx_format(arr: xr.DataArray, add_notes: bool = False) -> str:
     """Export pyarpes spectrum data to itx file
 
     Parameters
@@ -237,7 +237,7 @@ def export_itx(
         itx formatted ARPES data
     """
     with open(file_name, "w") as itx_file:
-        itx_file.write(_export_itx(arr, add_notes=add_notes))
+        itx_file.write(convert_itx_format(arr, add_notes=add_notes))
 
 
 def load_itx(
