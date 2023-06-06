@@ -8,7 +8,6 @@ from datetime import datetime
 from pathlib import Path
 
 import numpy as np
-from numpy.typing import NDArray
 
 
 class Calib1d:
@@ -31,8 +30,8 @@ class Calib1d:
         file_name: str
             calib1d data file name.  Suffix is .calib1d.
         """
-        self.positions: NDArray[np.float64] = []
-        self.shifts: NDArray[np.float64] = []
+        positions: list[float] = []
+        shifts: list[float] = []
         self.header: OrderedDict[str, str | None] = OrderedDict()
         if file_name:
             with open(file_name, "r") as fileread:
@@ -43,10 +42,10 @@ class Calib1d:
                         self._read_header(line)
                     else:
                         data: list[str] = line.split(" ")
-                        self.positions.append(float(data[0]))
-                        self.shifts.append(float(data[1]))
-                self.positions = np.array(self.positions)
-                self.shifts = np.array(self.shifts)
+                        positions.append(float(data[0]))
+                        shifts.append(float(data[1]))
+                self.positions = np.array(positions)
+                self.shifts = np.array(shifts)
 
     def _read_header(self, line: str) -> None:
         """Read header.
