@@ -6,18 +6,11 @@ from __future__ import annotations
 import re
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import numpy as np
 import xarray as xr
-from typing_extensions import Literal
-
-# from arpes.endstations.fits_utils import CoordsDict
-
-if TYPE_CHECKING:
-    from _typeshed import StrOrLiteralStr
-
 from numpy.typing import NDArray
+from typing_extensions import Literal
 
 Measure_type = Literal["FAT", "SFAT"]
 __all__ = ["load_itx", "load_sp2"]
@@ -161,14 +154,18 @@ class ProdigyItx:
         return np.sum(np.array(self.intensity))
 
 
-def _export_itx(arr: xr.DataArray) -> str:
+def _export_itx(arr: xr.DataArray, add_notes: bool = False) -> str:
     """Export pyarpes spectrum data to itx file
 
     Parameters
     ----------
     arr: xr.DataArray
+        DataArray to export
+    add_notes: bool (default: False)
+        if True, add some infor to notes in wave
 
     Returns
+    -------
     str:
         itx formatted ARPES data
     """
@@ -196,6 +193,16 @@ def _export_itx(arr: xr.DataArray) -> str:
     for a_intensities in intensities_list:
         itx_str += " ".join(map(str, a_intensities)) + "\n"
     itx_str += "END\n"
+    if add_notes:
+        itx_str = """X Note /NOCR '{}' "{}"\r\n""".format(
+            wavename, arr.attrs["User Comment"]
+        )
+        itx_str = """X Note /NOCR '{}', "Excitation Energy:{}"\r\n""".format(
+            wavename, arr.attrs["hv"]
+        )
+        # parameter should be recorded.
+        # x, y, z (if defined)
+        #
     start_phi_deg: float = np.rad2deg(arr.indexes["phi"][0])
     end_phi_deg: float = np.rad2deg(arr.indexes["phi"][-1])
     itx_str += """X SetScale/I x, {}, {}, "deg (theta_y)", '{}'\n""".format(
@@ -210,7 +217,9 @@ def _export_itx(arr: xr.DataArray) -> str:
     return itx_str
 
 
-def export_itx(file_name: str | Path, arr: xr.DataArray) -> None:
+def export_itx(
+    file_name: str | Path, arr: xr.DataArray, add_notes: bool = False
+) -> None:
     """Export pyarpes spectrum data to itx file
 
     Parameters
@@ -219,13 +228,16 @@ def export_itx(file_name: str | Path, arr: xr.DataArray) -> None:
         file name for export
     arr: xr.DataArray
         pyarpes DataArray
+    add_notes: bool (default: False)
+        if True, add some infor to notes in wave
+
     Returns
     -------
     str:
         itx formatted ARPES data
     """
     with open(file_name, "w") as itx_file:
-        itx_file.write(_export_itx(arr))
+        itx_file.write(_export_itx(arr, add_notes=add_notes))
 
 
 def load_itx(

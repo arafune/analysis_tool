@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from pes.prodigy_util import ProdigyItx
+from pes.prodigy_itx import ProdigyItx
 
 data_dir = Path(__file__).parent / "data"
 

@@ -9,7 +9,7 @@ from arpes.endstations import (HemisphericalEndstation, SingleFileEndstation,
                                add_endstation)
 from arpes.utilities import clean_keys
 
-from pes.prodigy_util import load_itx, load_sp2
+from pes.prodigy_itx import load_itx, load_sp2
 
 __all__ = [
     "SPDEndstation",
