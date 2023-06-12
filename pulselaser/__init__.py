@@ -3,9 +3,10 @@ import numpy as np
 
 def sech2(x: float, x0: float, width: float) -> float:
     r"""return
-    :math:`\mathrm{sech}^2\left(\frac{x-x0}{width}\right)`
+    :math:`\mathrm{sech}^2\left(\frac{x-x0}{\tau}\right)`
 
-    :Note:
+    .. note::
+
     This function does not include the amplitude.
 
     Parameters
@@ -14,8 +15,8 @@ def sech2(x: float, x0: float, width: float) -> float:
         x
     x0: float
         center position
-    width float
-        width of the function. Not FWHM. (FWHM=1.7627 * width)
+    width: float
+        width of the function :math:`\tau`. Not FWHM. (FWHM= :math:`1.7627 \tau` )
 
     Returns
     -------
