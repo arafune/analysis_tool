@@ -1,6 +1,28 @@
 import numpy as np
 
 
+def sech2(x: float, x0: float, width: float) -> float:
+    r"""return :math:`\mathrm{sech}^2\left(\frac{x-x0}{width}\right)`
+
+    :Note:
+    This function does not include the amplitude.
+
+    Parameters
+    ----------
+    x: float
+        x
+    x0: float
+        center position
+    width float
+        width of the function. Not FWHM.
+
+    Returns
+    -------
+    float
+    """
+    return (1 / np.sinh((x - x0) / width)) ** 2
+
+
 def broadening(initial_width_fs: float, gdd: float) -> float:
     """Return pulse broadening due to GDD
 
