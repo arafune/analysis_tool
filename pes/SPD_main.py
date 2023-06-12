@@ -1,12 +1,17 @@
 """Implements loading the itx and sp2 text file format for SPECS prodigy."""
+from __future__ import annotations
+
 import warnings
 from pathlib import Path
 
 import arpes.xarray_extensions
 import numpy as np
 import xarray as xr
-from arpes.endstations import (HemisphericalEndstation, SingleFileEndstation,
-                               add_endstation)
+from arpes.endstations import (
+    HemisphericalEndstation,
+    SingleFileEndstation,
+    add_endstation,
+)
 from arpes.utilities import clean_keys
 
 from pes.prodigy_itx import load_itx, load_sp2
@@ -93,7 +98,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         self,
         frame_path: str = "",
         scan_desc: dict = {},
-        **kwargs: dict[str, str | int | float]
+        **kwargs: dict[str, str | int | float],
     ) -> xr.Dataset:
         """Load a single frame from an PHOIBOS 100 spectrometer with Prodigy.
 
