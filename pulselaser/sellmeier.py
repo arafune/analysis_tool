@@ -281,7 +281,23 @@ def air(lambda_micron: float, second_derivative: bool = False) -> float:
     return 1 + b1 / (c1 - lambda_micron ** (-2)) + b1 / (c2 - lambda_micron ** (-2))
 
 
-def alphaBBO(lambda_micron: float) -> tuple[float, float]:
+def BBO_sellmeier(
+    lambda_micron: float, a: float, b: float, c: float, d: float
+) -> float:
+    return np.sqrt(a - d * lambda_micron**2 + b / (-c + lambda_micron**2))
+
+
+def BBO_sellmeier_2nd_derivative(
+    lambda_micron: float, a: float, b: float, c: float, d: float
+) -> float:
+    return (d * (-a + b / (c - lambda_micron**2))) / (
+        a - d * lambda_micron**2 + b / (-c + lambda_micron**2)
+    ) ** (3 / 2)
+
+
+def alphaBBO(
+    lambda_micron: float, second_derivative: bool = False
+) -> tuple[float, float]:
     r"""Dispersion of :math:`\alpha`-BBO.
 
     http://www.newlightphotonics.com/Birefringent-Crystals/alpha-BBO-Crystals
@@ -299,21 +315,26 @@ def alphaBBO(lambda_micron: float) -> tuple[float, float]:
     tuple:
         :math:`n_o` and :math:`n_e`
     """
+
+    #  (d*(-a + b/(c - lamba**2)))/(a - d*l**2 + b/(-c + lamba**2))**1.5  : second derivative
+    if second_derivative:
+        return (
+            BBO_sellmeier_2nd_derivative(
+                lambda_micron, 2.67579, 0.02099, 0.00470, 0.00528
+            ),
+            BBO_sellmeier_2nd_derivative(
+                lambda_micron, 2.31197, 0.01184, 0.016070, 0.00400
+            ),
+        )
     return (
-        np.sqrt(
-            2.67579
-            + 0.02099 / (lambda_micron**2 - 0.00470)
-            - 0.00528 * lambda_micron**2
-        ),
-        np.sqrt(
-            2.31197
-            + 0.01184 / (lambda_micron**2 - 0.01607)
-            - 0.00400 * lambda_micron**2
-        ),
+        BBO_sellmeier(lambda_micron, 2.67579, 0.02099, 0.00470, 0.00528),
+        BBO_sellmeier(lambda_micron, 2.31197, 0.01184, 0.016070, 0.00400),
     )
 
 
-def betaBBO(lambda_micron: float) -> tuple[float, float]:
+def betaBBO(
+    lambda_micron: float, second_derivative: bool = False
+) -> tuple[float, float]:
     r"""Return :math:`n_o` and :math:`n_e` of :math:`\beta`-BBO.
 
     http://www.castech.com/manage/upfile/fileload/20170823144544.pdf
@@ -331,17 +352,18 @@ def betaBBO(lambda_micron: float) -> tuple[float, float]:
         :math:`n_o` and :math:`n_e`
 
     """
+    if second_derivative:
+        return (
+            BBO_sellmeier_2nd_derivative(
+                lambda_micron, 2.7359, 0.01878, 0.01822, 0.01354
+            ),
+            BBO_sellmeier_2nd_derivative(
+                lambda_micron, 2.3753, 0.01224, 0.01667, 0.01516
+            ),
+        )
     return (
-        np.sqrt(
-            2.7359
-            + 0.01878 / (lambda_micron**2 - 0.01822)
-            - 0.01354 * lambda_micron**2
-        ),
-        np.sqrt(
-            2.3753
-            + 0.01224 / (lambda_micron**2 - 0.01667)
-            - 0.01516 * lambda_micron**2
-        ),
+        BBO_sellmeier(lambda_micron, 2.7359, 0.01878, 0.01822, 0.01354),
+        BBO_sellmeier(lambda_micron, 2.3753, 0.01224, 0.01667, 0.01516),
     )
 
 
