@@ -70,7 +70,8 @@ def rgb2gray(rgb: NDArray[np.float64]) -> NDArray[np.float64]:
 
 
     0.2989 * R + 0.5870 * G + 0.1140 * B
-    is the Matlab algorithm.  While it seems reasonable, it is not taken here for keeping the linearity.
+    is the Matlab algorithm.  While it seems reasonable, it is not
+    taken here for keeping the linearity.
 
     Parameters
     -----------

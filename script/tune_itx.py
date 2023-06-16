@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 import argparse
-from logging import DEBUG, INFO, Formatter, StreamHandler, getLogger
+from logging import DEBUG, Formatter, StreamHandler, getLogger
 
 from pes.itx import tune
 
@@ -35,12 +35,6 @@ if __name__ == "__main__":
         metavar="file_name",
         help="""output file name.
 if not specified, use standard output""",
-    )
-    parser.add_argument(
-        "--angle_correction",
-        type=float,
-        metavar="Angle coefficient",
-        help="Angle correction coefficient (Usually not needed). Note that this is *not* offset.",
     )
     parser.add_argument(
         "itx_files", metavar="itx_file", nargs="+", help="itx file to be handled"

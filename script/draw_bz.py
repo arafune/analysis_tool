@@ -181,7 +181,7 @@ def update_reciprocal(
         # the facets
         edges_of_facets = list(np.sort(np.unique([len(ff) for ff in Facets_bz])))
         for fi, ff in enumerate(Facets_bz):
-            face_clr_id = edges_of_facets.index(len(ff))
+            edges_of_facets.index(len(ff))
             simplex_g = np.vstack([[0, 0, 0], ff])
             tri = Delaunay(simplex_g)
             for ii, xx in enumerate(tri.simplices):

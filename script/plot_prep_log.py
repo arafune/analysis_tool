@@ -4,13 +4,10 @@
 from __future__ import annotations
 
 import argparse
-from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable
 
 import matplotlib.pyplot as plt
-from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 
@@ -49,7 +46,7 @@ def plotting(
     if "pres_p" not in ignores:
         axs.append(fig.add_subplot(num_plots, 1, num_graphs))
         num_graphs += 1
-        prep_p = axs[i].plot(date_time, data[0], label="Pressure (Preparation)")
+        axs[i].plot(date_time, data[0], label="Pressure (Preparation)")
         axs[i].set_yscale("log")
         axs[i].set_ylabel("Pressure  ( mbar )")
         axs[i].grid(True)
@@ -58,7 +55,7 @@ def plotting(
         if len(axs) == 0:
             axs.append(fig.add_subplot(num_plots, 1, num_graphs))
             num_graphs += 1
-        prep_a = axs[i].plot(date_time, data[1], label="Pressure (Analysis)")
+        axs[i].plot(date_time, data[1], label="Pressure (Analysis)")
         axs[i].set_yscale("log")
         axs[i].set_ylabel("Pressure  ( mbar )")
         axs[i].legend()

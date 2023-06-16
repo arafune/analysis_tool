@@ -9,8 +9,6 @@ therefore \alpha=p/q is just set to 1/q
 """
 import numpy as np
 from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d import axes3d
-from numpy import meshgrid
 
 
 #
