@@ -16,7 +16,8 @@ def three_term_sellmier(
     c3: float,
 ) -> float:
     r"""
-    :math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - c1} + \frac{B_1 \lambda^2}{\lambda^2 - C_2} + \frac{B_3 \lambda^2}{\lambda^2 - C_3}`
+    :math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - c1} +
+    \frac{B_1 \lambda^2}{\lambda^2 - C_2} + \frac{B_3 \lambda^2}{\lambda^2 - C_3}`
 
 
     Parameters
@@ -123,7 +124,8 @@ def two_term_serllmier(
     lambda_micron: float, b1: float, c1: float, b2: float, c2: float
 ) -> float:
     r"""
-    :math:`n^2 -1 = \frac{B1 \lambda^2}{\lambda^2 - C1} + \frac{c \lambda^2}{\lambda^2 - d}`
+    :math:`n^2 -1 = \frac{B1 \lambda^2}{\lambda^2 - C1}
+    + \frac{c \lambda^2}{\lambda^2 - d}`
 
 
     Parameters
@@ -287,6 +289,15 @@ def BBO_sellmeier(
     return np.sqrt(a - d * lambda_micron**2 + b / (-c + lambda_micron**2))
 
 
+def BBO_sellmeier_1st_derivative(
+    lambda_micron: float, a: float, b: float, c: float, d: float
+) -> float:
+    return -(
+        (d * lambda_micron)
+        / np.sqrt(a - d * lambda_micron**2 + b / (-c + lambda_micron**2))
+    )
+
+
 def BBO_sellmeier_2nd_derivative(
     lambda_micron: float, a: float, b: float, c: float, d: float
 ) -> float:
@@ -296,7 +307,9 @@ def BBO_sellmeier_2nd_derivative(
 
 
 def alphaBBO(
-    lambda_micron: float, second_derivative: bool = False
+    lambda_micron: float,
+    first_derivative: bool = False,
+    second_derivative: bool = False,
 ) -> tuple[float, float]:
     r"""Dispersion of :math:`\alpha`-BBO.
 
@@ -316,7 +329,15 @@ def alphaBBO(
         :math:`n_o` and :math:`n_e`
     """
 
-    #  (d*(-a + b/(c - lamba**2)))/(a - d*l**2 + b/(-c + lamba**2))**1.5  : second derivative
+    if first_derivative:
+        return (
+            BBO_sellmeier_1st_derivative(
+                lambda_micron, 2.67579, 0.02099, 0.00470, 0.00528
+            ),
+            BBO_sellmeier_1st_derivative(
+                lambda_micron, 2.31197, 0.01184, 0.016070, 0.00400
+            ),
+        )
     if second_derivative:
         return (
             BBO_sellmeier_2nd_derivative(
@@ -333,7 +354,9 @@ def alphaBBO(
 
 
 def betaBBO(
-    lambda_micron: float, second_derivative: bool = False
+    lambda_micron: float,
+    first_derivative: bool = False,
+    second_derivative: bool = False,
 ) -> tuple[float, float]:
     r"""Return :math:`n_o` and :math:`n_e` of :math:`\beta`-BBO.
 
@@ -352,6 +375,15 @@ def betaBBO(
         :math:`n_o` and :math:`n_e`
 
     """
+    if first_derivative:
+        return (
+            BBO_sellmeier_1st_derivative(
+                lambda_micron, 2.7359, 0.01878, 0.01822, 0.01354
+            ),
+            BBO_sellmeier_1st_derivative(
+                lambda_micron, 2.3753, 0.01224, 0.01667, 0.01516
+            ),
+        )
     if second_derivative:
         return (
             BBO_sellmeier_2nd_derivative(

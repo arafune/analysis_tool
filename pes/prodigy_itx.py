@@ -64,7 +64,8 @@ class ProdigyItx:
         self.params = _parse_itx_head(itx_data, analyze_type=True)
         if itx_data.count("BEGIN") != 1:
             raise RuntimeError(
-                "This itx file contains more than one spectra. Use the itx file that Prodigy exports."
+                "This itx file contains more than one spectra."
+                + " Use the itx file that Prodigy exports."
             )
         for line in itx_data:
             if (
