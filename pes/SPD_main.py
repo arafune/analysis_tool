@@ -7,11 +7,8 @@ from pathlib import Path
 import arpes.xarray_extensions
 import numpy as np
 import xarray as xr
-from arpes.endstations import (
-    HemisphericalEndstation,
-    SingleFileEndstation,
-    add_endstation,
-)
+from arpes.endstations import (HemisphericalEndstation, SingleFileEndstation,
+                               add_endstation)
 from arpes.utilities import clean_keys
 
 from pes.prodigy_itx import load_itx, load_sp2
@@ -87,6 +84,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
             "chi": 0,
             "alpha": np.pi / 2,
             "hv": np.nan,
+            "energy_notation": "Kinetic",
         }
         for k, v in defaults.items():
             data.attrs[k] = data.attrs.get(k, v)
