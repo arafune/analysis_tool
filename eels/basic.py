@@ -9,7 +9,8 @@ DEGREE: float = np.pi / 180.0
 def scatter_angle(theta_in_deg: float) -> float:
     """Return the minimum scattering angle.
 
-    The angle of of rotation about the detector is 78 degree measured from straight geometry.
+    The angle of of rotation about the detector is 78 degree
+    measured from straight geometry.
 
     Parameters
     ----------

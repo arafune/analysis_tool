@@ -36,7 +36,7 @@ def run_bader(
         uncompress_chgcar_path = chgcar_path.name
 
     if not Path(logfile_path).exists():
-        with (open(logfile_path, "w")) as logfile:
+        with open(logfile_path, "w") as logfile:
             try:
                 subprocess.run(
                     ["bader", uncompress_chgcar_path, "-ref", str(chgcar_sum_path)],

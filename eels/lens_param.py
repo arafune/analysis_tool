@@ -40,7 +40,8 @@ def label_str(
     Parameters
     --------------
     labeltext: str
-        String of "Label" item in ELS parameter data, such as "2/14/20 7:43:28 PM : +7.48 meV, 192.65 pA"
+        String of "Label" item in ELS parameter data,
+        such as "2/14/20 7:43:28 PM : +7.48 meV, 192.65 pA"
 
     Returns
     ----------

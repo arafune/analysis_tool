@@ -144,7 +144,7 @@ def qpidataload(filename: str) -> QPI:
     thefile = open(filename)
     data: list[list[float]] = []
     with thefile:
-        [next(thefile) for i in range(4)]
+        [next(thefile) for _ in range(4)]
         tmp = next(thefile)
         bias, bias_unit, current = (
             float(tmp.split()[3]),
@@ -153,9 +153,9 @@ def qpidataload(filename: str) -> QPI:
         )
         if bias_unit in "mV,":
             bias = float(bias) / 1000
-        [next(thefile) for i in range(2)]
+        [next(thefile) for _ in range(2)]
         xdim = float(next(thefile).split()[2])
-        [next(thefile) for i in range(5)]
+        [next(thefile) for _ in range(5)]
         for line in thefile:
             data.append(line.split()[1:])
     return QPI(data, physical_size=xdim, bias=bias, current=current, dataname=dataname)

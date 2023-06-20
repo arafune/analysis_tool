@@ -87,6 +87,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
             "chi": 0,
             "alpha": np.pi / 2,
             "hv": np.nan,
+            "energy_notation": "Kinetic",
         }
         for k, v in defaults.items():
             data.attrs[k] = data.attrs.get(k, v)
