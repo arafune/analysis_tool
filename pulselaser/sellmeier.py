@@ -16,7 +16,7 @@ def three_term_sellmier(
     c3: float,
 ) -> float:
     r"""
-    :math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - c1} +
+    :math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - C_1} +
     \frac{B_1 \lambda^2}{\lambda^2 - C_2} + \frac{B_3 \lambda^2}{\lambda^2 - C_3}`
 
 
@@ -123,8 +123,7 @@ def second_derivative_three_term_sellmier(
 def two_term_serllmier(
     lambda_micron: float, b1: float, c1: float, b2: float, c2: float
 ) -> float:
-    r"""
-    :math:`n^2 -1 = \frac{B1 \lambda^2}{\lambda^2 - C1}
+    r""":math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - C_1}
     + \frac{c \lambda^2}{\lambda^2 - d}`
 
 

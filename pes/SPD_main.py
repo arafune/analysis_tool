@@ -40,7 +40,8 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
 
     RENAME_KEYS = {
         "Excitation Energy": "hv",
-        "WorkFunction": "workfunction",  # Workfunction of ANALYZER (Don't confuse sample_workfunction)
+        "WorkFunction": "workfunction",
+        # Workfunction of ANALYZER (Don't confuse sample_workfunction)
         "WF": "workfunction",
         "Lens Mode": "lens_mode",
         "lensmode": "lens_mode",
@@ -109,7 +110,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         scan_desc : dict, optional
             _description_, by default None
         kwargs: str | int | float
-            transfer to load_itx (to convert attrs)
+            Pass to load_itx
 
         Returns
         -------
