@@ -1,15 +1,15 @@
 """Implements loading the itx and sp2 text file format for SPECS prodigy."""
 from __future__ import annotations
 
-import warnings
 from pathlib import Path
 
-import arpes.xarray_extensions
 import numpy as np
 import xarray as xr
-from arpes.endstations import (HemisphericalEndstation, SingleFileEndstation,
-                               add_endstation)
-from arpes.utilities import clean_keys
+from arpes.endstations import (
+    HemisphericalEndstation,
+    SingleFileEndstation,
+    add_endstation,
+)
 
 from pes.prodigy_itx import load_itx, load_sp2
 
@@ -65,8 +65,8 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         "psi": 0,
     }
 
-    def postprocess_final(self, data: xr.Dataset, scan_desc: dict = {}):
-        """Performs final data normalization.
+    def postprocess_final(self, data: xr.Dataset, scan_desc: dict | None = None):
+        """Perform final data normalization.
 
         Parameters
         ----------
@@ -75,6 +75,8 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         scan_desc : dict, optional
             _description_, by default None
         """
+        if scan_desc is None:
+            scan_desc = {}
         defaults = {
             "x": np.nan,
             "y": np.nan,
@@ -95,8 +97,8 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
     def load_single_frame(
         self,
         frame_path: str = "",
-        scan_desc: dict = {},
-        **kwargs: dict[str, str | int | float],
+        scan_desc: dict | None = None,
+        **kwargs: str | int | float,
     ) -> xr.Dataset:
         """Load a single frame from an PHOIBOS 100 spectrometer with Prodigy.
 
@@ -106,12 +108,16 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
             _description_, by default None
         scan_desc : dict, optional
             _description_, by default None
+        kwargs: str | int | float
+            transfer to load_itx (to convert attrs)
 
         Returns
         -------
         xr.Dataset
             _description_
         """
+        if scan_desc is None:
+            scan_desc = {}
         file = Path(frame_path)
         if file.suffix == ".itx":
             data: xr.DataArray = load_itx(frame_path, **kwargs)
@@ -120,7 +126,8 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
             data = load_sp2(frame_path, **kwargs)
             return xr.Dataset({"spectrum": data}, attrs=data.attrs)
         else:
-            raise RuntimeError("Data file must be ended with .itx or .sp2")
+            msg = "Data file must be ended with .itx or .sp2"
+            raise RuntimeError(msg)
 
 
 add_endstation(SPDEndstation)
