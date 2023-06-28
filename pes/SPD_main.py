@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import ClassVar
 
 import numpy as np
 import xarray as xr
@@ -11,7 +12,7 @@ from arpes.endstations import (
     add_endstation,
 )
 
-from pes.prodigy_itx import load_itx, load_sp2
+from .prodigy_itx import load_itx, load_sp2
 
 __all__ = [
     "SPDEndstation",
@@ -33,12 +34,12 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
     """
 
     PRINCIPAL_NAME = "SPD"
-    ALIASES = [
+    ALIASES: ClassVar[list[str]] = [
         "SPD_phoibos",
     ]
-    _TOLERATED_EXTENSIONS = {".itx", ".sp2"}
+    _TOLERATED_EXTENSIONS: ClassVar[set[str]] = {".itx", ".sp2"}
 
-    RENAME_KEYS = {
+    RENAME_KEYS: ClassVar[dict[str, str]] = {
         "Excitation Energy": "hv",
         "WorkFunction": "workfunction",
         # Workfunction of ANALYZER (Don't confuse sample_workfunction)
@@ -52,7 +53,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         "Spectrum ID": "id",
     }
 
-    MERGE_ATTRS = {
+    MERGE_ATTRS: ClassVar[dict[str, str | float]] = {
         "analyzer": "Specs PHOIBOS 100",
         "analyzer_name": "Specs PHOIBOS 100",
         "parallel_deflectors": False,
@@ -123,12 +124,11 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         if file.suffix == ".itx":
             data: xr.DataArray = load_itx(frame_path, **kwargs)
             return xr.Dataset({"spectrum": data}, attrs=data.attrs)
-        elif file.suffix == ".sp2":
+        if file.suffix == ".sp2":
             data = load_sp2(frame_path, **kwargs)
             return xr.Dataset({"spectrum": data}, attrs=data.attrs)
-        else:
-            msg = "Data file must be ended with .itx or .sp2"
-            raise RuntimeError(msg)
+        msg = "Data file must be ended with .itx or .sp2"
+        raise RuntimeError(msg)
 
 
 add_endstation(SPDEndstation)

@@ -5,14 +5,13 @@ from __future__ import annotations
 
 import re
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import xarray as xr
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from numpy.typing import NDArray
 
 Measure_type = Literal["FAT", "SFAT"]
@@ -61,15 +60,14 @@ class ProdigyItx:
         path_to_itx_file: Path| str
             path to itx file
         """
-        with open(path_to_itx_file) as itx_file:
+        with Path(path_to_itx_file).open(mode="r") as itx_file:
             itx_data: list[str] = itx_file.readlines()
             itx_data = list(map(str.rstrip, itx_data))
         self.params = _parse_itx_head(itx_data, analyze_type=True)
         if itx_data.count("BEGIN") != 1:
-            raise RuntimeError(
-                "This itx file contains more than one spectra."
-                + " Use the itx file that Prodigy exports.",
-            )
+            msg = "This itx file contains more than one spectra."
+            msg += " Use the itx file that Prodigy exports."
+            raise RuntimeError(msg)
         for line in itx_data:
             if line.startswith(("IGOR", "BEGIN", "END")):
                 continue
@@ -248,7 +246,7 @@ def export_itx(
     str:
         itx formatted ARPES data
     """
-    with open(file_name, "w") as itx_file:
+    with Path(file_name).open(mode="w") as itx_file:
         itx_file.write(convert_itx_format(arr, add_notes=add_notes))
 
 
@@ -303,7 +301,7 @@ def load_sp2(
     data: list[float] = []
     pixels: tuple[int, int] = (0, 0)
     coords: dict[str, NDArray] = {}
-    with open(path_to_file, encoding="Windows-1252") as sp2file:
+    with Path(path_to_file).open(encoding="Windows-1252") as sp2file:
         for line in sp2file:
             if line.startswith("#"):
                 try:
@@ -323,14 +321,13 @@ def load_sp2(
                     pass
             elif line.startswith("P"):
                 pass
+            elif pixels != (0, 0):
+                data.append(float(line))
             else:
-                if pixels != (0, 0):
-                    data.append(float(line))
-                else:
-                    pixels = (
-                        int(line.split()[1]),
-                        int(line.split()[0]),
-                    )
+                pixels = (
+                    int(line.split()[1]),
+                    int(line.split()[0]),
+                )
     if pixels != (0, 0):
         if isinstance(params["X Range"], str):
             e_range = [
