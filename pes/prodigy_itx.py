@@ -86,14 +86,14 @@ class ProdigyItx:
                 continue
             self.intensity.append([float(i) for i in line.split()])
 
-    def to_data_array(self, **kwargs: dict[str, str | int | float]) -> xr.DataArray:
+    def to_data_array(self, **kwargs: str | int | float) -> xr.DataArray:
         """Export to Xarray.
 
         Returns
         -------
         xr.DataArray
             pyarpess compatibility
-        **kwargs : dict, optional
+        **kwargs : str | int |  float
             Extra arguments: forward to the attrs of the output xarray.
         """
         common_attrs: dict[str, str | int | float] = {}
