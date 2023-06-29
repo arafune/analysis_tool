@@ -20,3 +20,7 @@ class TestItx:
 
     def test_integrated_intensity(self, sample_itx: ProdigyItx) -> None:
         np.testing.assert_almost_equal(sample_itx.integrated_intensity, 666371.3147352)
+
+    def test_convert_to_dataarray(self, sample_itx: ProdigyItx) -> None:
+        sample_dataarray = sample_itx.to_data_array()
+        assert sample_dataarray.dims == ("phi", "eV")
