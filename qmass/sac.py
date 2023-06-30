@@ -1,10 +1,9 @@
 # -*- coding utf-8 -*-
-"""Module for read data of QUADSTAR 32  (Q-mass system in Yoshinobu-san's lab).
-"""
+"""Module for read data of QUADSTAR 32  (Q-mass system in Yoshinobu-san's lab)."""
 
 import struct
-from datetime import datetime
-from logging import DEBUG, INFO, Formatter, StreamHandler, getLogger
+from logging import INFO, Formatter, StreamHandler, getLogger
+from pathlib import Path
 
 import numpy as np
 
@@ -24,7 +23,7 @@ class SACObject:
     """Class for SAC data file.
 
     Attributes
-    -------------
+    ----------
     n_cyc: int
        Number of cycles
     scan_width: int
@@ -47,51 +46,53 @@ class SACObject:
 
     def __init__(self, fhandle: str) -> None:
         """Initialize (File load)."""
-        sac_data = open(fhandle, "rb")
+        sac_data = Path(fhandle).open(mode="rb")
         sac_data.seek(100, 0)
         self.n_cyc = struct.unpack("@i", sac_data.read(4))[0]
-        logger.debug("n_cyc: {}".format(self.n_cyc))
+        logger.debug(f"n_cyc: {self.n_cyc}")
         sac_data.seek(345, 0)
         self.scan_width = struct.unpack("@h", sac_data.read(2))[0]
-        logger.debug("scan_width: {}".format(self.scan_width))
+        logger.debug(f"scan_width: {self.scan_width}")
         sac_data.seek(341, 0)
         self.firstmass = struct.unpack("@f", sac_data.read(4))[0]
         sac_data.seek(348, 0)
         self.mass_start = struct.unpack("@f", sac_data.read(4))[0]
         self.mass_end = struct.unpack("@f", sac_data.read(4))[0]
         logger.debug(
-            "first-, start-, end-mass: {0}, {1}, {2}".format(
-                self.firstmass, self.mass_start, self.mass_end
-            )
+            "first-, start-, end-mass: {}, {}, {}".format(
+                self.firstmass,
+                self.mass_start,
+                self.mass_end,
+            ),
         )
         sac_data.seek(194, 0)
         self.start_time = struct.unpack("@I", sac_data.read(4))[0]
-        logger.debug("start_time: {0}".format(self.start_time))
+        logger.debug(f"start_time: {self.start_time}")
         sac_data.seek(347, 0)
         self.n_m = struct.unpack("@B", sac_data.read(1))[
             0
         ]  # number of measurements for each mass
-        logger.debug("N of measurements for each mass: {0}".format(self.n_m))
+        logger.debug(f"N of measurements for each mass: {self.n_m}")
         self.data = []
         #
         DATA_START_ADD = 392
         sac_data.seek(DATA_START_ADD - 12, 0)
         total_n_points = round(self.scan_width * self.n_m)
-        for cycle in range(self.n_cyc):
+        for _cycle in range(self.n_cyc):
             sac_data.seek(12, 1)
             tmp = []
-            for mass_index in range(total_n_points):
+            for _mass_index in range(total_n_points):
                 tmp.append(struct.unpack("@f", sac_data.read(4))[0])
             self.data.append(tmp)
-        logger.debug("len of data {}".format(len(self.data)))
+        logger.debug(f"len of data {len(self.data)}")
         self.mass_amu = np.linspace(
             self.mass_start,
             self.mass_start + self.scan_width,
             total_n_points,
             endpoint=False,
         )
-        logger.debug("First mass value {}".format(self.mass_amu[0]))
-        logger.debug("Last mass value {}".format(self.mass_amu[-1]))
+        logger.debug(f"First mass value {self.mass_amu[0]}")
+        logger.debug(f"Last mass value {self.mass_amu[-1]}")
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 import xarray as xr
@@ -14,25 +14,13 @@ from arpes.endstations import (
 
 from .prodigy_itx import load_itx, load_sp2
 
-__all__ = [
+if TYPE_CHECKING:
+    from arpes._typing import SPECTROMETER __all__ = [
     "SPDEndstation",
 ]
 
 
 class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
-    """Implements itx and sp2 files from the Prodigy.
-
-    Parameters
-    ----------
-    HemisphericalEndstation : _type_
-        _description_
-
-    Returns
-    -------
-    _type_
-        _description_
-    """
-
     PRINCIPAL_NAME = "SPD"
     ALIASES: ClassVar[list[str]] = [
         "SPD_phoibos",
@@ -53,7 +41,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         "Spectrum ID": "id",
     }
 
-    MERGE_ATTRS: ClassVar[dict[str, str | float]] = {
+    MERGE_ATTRS: ClassVar[SPECTROMETER] = {
         "analyzer": "Specs PHOIBOS 100",
         "analyzer_name": "Specs PHOIBOS 100",
         "parallel_deflectors": False,
@@ -67,7 +55,11 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         "psi": 0,
     }
 
-    def postprocess_final(self, data: xr.Dataset, scan_desc: dict | None = None):
+    def postprocess_final(
+        self,
+        data: xr.Dataset,
+        scan_desc: dict[str, str] | None = None,
+    ):
         """Perform final data normalization.
 
         Parameters
@@ -99,15 +91,15 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
     def load_single_frame(
         self,
         frame_path: str = "",
-        scan_desc: dict | None = None,
+        scan_desc: dict[str, str] | None = None,
         **kwargs: str | int | float,
     ) -> xr.Dataset:
         """Load a single frame from an PHOIBOS 100 spectrometer with Prodigy.
 
         Parameters
         ----------
-        frame_path : str, optional
-            _description_, by default None
+        frame_path : str
+            _description_, by default ""
         scan_desc : dict, optional
             _description_, by default None
         kwargs: str | int | float
@@ -123,6 +115,7 @@ class SPDEndstation(HemisphericalEndstation, SingleFileEndstation):
         file = Path(frame_path)
         if file.suffix == ".itx":
             data: xr.DataArray = load_itx(frame_path, **kwargs)
+            # TODO if data is list[xr.DataArray] ....
             return xr.Dataset({"spectrum": data}, attrs=data.attrs)
         if file.suffix == ".sp2":
             data = load_sp2(frame_path, **kwargs)
