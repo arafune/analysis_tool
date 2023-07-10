@@ -1,14 +1,12 @@
 #! /usr/bin/env python3
-# -*- coding: utf-8
 
-""" 
-Script for tuning calib1d.
+"""Script for tuning calib1d.
 
 Calib1D contains the calibration of PHOIBOS energy analyser.
 
-このキャリブレーションデータは 場所ーエネルギーシフトについて一次関数になっていると思って良い
-（はず）、だが何らかの都合で1次関数から微妙にずれるときがある（Calib1Dを作るために用いる
-Spectraの数が少ないときに起きる？）。これを1次関数でフィットし直す。.
+このキャリブレーションデータは 場所ーエネルギーシフトについて一次関数になっていると思
+って良い (はず)、だが何らかの都合で1次関数から微妙にずれるときがある(Calib1Dを作るた
+めに用いる Spectraの数が少ないときに起きる?)。これを1次関数でフィットし直す。.
 """
 
 import argparse

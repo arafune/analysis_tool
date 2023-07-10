@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""Berek Polarization Compensator:  Model 5540 New Focus"""
+"""Berek Polarization Compensator:  Model 5540 New Focus."""
 
 
 import numpy as np
@@ -8,7 +7,7 @@ from pulselaser.sellmeier import mgf2
 
 
 def retardance(lambda_micron: float, tilt_angle_degree: float) -> float:
-    """Return the retardance R (in waves)
+    """Return the retardance R (in waves).
 
     Parameters
     ----------
@@ -24,22 +23,21 @@ def retardance(lambda_micron: float, tilt_angle_degree: float) -> float:
         _description_
     """
     theta = np.deg2rad(tilt_angle_degree)
-    r = (
+    return (
         (2000 / lambda_micron)
         * np.sqrt(mgf2(lambda_micron)[0] ** 2 - np.sin(theta) ** 2)
         * (
             np.sqrt(
                 (1 - (1 / mgf2(lambda_micron)[1] ** (2)) * np.sin(theta) ** 2)
-                / (1 - (1 / mgf2(lambda_micron)[0] ** (2)) * np.sin(theta) ** 2)
+                / (1 - (1 / mgf2(lambda_micron)[0] ** (2)) * np.sin(theta) ** 2),
             )
             - 1
         )
     )
-    return r
 
 
 def tilt_angle_deg(retardation_indicator: float) -> float:
-    """return the tilt angle of MgF2
+    """Return the tilt angle of MgF2.
 
     Parameters
     ----------

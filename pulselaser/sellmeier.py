@@ -15,9 +15,10 @@ def three_term_sellmier(
     b3: float,
     c3: float,
 ) -> float:
-    r"""
+    r"""Return Sellmeier function.
+
     :math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - C_1} +
-    \frac{B_1 \lambda^2}{\lambda^2 - C_2} + \frac{B_3 \lambda^2}{\lambda^2 - C_3}`
+    \frac{B_1 \lambda^2}{\lambda^2 - C_2} + \frac{B_3 \lambda^2}{\lambda^2 - C_3}`.
 
 
     Parameters
@@ -60,7 +61,7 @@ def second_derivative_three_term_sellmier(
     b3: float,
     c3: float,
 ) -> float:
-    """Second derivative of the three term sellmier equation
+    """Second derivative of the three term sellmier equation.
 
     Parameters
     ----------
@@ -121,10 +122,14 @@ def second_derivative_three_term_sellmier(
 
 
 def two_term_serllmier(
-    lambda_micron: float, b1: float, c1: float, b2: float, c2: float
+    lambda_micron: float,
+    b1: float,
+    c1: float,
+    b2: float,
+    c2: float,
 ) -> float:
     r""":math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - C_1}
-    + \frac{c \lambda^2}{\lambda^2 - d}`
+    + \frac{c \lambda^2}{\lambda^2 - d}`.
 
 
     Parameters
@@ -149,9 +154,13 @@ def two_term_serllmier(
 
 
 def second_derivative_two_term_sellmier(
-    lambda_micron: float, b1: float, c1: float, b2: float, c2: float
+    lambda_micron: float,
+    b1: float,
+    c1: float,
+    b2: float,
+    c2: float,
 ) -> float:
-    """Second derivative of the two term sellmier equation
+    """Second derivative of the two term sellmier equation.
 
     Parameters
     ----------
@@ -171,17 +180,16 @@ def second_derivative_two_term_sellmier(
     float
         Calculated refractive index
     """
-
     return second_derivative_three_term_sellmier(lambda_micron, b1, c1, b2, c2, 0, 0)
 
 
-def BK7(lambda_micron: float, second_derivative: bool = False) -> float:
-    r"""Dispersion of BK7
+def BK7(lambda_micron: float, *, second_derivative: bool = False) -> float:
+    r"""Dispersion of BK7.
 
     https://refractiveindex.info/?shelf=glass&book=BK7&page=SCHOTT
 
     Parameters
-    -----------
+    ----------
     lambda_micron: float
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     second_derivative: bool
@@ -195,18 +203,24 @@ def BK7(lambda_micron: float, second_derivative: bool = False) -> float:
     c3 = 103.560653
     if second_derivative:
         return second_derivative_three_term_sellmier(
-            lambda_micron, b1, c1, b2, c2, b3, c3
+            lambda_micron,
+            b1,
+            c1,
+            b2,
+            c2,
+            b3,
+            c3,
         )
     return three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3)
 
 
-def FusedSilica(lambda_micron: float, second_derivative: bool = False) -> float:
-    r"""Dispersion of Fusd Silica (0.21- 3.71 micron)
+def FusedSilica(lambda_micron: float, *, second_derivative: bool = False) -> float:
+    r"""Dispersion of Fusd Silica (0.21- 3.71 micron).
 
     https://refractiveindex.info/?shelf=glass&book=fused_silica&page=Malitson
 
     Parameters
-    -----------
+    ----------
     lambda_micron: float
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     second_derivative: bool
@@ -220,18 +234,24 @@ def FusedSilica(lambda_micron: float, second_derivative: bool = False) -> float:
     c3 = 9.8961612
     if second_derivative:
         return second_derivative_three_term_sellmier(
-            lambda_micron, b1, c1, b2, c2, b3, c3
+            lambda_micron,
+            b1,
+            c1,
+            b2,
+            c2,
+            b3,
+            c3,
         )
     return three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3)
 
 
-def caf2(lambda_micron: float, second_derivative: bool = False) -> float:
-    r"""Dispersion of caf2 (0.15 - 12 micron)
+def caf2(lambda_micron: float, *, second_derivative: bool = False) -> float:
+    r"""Dispersion of caf2 (0.15 - 12 micron).
 
     https://www.thorlabs.co.jp/newgrouppage9.cfm?objectgroup_id=6973&tabname=UV溶融石英(UVFS)
 
     Parameters
-    -----------
+    ----------
     lambda_micron: float
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     second_derivative: bool
@@ -245,27 +265,33 @@ def caf2(lambda_micron: float, second_derivative: bool = False) -> float:
     c3 = 38.46
     if second_derivative:
         return second_derivative_three_term_sellmier(
-            lambda_micron, b1, c1, b2, c2, b3, c3
+            lambda_micron,
+            b1,
+            c1,
+            b2,
+            c2,
+            b3,
+            c3,
         )
     return np.sqrt(
-        three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3) ** 2 + 0.33973
+        three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3) ** 2 + 0.33973,
     )
 
 
-def air(lambda_micron: float, second_derivative: bool = False) -> float:
+def air(lambda_micron: float, *, second_derivative: bool = False) -> float:
     r"""Dispersion of air.
 
     https://refractiveindelambda_micron.info/?shelf=other&book=air&page=Ciddor
 
     Parameters
-    -----------
+    ----------
     lambda_micron: float
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     second_derivative: bool
         if True return :math:`\frac{d^2n}{d\lambda^2}`
 
     Returns
-    ----------
+    -------
     float:
         :math:`n`
     """
@@ -283,13 +309,21 @@ def air(lambda_micron: float, second_derivative: bool = False) -> float:
 
 
 def BBO_sellmeier(
-    lambda_micron: float, a: float, b: float, c: float, d: float
+    lambda_micron: float,
+    a: float,
+    b: float,
+    c: float,
+    d: float,
 ) -> float:
     return np.sqrt(a - d * lambda_micron**2 + b / (-c + lambda_micron**2))
 
 
 def BBO_sellmeier_1st_derivative(
-    lambda_micron: float, a: float, b: float, c: float, d: float
+    lambda_micron: float,
+    a: float,
+    b: float,
+    c: float,
+    d: float,
 ) -> float:
     return -(
         (d * lambda_micron)
@@ -298,7 +332,11 @@ def BBO_sellmeier_1st_derivative(
 
 
 def BBO_sellmeier_2nd_derivative(
-    lambda_micron: float, a: float, b: float, c: float, d: float
+    lambda_micron: float,
+    a: float,
+    b: float,
+    c: float,
+    d: float,
 ) -> float:
     return (d * (-a + b / (c - lambda_micron**2))) / (
         a - d * lambda_micron**2 + b / (-c + lambda_micron**2)
@@ -307,6 +345,7 @@ def BBO_sellmeier_2nd_derivative(
 
 def alphaBBO(
     lambda_micron: float,
+    *,
     first_derivative: bool = False,
     second_derivative: bool = False,
 ) -> tuple[float, float]:
@@ -318,7 +357,7 @@ def alphaBBO(
     * Negative birefringence
 
     Parameters
-    -----------
+    ----------
     lambda_micron: float
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
 
@@ -327,23 +366,38 @@ def alphaBBO(
     tuple:
         :math:`n_o` and :math:`n_e`
     """
-
     if first_derivative:
         return (
             BBO_sellmeier_1st_derivative(
-                lambda_micron, 2.67579, 0.02099, 0.00470, 0.00528
+                lambda_micron,
+                2.67579,
+                0.02099,
+                0.00470,
+                0.00528,
             ),
             BBO_sellmeier_1st_derivative(
-                lambda_micron, 2.31197, 0.01184, 0.016070, 0.00400
+                lambda_micron,
+                2.31197,
+                0.01184,
+                0.016070,
+                0.00400,
             ),
         )
     if second_derivative:
         return (
             BBO_sellmeier_2nd_derivative(
-                lambda_micron, 2.67579, 0.02099, 0.00470, 0.00528
+                lambda_micron,
+                2.67579,
+                0.02099,
+                0.00470,
+                0.00528,
             ),
             BBO_sellmeier_2nd_derivative(
-                lambda_micron, 2.31197, 0.01184, 0.016070, 0.00400
+                lambda_micron,
+                2.31197,
+                0.01184,
+                0.016070,
+                0.00400,
             ),
         )
     return (
@@ -354,6 +408,7 @@ def alphaBBO(
 
 def betaBBO(
     lambda_micron: float,
+    *,
     first_derivative: bool = False,
     second_derivative: bool = False,
 ) -> tuple[float, float]:
@@ -364,12 +419,12 @@ def betaBBO(
     * Negative birefringence
 
     Parameters
-    -----------
+    ----------
     lambda_micron: float
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
 
     Returns
-    ---------
+    -------
     tuple:
         :math:`n_o` and :math:`n_e`
 
@@ -377,19 +432,35 @@ def betaBBO(
     if first_derivative:
         return (
             BBO_sellmeier_1st_derivative(
-                lambda_micron, 2.7359, 0.01878, 0.01822, 0.01354
+                lambda_micron,
+                2.7359,
+                0.01878,
+                0.01822,
+                0.01354,
             ),
             BBO_sellmeier_1st_derivative(
-                lambda_micron, 2.3753, 0.01224, 0.01667, 0.01516
+                lambda_micron,
+                2.3753,
+                0.01224,
+                0.01667,
+                0.01516,
             ),
         )
     if second_derivative:
         return (
             BBO_sellmeier_2nd_derivative(
-                lambda_micron, 2.7359, 0.01878, 0.01822, 0.01354
+                lambda_micron,
+                2.7359,
+                0.01878,
+                0.01822,
+                0.01354,
             ),
             BBO_sellmeier_2nd_derivative(
-                lambda_micron, 2.3753, 0.01224, 0.01667, 0.01516
+                lambda_micron,
+                2.3753,
+                0.01224,
+                0.01667,
+                0.01516,
             ),
         )
     return (
@@ -404,12 +475,12 @@ def quartz(lambda_micron: float) -> tuple[float, float]:
     Optics communications. 2011, vol. 284, issue 12, p. 2683-2686.
 
     Parameters
-    -----------
+    ----------
     lambda_micron: float
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
 
     Returns
-    ---------
+    -------
     tuple:
         :math:`n_o` and :math:`n_e`
 
@@ -418,12 +489,12 @@ def quartz(lambda_micron: float) -> tuple[float, float]:
         np.sqrt(
             1.28604141
             + 1.07044083 * lambda_micron**2 / (lambda_micron**2 - 1.00585997 * 1e-2)
-            + 1.10202242 * lambda_micron**2 / (lambda_micron**2 - 100)
+            + 1.10202242 * lambda_micron**2 / (lambda_micron**2 - 100),
         ),
         np.sqrt(
             1.28851804
             + 1.09509924 * lambda_micron**2 / (lambda_micron**2 - 1.02101864 * 1e-2)
-            + 1.15662475 * lambda_micron**2 / (lambda_micron**2 - 100)
+            + 1.15662475 * lambda_micron**2 / (lambda_micron**2 - 100),
         ),
     )
 
@@ -436,12 +507,12 @@ def calcite(lambda_micron: float) -> tuple[float, float]:
     * Negative birefringence
 
     Parameters
-    -----------
+    ----------
     lambda_micron: float
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
 
     Returns
-    --------
+    -------
     tuple:
         :math:`n_o` and :math:`n_e`
 
@@ -450,18 +521,18 @@ def calcite(lambda_micron: float) -> tuple[float, float]:
         np.sqrt(
             1.28604141
             + 1.07044083 * lambda_micron**2 / (lambda_micron**2 - 1.00585997 * 1e-2)
-            + 1.10202242 * lambda_micron**2 / (lambda_micron**2 - 100)
+            + 1.10202242 * lambda_micron**2 / (lambda_micron**2 - 100),
         ),
         np.sqrt(
             1.28851804
             + 1.09509924 * lambda_micron**2 / (lambda_micron**2 - 1.02101864 * 1e-2)
-            + 1.15662475 * lambda_micron**2 / (lambda_micron**2 - 100)
+            + 1.15662475 * lambda_micron**2 / (lambda_micron**2 - 100),
         ),
     )
 
 
 def mgf2(lambda_micron: float) -> tuple[float, float]:
-    r"""Dispersion of mgf2
+    r"""Dispersion of mgf2.
 
     Parameters
     ----------
@@ -469,7 +540,7 @@ def mgf2(lambda_micron: float) -> tuple[float, float]:
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
 
     Returns
-    --------
+    -------
     tuple:
         :math:`n_o` and :math:`n_e`
     """
@@ -477,19 +548,19 @@ def mgf2(lambda_micron: float) -> tuple[float, float]:
         1
         + 0.4876 * lambda_micron**2 / (lambda_micron**2 - 0.0434**2)
         + 0.3988 * lambda_micron**2 / (lambda_micron**2 - 0.0946**2)
-        + 2.3120 * lambda_micron**2 / (lambda_micron**2 - 23.7936**2)
+        + 2.3120 * lambda_micron**2 / (lambda_micron**2 - 23.7936**2),
     )
     ne = np.sqrt(
         1
         + 0.4134 * lambda_micron**2 / (lambda_micron**2 - 0.0368**2)
         + 0.5050 * lambda_micron**2 / (lambda_micron**2 - 0.0908**2)
-        + 2.4905 * lambda_micron**2 / (lambda_micron**2 - 23.7720**2)
+        + 2.4905 * lambda_micron**2 / (lambda_micron**2 - 23.7720**2),
     )
     return (no, ne)
 
 
 def phase_matching_angle_bbo(fundamental_micron: float) -> float:
-    """Phase matching angle of beta-BBO for SHG
+    """Phase matching angle of beta-BBO for SHG.
 
     Parameters
     ----------

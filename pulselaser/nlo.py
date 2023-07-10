@@ -1,8 +1,6 @@
-#! /usr/bin/env python3
-
-"""Calculate the NLO crystal characteristics"""
+"""Calculate the NLO crystal characteristics."""
 import argparse
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 
@@ -14,7 +12,7 @@ def cut_angle_deg(
     material: Callable[float, tuple[float, float]] = sellmeier.betaBBO,
 ) -> float:
     no_1: float = material(input_wavelength_micron)[0]
-    ne_1: float = material(input_wavelength_micron)[1]
+    """ne_1: float = material(input_wavelength_micron)[1] """
     no_2: float = material(input_wavelength_micron / 2)[0]
     ne_2: float = material(input_wavelength_micron / 2)[1]
     #
@@ -22,9 +20,9 @@ def cut_angle_deg(
         np.arcsin(
             np.sqrt(
                 ((ne_2**2) * (no_2**2 - no_1**2))
-                / ((no_1**2) * (no_2**2 - ne_2**2))
-            )
-        )
+                / ((no_1**2) * (no_2**2 - ne_2**2)),
+            ),
+        ),
     )
 
 

@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-""".. py:module:: qpi
+""".. py:module:: qpi.
 
 Module to extract the line profile data about QPI results.
 """
@@ -7,17 +6,19 @@ Module to extract the line profile data about QPI results.
 from __future__ import annotations
 
 import os.path
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
-from numpy.typing import ArrayLike, NDArray
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike, NDArray
 
 
 class QPI:
     """Class for QPI data.
 
     Attributes
-    ------------
+    ----------
     data: tuple, list, numpy.ndarray
         1D or 2D matrix data.  The size of data should be n**2.
     physical_size: float
@@ -37,7 +38,7 @@ class QPI:
         current: float = 0,
         dataname: str = "",
     ) -> None:
-        """Initialization."""
+        """Initialize."""
         self.data: NDArray[np.float_] = np.array(data, dtype=np.float_)
         self.pixels: int
         if self.data.ndim == 1:
@@ -46,7 +47,8 @@ class QPI:
         elif self.data.ndim == 2 and self.data.shape[0] == self.data.shape[1]:
             self.pixels = self.data.shape[0]
         else:
-            raise ValueError("Data mismatch!")
+            msg = "Data mismatch!"
+            raise ValueError(msg)
         if physical_size == 0.0:
             self.physical_size = self.data.shape[0]
         else:
@@ -65,7 +67,11 @@ class QPI:
 
         """
         degree: float = np.pi / 180.0
-        if -1.0 < np.tan(angle_deg * degree) <= 1.0:
+        if (
+            np.tan(np.deg2rad(-45))
+            < np.tan(np.deg2rad(angle_deg))
+            <= np.tan(np.deg2rad(45))
+        ):
             position_pixel = [
                 (x, self.ypixel(x, angle_deg)) for x in range(self.pixels)
             ]
@@ -74,7 +80,7 @@ class QPI:
                 (
                     int(
                         (y - self.pixels / 2.0) / np.tan(angle_deg * degree)
-                        + self.pixels / 2.0
+                        + self.pixels / 2.0,
                     ),
                     y,
                 )
@@ -87,15 +93,14 @@ class QPI:
 
         Parameters
         ----------
-            x: float
-
-            angle_deg: float
-                Cutting angle by degrees
+        x: float
+            position X
+        angle_deg: float
+            Cutting angle by degrees
 
         """
-        degree: float = np.pi / 180.0
         y = int(
-            np.tan(angle_deg * degree) * (x - self.pixels / 2.0) + self.pixels / 2.0
+            np.tan(np.deg2rad(angle_deg)) * (x - self.pixels / 2.0) + self.pixels / 2.0,
         )
         if y >= self.pixels:
             y = self.pixels - 1
@@ -112,19 +117,21 @@ class QPI:
             Cutting angle by degrees
 
         """
-        degree: float = np.pi / 180.0
-        if -1.0 <= np.tan(angle_deg * degree) <= 1.0:
+        if (
+            np.tan(np.deg2rad(-45))
+            < np.tan(np.deg2rad(angle_deg))
+            <= np.tan(np.deg2rad(45))
+        ):
             return np.linspace(
-                -self.physical_size / 2.0 * np.abs(1 / np.cos(angle_deg * degree)),
-                self.physical_size / 2.0 * np.abs(1 / np.cos(angle_deg * degree)),
+                -self.physical_size / 2.0 * np.abs(1 / np.cos(np.deg2rad(angle_deg))),
+                self.physical_size / 2.0 * np.abs(1 / np.cos(np.deg2rad(angle_deg))),
                 self.pixels,
             )
-        else:
-            return np.linspace(
-                -self.physical_size / 2.0 * np.abs(1 / np.sin(angle_deg * degree)),
-                self.physical_size / 2.0 * np.abs(1 / np.sin(angle_deg * degree)),
-                self.pixels,
-            )
+        return np.linspace(
+            -self.physical_size / 2.0 * np.abs(1 / np.sin(np.deg2rad(angle_deg))),
+            self.physical_size / 2.0 * np.abs(1 / np.sin(np.deg2rad(angle_deg))),
+            self.pixels,
+        )
 
 
 def qpidataload(filename: str) -> QPI:
@@ -165,16 +172,15 @@ def anglestring(angle: float) -> str:
     """Return the angle string with 'm' when the angle is negative.
 
     Parameters
-    -----------
-        angle: float
-            The angle.
+    ----------
+    angle: float
+        Angle value to convert.
 
     Returns
-    ---------
+    -------
         str
             When the angle is negative, return 'm'+abs(angle).
     """
     if angle < 0:
         return "m" + str(abs(angle))
-    else:
-        return str(angle)
+    return str(angle)
