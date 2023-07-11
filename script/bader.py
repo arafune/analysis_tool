@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""bader analysis"""
+"""bader analysis."""
 
 from __future__ import annotations
 
@@ -7,15 +7,19 @@ import argparse
 import bz2
 import subprocess
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import vaspy
-from vaspy.chgcar import CHGCAR
+
+if TYPE_CHECKING:
+    from vaspy.chgcar import CHGCAR
 
 
 def ref_chgcar(aeccar0: CHGCAR, aeccar2: CHGCAR) -> None:
-    """Merge to chgcar"""
+    """Merge to chgcar."""
     if Path("CHGCAR_sum").exists():
-        raise RuntimeError("CHGCAR_sum already exists")
+        msg = "CHGCAR_sum already exists"
+        raise RuntimeError(msg)
     aeccar0.merge(aeccar2).save("CHGCAR_sum")
 
 
@@ -30,13 +34,13 @@ def run_bader(
         uncompress_chgcar_path: str = chgcar_path.stem
         with bz2.open(chgcar_path, "rb") as bz2file:
             contents = bz2file.read()
-            with open(uncompress_chgcar_path, "wb") as uncompress:
+            with Path(uncompress_chgcar_path).open("wb") as uncompress:
                 uncompress.write(contents)
     else:
         uncompress_chgcar_path = chgcar_path.name
 
     if not Path(logfile_path).exists():
-        with open(logfile_path, "w") as logfile:
+        with Path(logfile_path).open("w") as logfile:
             try:
                 subprocess.run(
                     ["bader", uncompress_chgcar_path, "-ref", str(chgcar_sum_path)],
@@ -57,8 +61,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     ref_chgcar(
-        vaspy.load(args.aeccar0, mode="CHGCAR"), vaspy.load(args.aeccar2, mode="CHGCAR")
+        vaspy.load(args.aeccar0, mode="CHGCAR"),
+        vaspy.load(args.aeccar2, mode="CHGCAR"),
     )
     run_bader(
-        logfile_path=args.logfile, chgcar_path=args.chgcar, chgcar_sum_path="CHGCAR_sum"
+        logfile_path=args.logfile,
+        chgcar_path=args.chgcar,
+        chgcar_sum_path="CHGCAR_sum",
     )
