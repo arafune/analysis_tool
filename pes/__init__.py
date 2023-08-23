@@ -53,7 +53,7 @@ def wavelength2eV(wavelength_nm: A) -> A:  # noqa: N802
     Returns
     -------
     float
-        Photon enery in eV unit.
+        Photon energy in eV unit.
     """
     planck_const_eV: float = 4.135667696e-15  # noqa: N806
     light_velocity: int = 299792458

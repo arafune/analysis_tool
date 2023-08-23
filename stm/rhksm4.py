@@ -258,7 +258,7 @@ class RHKPage:
             "image data",
             "line/spectra data",
             "xy_data",
-            "annoted line/spectral data",
+            "annotated line/spectral data",
             "text_data",
             "text_annotate",
             "Sequential_data",
@@ -325,7 +325,7 @@ class RHKPageIndexArray:  # Object Id: 2
             page.read(fhandle)
 
     def __str__(self) -> str:
-        this = "RHKPageIndexArray @ {0.offset} x {0.size}".format(self)
+        this = "RHKPageIndexArray @ {0.offset} x {0.size}".format(self)  # noqa: UP032
         that = "\n".join(str(page) for page in self.pages)
         return this + "\n" + that
 
@@ -344,7 +344,7 @@ class RHKPageHeader:  # Object id: 3
 
         0. undefined
         1. topographic image
-        2. curent image
+        2. current image
         3. aux image
         4. force image
         5. signal image

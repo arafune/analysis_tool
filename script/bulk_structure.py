@@ -9,6 +9,7 @@ import glob
 import math
 import os
 import pathlib
+from pathlib import Path
 import subprocess
 from typing import Callable
 
@@ -126,7 +127,7 @@ Direct
     0.622910023         0.550099969         0.414539993
     """
     #
-    with open("POSCAR", "w") as f:
+    with Path("POSCAR").open("w") as f:
         f.write(output)
 
 
@@ -158,7 +159,7 @@ def MoS2(vars: tuple[float, ...]) -> None:
     0.333333 0.666667 0.355174
     0.666667 0.333333 0.855174"""
     #
-    with open("POSCAR", "w") as f:
+    with Path("POSCAR").open("w") as f:
         f.write(output)
 
 
@@ -192,7 +193,7 @@ def load_results(
     Parameters
     ------------
     results: pathlib.Path
-        Path object contains "resutls". (Defalut: "results.txt" file)
+        Path object contains "resutls". (Default: "results.txt" file)
 
 
     results.txt

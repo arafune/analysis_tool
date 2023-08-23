@@ -69,7 +69,7 @@ def dynes(
 def diff_fd(omega: NDArray[np.float_], temp: float) -> NDArray[np.float_]:
     """Return differential of the Fermi-Dirac distribution.
 
-    Paramters
+    Parameters
     ----------
     omega: float
         Energy  (eV).
@@ -105,7 +105,7 @@ def extend_energy_axis(energy_axis: NDArray[np.float_]) -> NDArray[np.float_]:
     )
 
 
-def conv_gap(
+def conv_gap( # noqa: PLR0913
     omega: float,
     energy_axis: NDArray[np.float_],
     delta: float,
@@ -147,7 +147,7 @@ def conv_gap(
     )
 
 
-def conv_dynes(
+def conv_dynes(  # noqa: PLR0913
     omega: float,
     energy_axis: NDArray[np.float_],
     delta: float,

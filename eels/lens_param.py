@@ -19,7 +19,8 @@ Clens: list[str] = ["C1", "DeltaC1", "C2", "C3", "DeltaC3"]
 Linked: list[str] = [
     "UA",
     "DA",
-    "B1" "B2",
+    "B1",
+    "B2",
     "B3",
     "B4",
     "UM",

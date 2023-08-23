@@ -92,7 +92,7 @@ class Band:
 
 
 def distance(kdata):
-    """Return the distace.
+    """Return the distance.
 
     Parameters
     ------------
