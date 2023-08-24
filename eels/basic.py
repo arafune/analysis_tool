@@ -42,7 +42,7 @@ def momentum_transfer(
     Returns
     -------
     float
-        Transfered momentum (AA-1 units)
+        Transferred momentum (AA-1 units)
     """
     return (
         0.5123167219534328
