@@ -87,9 +87,6 @@ def parabolic_band_dispersion_k(k: A, e0: float, mass: float = 1.0) -> A:
     return e0 + (1 / (0.512410908328 * float(np.sqrt(mass))) ** 2) * k**2
 
 
-reveal_type(float(np.sqrt(3.0)))
-
-
 def parabolic_band_dispersion_angle(
     theta_degree: A,
     e0: float,
@@ -117,7 +114,3 @@ def parabolic_band_dispersion_angle(
     """
     assert isinstance(theta_degree, np.ndarray | float)
     return e0 * mass / (mass - np.sin(np.deg2rad(theta_degree)) ** 2)
-
-
-reveal_type(np.nan)
-reveal_type(np.sin(np.deg2rad(np.array([1, 2, 3]))))
