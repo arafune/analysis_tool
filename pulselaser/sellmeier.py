@@ -175,6 +175,36 @@ def two_term_serllmier(
     return three_term_sellmier(lambda_micron, b1, c1, b2, c2, 0, 0)
 
 
+def first_derivative_two_term_sellmier(
+    lambda_micron: float,
+    b1: float,
+    c1: float,
+    b2: float,
+    c2: float,
+) -> float:
+    """First derivative of the two term sellmier equation.
+
+    Parameters
+    ----------
+    lambda_micron: float
+        wavelength in micron
+    b1: float
+        Coefficient B_1
+    c1: float
+        Coefficient C_1
+    b2: float
+        Coefficient B_2
+    c2: float
+        Coefficient C_2
+
+    Returns
+    -------
+    float
+        Calculated refractive index
+    """
+    return first_derivative_three_term_sellmier(lambda_micron, b1, c1, b2, c2, 0, 0)
+
+
 def second_derivative_two_term_sellmier(
     lambda_micron: float,
     b1: float,
@@ -203,6 +233,9 @@ def second_derivative_two_term_sellmier(
         Calculated refractive index
     """
     return second_derivative_three_term_sellmier(lambda_micron, b1, c1, b2, c2, 0, 0)
+
+
+# -----------
 
 
 def bk7(lambda_micron: float, *, second_derivative: bool = False) -> float:
