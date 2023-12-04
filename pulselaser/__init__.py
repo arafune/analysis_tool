@@ -42,8 +42,7 @@ def broadening(initial_width_fs: float, gdd: float) -> float:
     assert initial_width_fs > 0
     assert gdd > 0
     return (
-        np.sqrt(initial_width_fs**4 + 16 * np.log(2) ** 2 * gdd**2)
-        / initial_width_fs
+        np.sqrt(initial_width_fs**4 + (gdd**2) * 16 * np.log(2) ** 2) / initial_width_fs
     )
 
 

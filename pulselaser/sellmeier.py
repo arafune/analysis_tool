@@ -18,7 +18,7 @@ def three_term_sellmier(
     r"""Return Sellmeier function.
 
     :math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - C_1} +
-    \frac{B_1 \lambda^2}{\lambda^2 - C_2} + \frac{B_3 \lambda^2}{\lambda^2 - C_3}`.
+    \frac{B_2 \lambda^2}{\lambda^2 - C_2} + \frac{B_3 \lambda^2}{\lambda^2 - C_3}`.
 
 
     Parameters
@@ -50,6 +50,33 @@ def three_term_sellmier(
         + b3 * lambda_micron**2 / (lambda_micron**2 - c3**2)
     )
     return np.sqrt(n2)
+
+
+def first_derivative_three_term_sellmier(
+    lambda_micron: float,
+    b1: float,
+    c1: float,
+    b2: float,
+    c2: float,
+    b3: float,
+    c3: float,
+) -> float:
+    return (
+        lambda_micron
+        * (
+            (b1 * (-2 * c1 + lambda_micron)) / (c1 - lambda_micron) ** 2
+            + (b2 * (-2 * c2 + lambda_micron)) / (c2 - lambda_micron) ** 2
+            + (b3 * (-2 * c3 + lambda_micron)) / (c3 - lambda_micron) ** 2
+        )
+    ) / (
+        2.0
+        * np.sqrt(
+            1.0
+            + (b1 * lambda_micron**2) / (-c1 + lambda_micron)
+            + (b2 * lambda_micron**2) / (-c2 + lambda_micron)
+            + (b3 * lambda_micron**2) / (-c3 + lambda_micron)
+        )
+    )
 
 
 def second_derivative_three_term_sellmier(
@@ -102,12 +129,9 @@ def second_derivative_three_term_sellmier(
             + (b3 * lambda_micron**2) / (-c3 + lambda_micron**2)
         )
         * (
-            (-2 * b1 * c1 * (c1 + 3 * lambda_micron**2))
-            / (c1 - lambda_micron**2) ** 3
-            - (2 * b2 * c2 * (c2 + 3 * lambda_micron**2))
-            / (c2 - lambda_micron**2) ** 3
-            - (2 * b3 * c3 * (c3 + 3 * lambda_micron**2))
-            / (c3 - lambda_micron**2) ** 3
+            (-2 * b1 * c1 * (c1 + 3 * lambda_micron**2)) / (c1 - lambda_micron**2) ** 3
+            - (2 * b2 * c2 * (c2 + 3 * lambda_micron**2)) / (c2 - lambda_micron**2) ** 3
+            - (2 * b3 * c3 * (c3 + 3 * lambda_micron**2)) / (c3 - lambda_micron**2) ** 3
         )
     ) / (
         4.0
@@ -128,9 +152,7 @@ def two_term_serllmier(
     b2: float,
     c2: float,
 ) -> float:
-    r""":math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - C_1}
-    + \frac{c \lambda^2}{\lambda^2 - d}`.
-
+    r""":math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - C_1} + \frac{B_2 \lambda^2}{\lambda^2 - C_2}`.
 
     Parameters
     ----------
@@ -183,7 +205,7 @@ def second_derivative_two_term_sellmier(
     return second_derivative_three_term_sellmier(lambda_micron, b1, c1, b2, c2, 0, 0)
 
 
-def BK7(lambda_micron: float, *, second_derivative: bool = False) -> float:
+def bk7(lambda_micron: float, *, second_derivative: bool = False) -> float:
     r"""Dispersion of BK7.
 
     https://refractiveindex.info/?shelf=glass&book=BK7&page=SCHOTT
@@ -214,7 +236,7 @@ def BK7(lambda_micron: float, *, second_derivative: bool = False) -> float:
     return three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3)
 
 
-def FusedSilica(lambda_micron: float, *, second_derivative: bool = False) -> float:
+def fused_silica(lambda_micron: float, *, second_derivative: bool = False) -> float:
     r"""Dispersion of Fusd Silica (0.21- 3.71 micron).
 
     https://refractiveindex.info/?shelf=glass&book=fused_silica&page=Malitson
@@ -248,8 +270,6 @@ def FusedSilica(lambda_micron: float, *, second_derivative: bool = False) -> flo
 def caf2(lambda_micron: float, *, second_derivative: bool = False) -> float:
     r"""Dispersion of caf2 (0.15 - 12 micron).
 
-    https://www.thorlabs.co.jp/newgrouppage9.cfm?objectgroup_id=6973&tabname=UV溶融石英(UVFS)
-
     Parameters
     ----------
     lambda_micron: float
@@ -276,6 +296,37 @@ def caf2(lambda_micron: float, *, second_derivative: bool = False) -> float:
     return np.sqrt(
         three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3) ** 2 + 0.33973,
     )
+
+
+def sf10(lambda_micron: float, *, second_derivative: bool = False) -> float:
+    r"""Dispersion of SF10 (0.15 - 12 micron).
+
+    https://refractiveindex.info/?shelf=glass&book=SF10&page=SCHOTT
+
+    Parameters
+    ----------
+    lambda_micron: float
+        wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
+    second_derivative: bool
+        if True return :math:`\frac{d^2n}{d\lambda^2}`
+    """
+    b1 = 1.6215390
+    c1 = 0.0122241457
+    b2 = 0.256287842
+    c2 = 0.0595736775
+    b3 = 1.64447552
+    c3 = 147.468793
+    if second_derivative:
+        return second_derivative_three_term_sellmier(
+            lambda_micron,
+            b1,
+            c1,
+            b2,
+            c2,
+            b3,
+            c3,
+        )
+    return three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3)
 
 
 def air(lambda_micron: float, *, second_derivative: bool = False) -> float:
@@ -308,7 +359,7 @@ def air(lambda_micron: float, *, second_derivative: bool = False) -> float:
     return 1 + b1 / (c1 - lambda_micron ** (-2)) + b1 / (c2 - lambda_micron ** (-2))
 
 
-def BBO_sellmeier(
+def bbo_sellmeier(
     lambda_micron: float,
     a: float,
     b: float,
@@ -318,7 +369,7 @@ def BBO_sellmeier(
     return np.sqrt(a - d * lambda_micron**2 + b / (-c + lambda_micron**2))
 
 
-def BBO_sellmeier_1st_derivative(
+def bbo_sellmeier_1st_derivative(
     lambda_micron: float,
     a: float,
     b: float,
@@ -331,7 +382,7 @@ def BBO_sellmeier_1st_derivative(
     )
 
 
-def BBO_sellmeier_2nd_derivative(
+def bbo_sellmeier_2nd_derivative(
     lambda_micron: float,
     a: float,
     b: float,
@@ -343,7 +394,7 @@ def BBO_sellmeier_2nd_derivative(
     ) ** (3 / 2)
 
 
-def alphaBBO(
+def alpha_bbo(
     lambda_micron: float,
     *,
     first_derivative: bool = False,
@@ -368,14 +419,14 @@ def alphaBBO(
     """
     if first_derivative:
         return (
-            BBO_sellmeier_1st_derivative(
+            bbo_sellmeier_1st_derivative(
                 lambda_micron,
                 2.67579,
                 0.02099,
                 0.00470,
                 0.00528,
             ),
-            BBO_sellmeier_1st_derivative(
+            bbo_sellmeier_1st_derivative(
                 lambda_micron,
                 2.31197,
                 0.01184,
@@ -385,14 +436,14 @@ def alphaBBO(
         )
     if second_derivative:
         return (
-            BBO_sellmeier_2nd_derivative(
+            bbo_sellmeier_2nd_derivative(
                 lambda_micron,
                 2.67579,
                 0.02099,
                 0.00470,
                 0.00528,
             ),
-            BBO_sellmeier_2nd_derivative(
+            bbo_sellmeier_2nd_derivative(
                 lambda_micron,
                 2.31197,
                 0.01184,
@@ -401,12 +452,12 @@ def alphaBBO(
             ),
         )
     return (
-        BBO_sellmeier(lambda_micron, 2.67579, 0.02099, 0.00470, 0.00528),
-        BBO_sellmeier(lambda_micron, 2.31197, 0.01184, 0.016070, 0.00400),
+        bbo_sellmeier(lambda_micron, 2.67579, 0.02099, 0.00470, 0.00528),
+        bbo_sellmeier(lambda_micron, 2.31197, 0.01184, 0.016070, 0.00400),
     )
 
 
-def betaBBO(
+def beta_bbo(
     lambda_micron: float,
     *,
     first_derivative: bool = False,
@@ -431,14 +482,14 @@ def betaBBO(
     """
     if first_derivative:
         return (
-            BBO_sellmeier_1st_derivative(
+            bbo_sellmeier_1st_derivative(
                 lambda_micron,
                 2.7359,
                 0.01878,
                 0.01822,
                 0.01354,
             ),
-            BBO_sellmeier_1st_derivative(
+            bbo_sellmeier_1st_derivative(
                 lambda_micron,
                 2.3753,
                 0.01224,
@@ -448,14 +499,14 @@ def betaBBO(
         )
     if second_derivative:
         return (
-            BBO_sellmeier_2nd_derivative(
+            bbo_sellmeier_2nd_derivative(
                 lambda_micron,
                 2.7359,
                 0.01878,
                 0.01822,
                 0.01354,
             ),
-            BBO_sellmeier_2nd_derivative(
+            bbo_sellmeier_2nd_derivative(
                 lambda_micron,
                 2.3753,
                 0.01224,
@@ -464,8 +515,8 @@ def betaBBO(
             ),
         )
     return (
-        BBO_sellmeier(lambda_micron, 2.7359, 0.01878, 0.01822, 0.01354),
-        BBO_sellmeier(lambda_micron, 2.3753, 0.01224, 0.01667, 0.01516),
+        bbo_sellmeier(lambda_micron, 2.7359, 0.01878, 0.01822, 0.01354),
+        bbo_sellmeier(lambda_micron, 2.3753, 0.01224, 0.01667, 0.01516),
     )
 
 
@@ -573,10 +624,10 @@ def phase_matching_angle_bbo(fundamental_micron: float) -> float:
         Phase matching angle (Unit: Degree)
     """
     sin2theta = (
-        (betaBBO(fundamental_micron)[0]) ** (-2)
-        - (betaBBO(fundamental_micron / 2)[0] ** (-2))
+        (beta_bbo(fundamental_micron)[0]) ** (-2)
+        - (beta_bbo(fundamental_micron / 2)[0] ** (-2))
     ) / (
-        (betaBBO(fundamental_micron / 2)[1]) ** (-2)
-        - (betaBBO(fundamental_micron / 2)[0] ** (-2))
+        (beta_bbo(fundamental_micron / 2)[1]) ** (-2)
+        - (beta_bbo(fundamental_micron / 2)[0] ** (-2))
     )
     return np.rad2deg(np.arcsin(np.sqrt(sin2theta)))
