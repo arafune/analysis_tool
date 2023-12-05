@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Collection of Sellmeier equation."""
 
 from __future__ import annotations
@@ -8,12 +7,8 @@ import numpy as np
 
 def three_term_sellmier(
     lambda_micron: float,
-    b1: float,
-    c1: float,
-    b2: float,
-    c2: float,
-    b3: float,
-    c3: float,
+    coeff_b: tuple[float, float, float],
+    coeff_c: tuple[float, float, float],
 ) -> float:
     r"""Return Sellmeier function.
 
@@ -25,24 +20,18 @@ def three_term_sellmier(
     ----------
     lambda_micron: float
         wavelength in micron
-    b1: float
-        Coefficient B_1
-    c1: float
-        Coefficient C_1
-    b2: float
-        Coefficient B_2
-    c2: float
-        Coefficient C_2
-    b3: float
-        Coefficient B_3
-    c3: float
-        Coefficient C_3
+    coeff_b: tuple[float, float, float]
+        Coefficient B
+    coeff_c: tuple[float, float, float]
+        Coefficient C
 
     Returns
     -------
     float
         Calculated refractive index
     """
+    b1, b2, b3 = coeff_b
+    c1, c2, c3 = coeff_c
     n2 = (
         1
         + b1 * lambda_micron**2 / (lambda_micron**2 - c1**2)
@@ -54,13 +43,31 @@ def three_term_sellmier(
 
 def first_derivative_three_term_sellmier(
     lambda_micron: float,
-    b1: float,
-    c1: float,
-    b2: float,
-    c2: float,
-    b3: float,
-    c3: float,
+    coeff_b: tuple[float, float, float],
+    coeff_c: tuple[float, float, float],
 ) -> float:
+    r"""Return the first derivative of Sellmeier function.
+
+    :math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - C_1} +
+    \frac{B_2 \lambda^2}{\lambda^2 - C_2} + \frac{B_3 \lambda^2}{\lambda^2 - C_3}`.
+
+
+    Parameters
+    ----------
+    lambda_micron: float
+        wavelength in micron
+    coeff_b: tuple[float, float, float]
+        Coefficient B
+    coeff_c: tuple[float, float, float]
+        Coefficient C
+
+    Returns
+    -------
+    float
+        Calculated refractive index
+    """
+    b1, b2, b3 = coeff_b
+    c1, c2, c3 = coeff_c
     return (
         lambda_micron
         * (
@@ -74,19 +81,15 @@ def first_derivative_three_term_sellmier(
             1.0
             + (b1 * lambda_micron**2) / (-c1 + lambda_micron)
             + (b2 * lambda_micron**2) / (-c2 + lambda_micron)
-            + (b3 * lambda_micron**2) / (-c3 + lambda_micron)
+            + (b3 * lambda_micron**2) / (-c3 + lambda_micron),
         )
     )
 
 
 def second_derivative_three_term_sellmier(
     lambda_micron: float,
-    b1: float,
-    c1: float,
-    b2: float,
-    c2: float,
-    b3: float,
-    c3: float,
+    coeff_b: tuple[float, float, float],
+    coeff_c: tuple[float, float, float],
 ) -> float:
     """Second derivative of the three term sellmier equation.
 
@@ -94,24 +97,18 @@ def second_derivative_three_term_sellmier(
     ----------
     lambda_micron: float
         wavelength in micron
-    b1: float
-        Coefficient B_1
-    c1: float
-        Coefficient C_1
-    b2: float
-        Coefficient B_2
-    c2: float
-        Coefficient C_2
-    b3: float
-        Coefficient B_2
-    c3: float
-        Coefficient C_3
+    coeff_b: tuple[float, float, float]
+        Coefficient B
+    coeff_c: tuple[float, float, float]
+        Coefficient C
 
     Returns
     -------
     float
         Calculated refractive index
     """
+    b1, b2, b3 = coeff_b
+    c1, c2, c3 = coeff_c
     return (
         -4
         * lambda_micron**2
@@ -147,10 +144,8 @@ def second_derivative_three_term_sellmier(
 
 def two_term_serllmier(
     lambda_micron: float,
-    b1: float,
-    c1: float,
-    b2: float,
-    c2: float,
+    coeff_b: tuple[float, float],
+    coeff_c: tuple[float, float],
 ) -> float:
     r""":math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - C_1} + \frac{B_2 \lambda^2}{\lambda^2 - C_2}`.
 
@@ -158,29 +153,28 @@ def two_term_serllmier(
     ----------
     lambda_micron: float
         wavelength in micron
-    b1: float
-        Coefficient B_1
-    c1: float
-        Coefficient C_1
-    b2: float
-        Coefficient B_2
-    c2: float
-        Coefficient C_2
+    coeff_b: tuple[float, float]
+        Coefficient B
+    coeff_c: tuple[float, float]
+        Coefficient C
 
     Returns
     -------
     float
         Calculated refractive index
     """
-    return three_term_sellmier(lambda_micron, b1, c1, b2, c2, 0, 0)
+
+    return three_term_sellmier(
+        lambda_micron,
+        (*coeff_b, 0),
+        (*coeff_c, 0),
+    )
 
 
 def first_derivative_two_term_sellmier(
     lambda_micron: float,
-    b1: float,
-    c1: float,
-    b2: float,
-    c2: float,
+    coeff_b: tuple[float, float],
+    coeff_c: tuple[float, float],
 ) -> float:
     """First derivative of the two term sellmier equation.
 
@@ -188,29 +182,27 @@ def first_derivative_two_term_sellmier(
     ----------
     lambda_micron: float
         wavelength in micron
-    b1: float
-        Coefficient B_1
-    c1: float
-        Coefficient C_1
-    b2: float
-        Coefficient B_2
-    c2: float
-        Coefficient C_2
+    coeff_b: tuple[float, float]
+        Coefficient B
+    coeff_c: tuple[float, float]
+        Coefficient C
 
     Returns
     -------
     float
         Calculated refractive index
     """
-    return first_derivative_three_term_sellmier(lambda_micron, b1, c1, b2, c2, 0, 0)
+    return first_derivative_three_term_sellmier(
+        lambda_micron,
+        (*coeff_b, 0),
+        (*coeff_c, 0),
+    )
 
 
 def second_derivative_two_term_sellmier(
     lambda_micron: float,
-    b1: float,
-    c1: float,
-    b2: float,
-    c2: float,
+    coeff_b: tuple[float, float],
+    coeff_c: tuple[float, float],
 ) -> float:
     """Second derivative of the two term sellmier equation.
 
@@ -218,21 +210,21 @@ def second_derivative_two_term_sellmier(
     ----------
     lambda_micron: float
         wavelength in micron
-    b1: float
-        Coefficient B_1
-    c1: float
-        Coefficient C_1
-    b2: float
-        Coefficient B_2
-    c2: float
-        Coefficient C_2
+    coeff_b: tuple[float, float]
+        Coefficient B
+    coeff_c: tuple[float, float]
+        Coefficient C
 
     Returns
     -------
     float
         Calculated refractive index
     """
-    return second_derivative_three_term_sellmier(lambda_micron, b1, c1, b2, c2, 0, 0)
+    return second_derivative_three_term_sellmier(
+        lambda_micron,
+        (*coeff_b, 0),
+        (*coeff_c, 0),
+    )
 
 
 # -----------
@@ -250,23 +242,15 @@ def bk7(lambda_micron: float, *, second_derivative: bool = False) -> float:
     second_derivative: bool
         if True return :math:`\frac{d^2n}{d\lambda^2}`
     """
-    b1 = 1.03961212
-    c1 = 0.00600069867
-    b2 = 0.231792344
-    c2 = 0.0200179144
-    b3 = 1.01046945
-    c3 = 103.560653
+    b = (1.03961212, 0.231792344, 1.01046945)
+    c = (0.00600069867, 0.0200179144, 103.560653)
     if second_derivative:
         return second_derivative_three_term_sellmier(
             lambda_micron,
-            b1,
-            c1,
-            b2,
-            c2,
-            b3,
-            c3,
+            b,
+            c,
         )
-    return three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3)
+    return three_term_sellmier(lambda_micron, b, c)
 
 
 def fused_silica(lambda_micron: float, *, second_derivative: bool = False) -> float:
@@ -281,23 +265,11 @@ def fused_silica(lambda_micron: float, *, second_derivative: bool = False) -> fl
     second_derivative: bool
         if True return :math:`\frac{d^2n}{d\lambda^2}`
     """
-    b1 = 0.6961663
-    c1 = 0.06840432
-    b2 = 0.4079426
-    c2 = 0.11624142
-    b3 = 0.8974794
-    c3 = 9.8961612
+    b = (0.6961663, 0.4079426, 0.8974794)
+    c = (0.06840432, 0.11624142, 9.8961612)
     if second_derivative:
-        return second_derivative_three_term_sellmier(
-            lambda_micron,
-            b1,
-            c1,
-            b2,
-            c2,
-            b3,
-            c3,
-        )
-    return three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3)
+        return second_derivative_three_term_sellmier(lambda_micron, b, c)
+    return three_term_sellmier(lambda_micron, b, c)
 
 
 def caf2(lambda_micron: float, *, second_derivative: bool = False) -> float:
@@ -310,24 +282,16 @@ def caf2(lambda_micron: float, *, second_derivative: bool = False) -> float:
     second_derivative: bool
         if True return :math:`\frac{d^2n}{d\lambda^2}`
     """
-    b1 = 0.69913
-    c1 = 0.09374
-    b2 = 0.11994
-    c2 = 21.18
-    b3 = 4.35181
-    c3 = 38.46
+    b = (0.69913, 0.11994, 4.35181)
+    c = (0.09374, 21.18, 38.46)
     if second_derivative:
         return second_derivative_three_term_sellmier(
             lambda_micron,
-            b1,
-            c1,
-            b2,
-            c2,
-            b3,
-            c3,
+            b,
+            c,
         )
     return np.sqrt(
-        three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3) ** 2 + 0.33973,
+        three_term_sellmier(lambda_micron, b, c) ** 2 + 0.33973,
     )
 
 
@@ -343,23 +307,15 @@ def sf10(lambda_micron: float, *, second_derivative: bool = False) -> float:
     second_derivative: bool
         if True return :math:`\frac{d^2n}{d\lambda^2}`
     """
-    b1 = 1.6215390
-    c1 = 0.0122241457
-    b2 = 0.256287842
-    c2 = 0.0595736775
-    b3 = 1.64447552
-    c3 = 147.468793
+    b = (1.6215390, 0.256287842, 1.64447552)
+    c = (0.0122241457, 0.0595736775, 147.468793)
     if second_derivative:
         return second_derivative_three_term_sellmier(
             lambda_micron,
-            b1,
-            c1,
-            b2,
-            c2,
-            b3,
-            c3,
+            b,
+            c,
         )
-    return three_term_sellmier(lambda_micron, b1, c1, b2, c2, b3, c3)
+    return three_term_sellmier(lambda_micron, b, c)
 
 
 def air(lambda_micron: float, *, second_derivative: bool = False) -> float:
