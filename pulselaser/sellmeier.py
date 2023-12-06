@@ -71,17 +71,17 @@ def first_derivative_three_term_sellmier(
     return (
         lambda_micron
         * (
-            (b1 * (-2 * c1 + lambda_micron)) / (c1 - lambda_micron) ** 2
-            + (b2 * (-2 * c2 + lambda_micron)) / (c2 - lambda_micron) ** 2
-            + (b3 * (-2 * c3 + lambda_micron)) / (c3 - lambda_micron) ** 2
+            (b1 * (-2 * c1**2 + lambda_micron)) / (c1**2 - lambda_micron) ** 2
+            + (b2 * (-2 * c2**2 + lambda_micron)) / (c2**2 - lambda_micron) ** 2
+            + (b3 * (-2 * c3**2 + lambda_micron)) / (c3**2 - lambda_micron) ** 2
         )
     ) / (
         2.0
         * np.sqrt(
-            1.0
-            + (b1 * lambda_micron**2) / (-c1 + lambda_micron)
-            + (b2 * lambda_micron**2) / (-c2 + lambda_micron)
-            + (b3 * lambda_micron**2) / (-c3 + lambda_micron),
+            1
+            + (b1 * lambda_micron**2) / (-(c1**2) + lambda_micron)
+            + (b2 * lambda_micron**2) / (-(c2**2) + lambda_micron)
+            + (b3 * lambda_micron**2) / (-(c3**2) + lambda_micron),
         )
     )
 
@@ -308,7 +308,7 @@ def sf10(lambda_micron: float, *, second_derivative: bool = False) -> float:
         if True return :math:`\frac{d^2n}{d\lambda^2}`
     """
     b = (1.6215390, 0.256287842, 1.64447552)
-    c = (0.0122241457, 0.0595736775, 147.468793)
+    c = (np.sqrt(0.0122241457), np.sqrt(0.0595736775), np.sqrt(147.468793))
     if second_derivative:
         return second_derivative_three_term_sellmier(
             lambda_micron,

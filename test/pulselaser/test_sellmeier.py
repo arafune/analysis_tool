@@ -20,7 +20,7 @@ class TestCaF2:
 
 class TestSF10:
     def test_at_800nm(self) -> None:
-        assert sellmeier.sf10(0.80) == 1.696934373227597
+        assert sellmeier.sf10(0.80) == 1.7112973271904233
 
 
 class TestQuartz:
