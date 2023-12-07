@@ -147,7 +147,10 @@ def two_term_serllmier(
     coeff_b: tuple[float, float],
     coeff_c: tuple[float, float],
 ) -> float:
-    r""":math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - C_1} + \frac{B_2 \lambda^2}{\lambda^2 - C_2}`.
+    r"""Return the Sellmeier function represented by two terms.
+
+    :math:`n^2 -1 = \frac{B_1 \lambda^2}{\lambda^2 - C_1} +
+    \frac{B_2 \lambda^2}{\lambda^2 - C_2}`.
 
     Parameters
     ----------
@@ -163,7 +166,6 @@ def two_term_serllmier(
     float
         Calculated refractive index
     """
-
     return three_term_sellmier(
         lambda_micron,
         (*coeff_b, 0),
@@ -243,7 +245,7 @@ def bk7(lambda_micron: float, *, second_derivative: bool = False) -> float:
         if True return :math:`\frac{d^2n}{d\lambda^2}`
     """
     b = (1.03961212, 0.231792344, 1.01046945)
-    c = (0.00600069867, 0.0200179144, 103.560653)
+    c = (np.sqrt(0.00600069867), np.sqrt(0.0200179144), np.sqrt(103.560653))
     if second_derivative:
         return second_derivative_three_term_sellmier(
             lambda_micron,

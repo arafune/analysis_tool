@@ -5,7 +5,8 @@ import pulselaser.sellmeier as sellmeier
 
 class TestBK7:
     def test_at_800nm(self) -> None:
-        assert sellmeier.bk7(0.80) == 1.5071655107493938
+        """Test for n of BK7 at 800nm ~1.5108."""
+        assert sellmeier.bk7(0.80) == 1.5107762314198743
 
 
 class TestFusedSilica:
