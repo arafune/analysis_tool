@@ -416,8 +416,7 @@ def bbo_sellmeier_2nd_derivative(
 def alpha_bbo(
     lambda_micron: float,
     *,
-    first_derivative: bool = False,
-    second_derivative: bool = False,
+    derivative: DERIVATIVE_ORDER = 0,
 ) -> tuple[float, float]:
     r"""Dispersion of :math:`\alpha`-BBO.
 
@@ -436,7 +435,12 @@ def alpha_bbo(
     tuple:
         :math:`n_o` and :math:`n_e`
     """
-    if first_derivative:
+    if derivative == 0:
+        return (
+            bbo_sellmeier(lambda_micron, 2.67579, 0.02099, 0.00470, 0.00528),
+            bbo_sellmeier(lambda_micron, 2.31197, 0.01184, 0.016070, 0.00400),
+        )
+    if derivative == 1:
         return (
             bbo_sellmeier_1st_derivative(
                 lambda_micron,
@@ -453,7 +457,7 @@ def alpha_bbo(
                 0.00400,
             ),
         )
-    if second_derivative:
+    if derivative == 2:
         return (
             bbo_sellmeier_2nd_derivative(
                 lambda_micron,
@@ -470,17 +474,14 @@ def alpha_bbo(
                 0.00400,
             ),
         )
-    return (
-        bbo_sellmeier(lambda_micron, 2.67579, 0.02099, 0.00470, 0.00528),
-        bbo_sellmeier(lambda_micron, 2.31197, 0.01184, 0.016070, 0.00400),
-    )
+    msg = "Derivative order should be 0, 1, or 2"
+    raise RuntimeError(msg)
 
 
 def beta_bbo(
     lambda_micron: float,
     *,
-    first_derivative: bool = False,
-    second_derivative: bool = False,
+    derivative: DERIVATIVE_ORDER = 0,
 ) -> tuple[float, float]:
     r"""Return :math:`n_o` and :math:`n_e` of :math:`\beta`-BBO.
 
@@ -492,6 +493,8 @@ def beta_bbo(
     ----------
     lambda_micron: float
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
+    derivative: DERIVATIVE_ORDER
+        Order of derivative (0, 1, 2)
 
     Returns
     -------
@@ -499,7 +502,12 @@ def beta_bbo(
         :math:`n_o` and :math:`n_e`
 
     """
-    if first_derivative:
+    if derivative == 0:
+        return (
+            bbo_sellmeier(lambda_micron, 2.7359, 0.01878, 0.01822, 0.01354),
+            bbo_sellmeier(lambda_micron, 2.3753, 0.01224, 0.01667, 0.01516),
+        )
+    if derivative == 1:
         return (
             bbo_sellmeier_1st_derivative(
                 lambda_micron,
@@ -516,7 +524,7 @@ def beta_bbo(
                 0.01516,
             ),
         )
-    if second_derivative:
+    if derivative == 2:
         return (
             bbo_sellmeier_2nd_derivative(
                 lambda_micron,
@@ -533,10 +541,8 @@ def beta_bbo(
                 0.01516,
             ),
         )
-    return (
-        bbo_sellmeier(lambda_micron, 2.7359, 0.01878, 0.01822, 0.01354),
-        bbo_sellmeier(lambda_micron, 2.3753, 0.01224, 0.01667, 0.01516),
-    )
+    msg = "Derivative order should be 0, 1, or 2"
+    raise RuntimeError(msg)
 
 
 def quartz(lambda_micron: float) -> tuple[float, float]:
