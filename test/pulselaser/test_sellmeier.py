@@ -11,6 +11,7 @@ class TestBK7:
 
 class TestFusedSilica:
     def test_at_800nm(self) -> None:
+        """Test for n of FusedSilica at 800nm ~1.4533."""
         assert sellmeier.fused_silica(0.80) == 1.4533172570445876
 
 
@@ -21,6 +22,7 @@ class TestCaF2:
 
 class TestSF10:
     def test_at_800nm(self) -> None:
+        """Test for n of SF10 at 800nm ~1.7113."""
         assert sellmeier.sf10(0.80) == 1.7112973271904233
 
 

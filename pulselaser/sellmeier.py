@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import numpy as np
 
+from typing import Literal
+
+DERIVATIVE_ORDER = Literal[0, 1, 2]
+
 
 def three_term_sellmier(
     lambda_micron: float,
@@ -232,7 +236,7 @@ def second_derivative_two_term_sellmier(
 # -----------
 
 
-def bk7(lambda_micron: float, *, second_derivative: bool = False) -> float:
+def bk7(lambda_micron: float, *, derivative: DERIVATIVE_ORDER = 0) -> float:
     r"""Dispersion of BK7.
 
     https://refractiveindex.info/?shelf=glass&book=BK7&page=SCHOTT
@@ -246,16 +250,21 @@ def bk7(lambda_micron: float, *, second_derivative: bool = False) -> float:
     """
     b = (1.03961212, 0.231792344, 1.01046945)
     c = (np.sqrt(0.00600069867), np.sqrt(0.0200179144), np.sqrt(103.560653))
-    if second_derivative:
+    if derivative == 0:
+        return three_term_sellmier(lambda_micron, b, c)
+    if derivative == 1:
+        return first_derivative_three_term_sellmier(lambda_micron, b, c)
+    if derivative == 2:
         return second_derivative_three_term_sellmier(
             lambda_micron,
             b,
             c,
         )
-    return three_term_sellmier(lambda_micron, b, c)
+    msg = "Derivative order should be 0, 1, or 2"
+    raise RuntimeError(msg)
 
 
-def fused_silica(lambda_micron: float, *, second_derivative: bool = False) -> float:
+def fused_silica(lambda_micron: float, *, derivative: DERIVATIVE_ORDER = 0) -> float:
     r"""Dispersion of Fusd Silica (0.21- 3.71 micron).
 
     https://refractiveindex.info/?shelf=glass&book=fused_silica&page=Malitson
@@ -269,12 +278,21 @@ def fused_silica(lambda_micron: float, *, second_derivative: bool = False) -> fl
     """
     b = (0.6961663, 0.4079426, 0.8974794)
     c = (0.06840432, 0.11624142, 9.8961612)
-    if second_derivative:
-        return second_derivative_three_term_sellmier(lambda_micron, b, c)
-    return three_term_sellmier(lambda_micron, b, c)
+    if derivative == 0:
+        return three_term_sellmier(lambda_micron, b, c)
+    if derivative == 1:
+        return first_derivative_three_term_sellmier(lambda_micron, b, c)
+    if derivative == 2:
+        return second_derivative_three_term_sellmier(
+            lambda_micron,
+            b,
+            c,
+        )
+    msg = "Derivative order should be 0, 1, or 2"
+    raise RuntimeError(msg)
 
 
-def caf2(lambda_micron: float, *, second_derivative: bool = False) -> float:
+def caf2(lambda_micron: float, *, derivative: DERIVATIVE_ORDER = 0) -> float:
     r"""Dispersion of caf2 (0.15 - 12 micron).
 
     Parameters
@@ -286,18 +304,23 @@ def caf2(lambda_micron: float, *, second_derivative: bool = False) -> float:
     """
     b = (0.69913, 0.11994, 4.35181)
     c = (0.09374, 21.18, 38.46)
-    if second_derivative:
+    if derivative == 0:
+        return np.sqrt(
+            three_term_sellmier(lambda_micron, b, c) ** 2 + 0.33973,
+        )
+    if derivative == 1:
+        return first_derivative_three_term_sellmier(lambda_micron, b, c)
+    if derivative == 2:
         return second_derivative_three_term_sellmier(
             lambda_micron,
             b,
             c,
         )
-    return np.sqrt(
-        three_term_sellmier(lambda_micron, b, c) ** 2 + 0.33973,
-    )
+    msg = "Derivative order should be 0, 1, or 2"
+    raise RuntimeError(msg)
 
 
-def sf10(lambda_micron: float, *, second_derivative: bool = False) -> float:
+def sf10(lambda_micron: float, *, derivative: DERIVATIVE_ORDER = 0) -> float:
     r"""Dispersion of SF10 (0.15 - 12 micron).
 
     https://refractiveindex.info/?shelf=glass&book=SF10&page=SCHOTT
@@ -311,13 +334,18 @@ def sf10(lambda_micron: float, *, second_derivative: bool = False) -> float:
     """
     b = (1.6215390, 0.256287842, 1.64447552)
     c = (np.sqrt(0.0122241457), np.sqrt(0.0595736775), np.sqrt(147.468793))
-    if second_derivative:
+    if derivative == 0:
+        return three_term_sellmier(lambda_micron, b, c)
+    if derivative == 1:
+        return first_derivative_three_term_sellmier(lambda_micron, b, c)
+    if derivative == 2:
         return second_derivative_three_term_sellmier(
             lambda_micron,
             b,
             c,
         )
-    return three_term_sellmier(lambda_micron, b, c)
+    msg = "Derivative order should be 0, 1, or 2"
+    raise RuntimeError(msg)
 
 
 def air(lambda_micron: float, *, second_derivative: bool = False) -> float:
