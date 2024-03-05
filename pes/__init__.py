@@ -1,12 +1,13 @@
 """Module to analyze and show ARPES data."""
+
 from __future__ import annotations
 
-from typing import TypeVar, reveal_type
+from typing import TypeVar
 
 import numpy as np
 from numpy.typing import NDArray
 
-A = TypeVar("A", NDArray[np.float_], float)
+A = TypeVar("A", NDArray[np.float64], float)
 
 
 def delaytime_fs(mirror_movement_um: A) -> A:
@@ -21,6 +22,7 @@ def delaytime_fs(mirror_movement_um: A) -> A:
     -------
     float
         delay time in fs.
+
     """
     return 3.335640951981521 * mirror_movement_um
 
@@ -38,6 +40,7 @@ def position2delaytime(position_mm: A, center_position_mm: float) -> A:
     Returns
     -------
         delay time in fs unit.
+
     """
     return delaytime_fs(2 * (position_mm - center_position_mm) * 1000)
 
@@ -54,6 +57,7 @@ def wavelength2eV(wavelength_nm: A) -> A:  # noqa: N802
     -------
     float
         Photon energy in eV unit.
+
     """
     planck_const_eV: float = 4.135667696e-15  # noqa: N806
     light_velocity: int = 299792458
@@ -81,6 +85,7 @@ def parabolic_band_dispersion_k(k: A, e0: float, mass: float = 1.0) -> A:
     -------
     float
         Energy in eV unit measured from the vacuum level.
+
     """
     assert isinstance(k, np.ndarray | float)
     assert isinstance(np.sqrt, float)
@@ -111,6 +116,7 @@ def parabolic_band_dispersion_angle(
     -------
     float
         Energy in eV unit measured from the vacuum level.
+
     """
     assert isinstance(theta_degree, np.ndarray | float)
     return e0 * mass / (mass - np.sin(np.deg2rad(theta_degree)) ** 2)

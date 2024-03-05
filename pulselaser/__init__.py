@@ -20,6 +20,7 @@ def sech2(x: float, x0: float, width: float) -> float:
     Returns
     -------
     float
+
     """
     return (1 / np.cosh((x - x0) / width)) ** 2
 
@@ -38,6 +39,7 @@ def broadening(initial_width_fs: float, gdd: float) -> float:
     -------
     float
         the output pulse width (fs unit)
+
     """
     assert initial_width_fs > 0
     assert gdd > 0
@@ -66,6 +68,7 @@ def broadening_after_n(
     -------
     float
         the output pulse width (fs unit)
+
     """
     assert isinstance(iteration, int)
     assert iteration > 0
@@ -88,6 +91,7 @@ def gdd(input_pulse_duration_fs: float, output_pulse_duration_fs: float) -> floa
     -------
     float
         GDD value
+
     """
     return (
         np.sqrt(output_pulse_duration_fs**2 - input_pulse_duration_fs**2)
