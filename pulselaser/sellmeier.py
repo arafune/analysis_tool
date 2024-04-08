@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import numpy as np
-
 from typing import Literal
+
+import numpy as np
 
 DERIVATIVE_ORDER = Literal[0, 1, 2]
 
@@ -33,6 +33,7 @@ def three_term_sellmier(
     -------
     float
         Calculated refractive index
+
     """
     b1, b2, b3 = coeff_b
     c1, c2, c3 = coeff_c
@@ -69,6 +70,7 @@ def first_derivative_three_term_sellmier(
     -------
     float
         Calculated refractive index
+
     """
     b1, b2, b3 = coeff_b
     c1, c2, c3 = coeff_c
@@ -110,6 +112,7 @@ def second_derivative_three_term_sellmier(
     -------
     float
         Calculated refractive index
+
     """
     b1, b2, b3 = coeff_b
     c1, c2, c3 = coeff_c
@@ -169,6 +172,7 @@ def two_term_serllmier(
     -------
     float
         Calculated refractive index
+
     """
     return three_term_sellmier(
         lambda_micron,
@@ -197,6 +201,7 @@ def first_derivative_two_term_sellmier(
     -------
     float
         Calculated refractive index
+
     """
     return first_derivative_three_term_sellmier(
         lambda_micron,
@@ -225,6 +230,7 @@ def second_derivative_two_term_sellmier(
     -------
     float
         Calculated refractive index
+
     """
     return second_derivative_three_term_sellmier(
         lambda_micron,
@@ -245,8 +251,9 @@ def bk7(lambda_micron: float, *, derivative: DERIVATIVE_ORDER = 0) -> float:
     ----------
     lambda_micron: float
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
-    second_derivative: bool
-        if True return :math:`\frac{d^2n}{d\lambda^2}`
+    derivative: int
+        Derivative order
+
     """
     b = (1.03961212, 0.231792344, 1.01046945)
     c = (np.sqrt(0.00600069867), np.sqrt(0.0200179144), np.sqrt(103.560653))
@@ -275,6 +282,7 @@ def fused_silica(lambda_micron: float, *, derivative: DERIVATIVE_ORDER = 0) -> f
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     second_derivative: bool
         if True return :math:`\frac{d^2n}{d\lambda^2}`
+
     """
     b = (0.6961663, 0.4079426, 0.8974794)
     c = (0.06840432, 0.11624142, 9.8961612)
@@ -364,6 +372,7 @@ def air(lambda_micron: float, *, second_derivative: bool = False) -> float:
     -------
     float:
         :math:`n`
+
     """
     b1 = 0.05792105
     c1 = 238.0185
