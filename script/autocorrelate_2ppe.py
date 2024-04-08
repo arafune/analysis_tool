@@ -5,12 +5,15 @@ from __future__ import annotations
 
 import argparse
 from logging import INFO, Formatter, StreamHandler, getLogger
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.figure import FigureBase
 
 from pes.prodigy_util import ProdigyItx
+
+if TYPE_CHECKING:
+    from matplotlib.figure import FigureBase
 
 LOGLEVEL = INFO
 logger = getLogger(__name__)
@@ -32,7 +35,10 @@ if __name__ == "__main__":
         help="""output file name. if not specified, use standard output""",
     )
     parser.add_argument(
-        "itx_files", metavar="itx_file", nargs="+", help="itx file to be analyzed"
+        "itx_files",
+        metavar="itx_file",
+        nargs="+",
+        help="itx file to be analyzed",
     )
     parser.add_argument(
         "--plot",
@@ -46,7 +52,7 @@ if __name__ == "__main__":
     integrated_intensities: list[float] = []
     autocorrelation = []
     for itx_file in args.itx_files:
-        logger.debug("itx_file name:{}".format(itx_file))
+        logger.debug(f"itx_file name:{itx_file}")
         prodigy_itx = ProdigyItx(itx_file)
         integrated_intensity = prodigy_itx.integrated_intensity
         comment_string = str(prodigy_itx.params["User Comment"])
@@ -55,11 +61,11 @@ if __name__ == "__main__":
             try:
                 item, value = i.split(":")
                 comments[item] = value
-                logger.debug("item:{}, value:{}".format(item, value))
+                logger.debug(f"item:{item}, value:{value}")
             except ValueError:
-                logger.debug("i is {}. Its not item-value type data.".format(i))
+                logger.debug(f"i is {i}. Its not item-value type data.")
         position = float(comments["Position"].split()[0])
-        logger.debug("Position is: {} ".format(position))
+        logger.debug(f"Position is: {position}")
         autocorrelation.append((position, integrated_intensity))
     if args.output:
         np.savetxt(args.output, np.array(autocorrelation), delimiter="\t")

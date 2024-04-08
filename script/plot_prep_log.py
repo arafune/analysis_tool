@@ -28,6 +28,7 @@ def load_log(file_name: str | Path) -> tuple[list[datetime], list[tuple[float]]]
     -------
     tuple[list[datetime], list[tuple[float]]]
         [TODO:description]
+
     """
     date_time: list[datetime] = []
     data: list[list[float]] = []
@@ -61,6 +62,7 @@ def plotting(
     -------
     Figure
         [TODO:description]
+
     """
     if ignores is None:
         ignores = []

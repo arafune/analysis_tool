@@ -7,6 +7,7 @@ Harper-Hofstdater Hamiltonian
 For simplicity, I set lattice constant a=1.0 & p=1
 therefore \alpha=p/q is just set to 1/q
 """
+
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -14,7 +15,7 @@ from matplotlib import pyplot as plt
 #
 #
 def Hamiltonian(q, kx, ky, J):
-    ham = np.zeros((q, q), dtype=np.complex)
+    ham = np.zeros((q, q), dtype=complex)
     ham[range(q), range(q)] = (
         -J * 2.0 * np.cos([kx - float(i) * 2.0 * np.pi / float(q) for i in range(q)])
     )

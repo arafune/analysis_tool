@@ -155,8 +155,8 @@ def update_reciprocal(
     )
     icell = np.linalg.inv(cell).T
     b1, b2, b3 = np.linalg.norm(icell, axis=1)
-    Verts_bz, Edges_bz, Facets_bz = get_bz_3d(icell)
-    range_value = np.max(np.abs(Verts_bz)) * 1.2
+    verts_bz, edges_bz, facets_bz = get_bz_3d(icell)
+    range_value = np.max(np.abs(verts_bz)) * 1.2
     icell_str = "{} {} {} \n{} {} {}\n{} {} {}\n".format(
         icell[0][0],
         icell[1][0],
@@ -200,9 +200,9 @@ def update_reciprocal(
         # the vertices
         fig.add_trace(
             go.Scatter3d(
-                x=Verts_bz[:, 0] + sx,
-                y=Verts_bz[:, 1] + sy,
-                z=Verts_bz[:, 2] + sz,
+                x=verts_bz[:, 0] + sx,
+                y=verts_bz[:, 1] + sy,
+                z=verts_bz[:, 2] + sz,
                 opacity=0.8,
                 hoverinfo="skip",
                 mode="markers",
@@ -214,7 +214,7 @@ def update_reciprocal(
         )
 
         # the edges
-        for l in Edges_bz:
+        for l in edges_bz:
             x, y, z = (l + shift).T
             fig.add_trace(
                 go.Scatter3d(
@@ -231,8 +231,8 @@ def update_reciprocal(
                 ),
             )
         # the facets
-        edges_of_facets = list(np.sort(np.unique([len(ff) for ff in Facets_bz])))
-        for ff in Facets_bz:
+        edges_of_facets = list(np.sort(np.unique([len(ff) for ff in facets_bz])))
+        for ff in facets_bz:
             edges_of_facets.index(len(ff))
             simplex_g = np.vstack([[0, 0, 0], ff])
             tri = Delaunay(simplex_g)
