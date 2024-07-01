@@ -79,6 +79,16 @@ pulselaser.sellmeier module
    :show-inheritance:
 
 
+pulselaser.bloch module
+---------------------------
+
+.. automodule:: pulselaser.bloch
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+
 ------------------
 
 =================
