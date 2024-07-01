@@ -1,5 +1,4 @@
 import numpy as np
-
 from numpy.typing import NDArray
 
 
@@ -9,14 +8,34 @@ def gaussian_envelope(
     intensity: float = 1,
     t0: float = 0,
 ) -> NDArray[np.float64]:
-    """Gaussian function defined by FWHM."""
+    """Gaussian function defined by FWHM.
+
+    The height (not the area) can be set.
+
+    Parameters
+    ----------
+    t: NDArray[np.float64]
+        time
+    fwhm: float
+        Full width at half maximum.
+    intensity: float
+        The height of the pulse.[TODO:description
+    t0: float
+        The center offset.
+
+    Returns
+    -------
+    NDArray[np.float64]
+        [TODO:description]
+
+    """
     sigma: float = fwhm / (2.0 * np.sqrt(np.log(2.0)))
     return intensity * np.exp(-((t - t0) ** 2) / sigma**2)
 
 
-def bloch(
+def bloch(  # noqa: PLR0913
     t: NDArray[np.float64],
-    rho: NDArray[np.complex128] | tuple[complex, complex],
+    rho: NDArray[np.complex128],
     fwhm: float,
     t1: float,
     omega12_minus_omega: float,
@@ -34,17 +53,18 @@ def bloch(
     fwhm
         FWHM of input pluse.
     t1
-        Population decay time (:math:`T_1`).
+        Population decay time (:math:`T_1`).  The Dephasing time (:math:`T_2` is assumed
+        as :math:`2T_1`  (The pure dephasing time is assumed as infinity.)
     omega12_minus_omega
-        :math:`\omega_{12}-\omega`, the resonant condition corresponds to =0.,
-            off resonant != 0
+        :math:`\omega_{12}-\omega`, 0 means the resonant condition, while !=0 is off
+        resonant.
     amplitude
         [TODO:description]
 
     Returns
     -------
     NDArray[np.complex128]
-        [TODO:description]
+        :math:`\frac{d\rho_{22}}{dt}` and :math:`\frac{d\tilde{\rho}_{12}}{dt}`
 
     """
     e_field: NDArray[np.float64] = gaussian_envelope(
