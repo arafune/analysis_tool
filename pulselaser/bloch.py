@@ -71,7 +71,7 @@ def bloch(  # noqa: PLR0913
         t=t,
         fwhm=fwhm,
         intensity=1,
-        t0=300,
+        t0=0,
     )
     t2 = 2 * t1
     r22: NDArray[np.float64] = np.real(rho[0])
