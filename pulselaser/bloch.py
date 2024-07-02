@@ -122,5 +122,7 @@ def rho22(
         x=sol.t,
         y=sol.y[0] / np.max(sol.y[0]),
         assume_sorted=True,
+        bounds_error=False,
+        fill_value=0.0,
     )
     return amplitude * np.real(rho22(t))
