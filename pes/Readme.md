@@ -5,15 +5,7 @@
 ## Active Library
 
 - calib1d.py: 2D detecterのキャリブレーションデータ成形用。
-- lpes_basic.py: 波長->エネルギー変換等、基本的な関数
-- parabolaband.py: 電子の静止質量を単位としたパラボリックバンド
-
-## Obsolute LIbrary
-
-使わないけど、スニペットとしては使えるかもしれないのでとっておく。Git 管理だから消しちゃえば？という考えもあるけど。
-
-- splab.py: SPLabのファイルローダ
-- arpes.py: APRESデータのプロット。さすがに pyarpesの方が便利。pyarpesの不安定性を考えても、xarrayベースで取り扱う方が、いろいろとスマートなので、（NDArrayベースのこのライブラリは使わない）
+- **init**.py: 波長->エネルギー変換、電子の静止質量を単位としたパラボリックバンドなど基本的な関数
 
 ## Todo
 
