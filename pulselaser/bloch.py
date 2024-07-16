@@ -1,36 +1,21 @@
+"""Bloch equation.
+
+To describe the temporal evolution of the excited state in two level system.
+"""
+
+from typing import TYPE_CHECKING
+
 import numpy as np
 from numpy.typing import NDArray
+from scipy.integrate import solve_ivp
+from scipy.interpolate import interp1d
 
+from . import gaussian_pulse
 
-def gaussian_envelope(
-    t: NDArray[np.float64],
-    fwhm: float,
-    intensity: float = 1,
-    t0: float = 0,
-) -> NDArray[np.float64]:
-    """Gaussian function defined by FWHM.
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
-    The height (not the area) can be set.
-
-    Parameters
-    ----------
-    t: NDArray[np.float64]
-        time
-    fwhm: float
-        Full width at half maximum.
-    intensity: float
-        The height of the pulse.[TODO:description
-    t0: float
-        The center offset.
-
-    Returns
-    -------
-    NDArray[np.float64]
-        [TODO:description]
-
-    """
-    sigma: float = fwhm / (2.0 * np.sqrt(np.log(2.0)))
-    return intensity * np.exp(-((t - t0) ** 2) / sigma**2)
+    from scipy.integrate._ivp import OdeResult
 
 
 def bloch(  # noqa: PLR0913
@@ -67,10 +52,9 @@ def bloch(  # noqa: PLR0913
         :math:`\frac{d\rho_{22}}{dt}` and :math:`\frac{d\tilde{\rho}_{12}}{dt}`
 
     """
-    e_field: NDArray[np.float64] = gaussian_envelope(
+    e_field: NDArray[np.float64] = gaussian_pulse(
         t=t,
         fwhm=fwhm,
-        intensity=1,
         t0=0,
     )
     t2 = 2 * t1
@@ -84,3 +68,61 @@ def bloch(  # noqa: PLR0913
         + (1.0j * omega12_minus_omega - 1 / t2) * r12t
     )
     return np.array([dr22dt, dr12tdt])
+
+
+def rho22(
+    t: float,
+    t_span: tuple[float, float],
+    fwhm: float,
+    t1: float,
+    omega12_minus_omega: float,
+    amplitude: float,
+    num_t: int = 5000,
+    coeff_a: float = 1e-3,
+) -> np.float64:
+    r""":math:`\rho_{22}` from bloch equation.
+
+    Parameters
+    ----------
+    t
+        the time
+    t_span
+        time span, the first value should be minus and suffifiently low comparing with
+        FWHM of the input pulse
+    fwhm
+        FWHM of the input pulse in fs.
+    t1
+        Population decay time (:math:`T_1`).  The Dephasing time (:math:`T_2` is assumed
+        as :math:`2T_1`  (The pure dephasing time is assumed as infinity.)
+    omega12_minus_omega
+        :math:`\omega_{12}-\omega`, 0 means the resonant condition, while !=0 is off
+        resonant.
+    amplitude
+        the maximum value of :math:`rho_{22}`
+    num_t
+        default is 5000.
+    coeff_a
+        coefficient corresponding to the transition dipole.
+
+    Returns
+    -------
+    np.float64
+        [TODO:description]
+
+    """
+    init = [0 + 0j, 0 + 0j]
+    sol: OdeResult = solve_ivp(
+        bloch,
+        t_span=t_span,
+        y0=init,
+        args=(fwhm, t1, omega12_minus_omega, coeff_a),
+        t_eval=np.linspace(*t_span, num_t),
+    )
+    rho22: Callable[[float], np.float64] = interp1d(
+        x=sol.t,
+        y=sol.y[0] / np.max(sol.y[0]),
+        assume_sorted=True,
+        bounds_error=False,
+        fill_value=0.0,
+    )
+    return amplitude * np.real(rho22(t))

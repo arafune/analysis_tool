@@ -1,4 +1,35 @@
+"""Basic functions for pulselaser module."""
+
 import numpy as np
+from numpy.typing import NDArray
+
+
+def gaussian_pulse(
+    t: NDArray[np.float64],
+    fwhm: float,
+    t0: float = 0,
+) -> NDArray[np.float64]:
+    """Gaussian function defined by FWHM.
+
+    The height is unity.
+
+    Parameters
+    ----------
+    t: NDArray[np.float64]
+        time
+    fwhm: float
+        Full width at half maximum.
+    t0: float
+        The center offset.
+
+    Returns
+    -------
+    NDArray[np.float64]
+        [TODO:description]
+
+    """
+    sigma: float = fwhm / (2.0 * np.sqrt(np.log(2.0)))
+    return np.exp(-((t - t0) ** 2) / sigma**2)
 
 
 def sech2(x: float, x0: float, width: float) -> float:
