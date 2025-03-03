@@ -10,62 +10,6 @@ from numpy.typing import NDArray
 A = TypeVar("A", NDArray[np.float64], float)
 
 
-def delaytime_fs(mirror_movement_um: A) -> A:
-    """Return delaytime from the mirror movement.
-
-    Parameters
-    ----------
-    mirror_movement_um : float
-        mirror movement in micron unit.
-
-    Returns
-    -------
-    float
-        delay time in fs.
-
-    """
-    return 3.335640951981521 * mirror_movement_um
-
-
-def position2delaytime(position_mm: A, center_position_mm: float) -> A:
-    """Return delay time from the mirror position.
-
-    Parameters
-    ----------
-    position_mm: float
-        mirror position
-    center_position_mm: float
-        mirror position corresponding to the zero delay
-
-    Returns
-    -------
-        delay time in fs unit.
-
-    """
-    return delaytime_fs(2 * (position_mm - center_position_mm) * 1000)
-
-
-def wavelength2eV(wavelength_nm: A) -> A:  # noqa: N802
-    """Return Energy of the light.
-
-    Parameters
-    ----------
-    wavelength_nm : float
-        wavelength of the light in nm unit.
-
-    Returns
-    -------
-    float
-        Photon energy in eV unit.
-
-    """
-    planck_const_eV: float = 4.135667696e-15  # noqa: N806
-    light_velocity: int = 299792458
-
-    #  (h*c = 1.2398419840550368e-6)
-    return planck_const_eV * light_velocity / (wavelength_nm * 1e-9)
-
-
 def parabolic_band_dispersion_k(k: A, e0: float, mass: float = 1.0) -> A:
     """Return the energy at the given k-point .
 
@@ -89,13 +33,14 @@ def parabolic_band_dispersion_k(k: A, e0: float, mass: float = 1.0) -> A:
     """
     assert isinstance(k, np.ndarray | float)
     assert isinstance(np.sqrt, float)
-    return e0 + (1 / (0.512410908328 * float(np.sqrt(mass))) ** 2) * k**2
+    return e0 + (1 / (0.512410908328 * mass**0.5) ** 2) * k**2
 
 
 def parabolic_band_dispersion_angle(
-    theta_degree: A,
+    theta_rad: A,
     e0: float,
     mass: float = 1.0,
+    wf_offset: float = 0.0,
 ) -> A:
     """Return the energy at the given angle of emission (Free electron band).
 
@@ -105,12 +50,14 @@ def parabolic_band_dispersion_angle(
 
     Parameters
     ----------
-    theta_degree : float
+    theta_rad : float
         emission angle
     e0 : float
         energy at the Gamma point
     mass : float, optional
         electron mass, the static electron unit, by default 1.0
+    wf_offset : float, optional
+        Offset corresponding to the (analyzer) work function, by default 0.0
 
     Returns
     -------
@@ -118,5 +65,4 @@ def parabolic_band_dispersion_angle(
         Energy in eV unit measured from the vacuum level.
 
     """
-    assert isinstance(theta_degree, np.ndarray | float)
-    return e0 * mass / (mass - np.sin(np.deg2rad(theta_degree)) ** 2)
+    return (e0 - wf_offset) * mass / (mass - np.sin(theta_rad) ** 2)
