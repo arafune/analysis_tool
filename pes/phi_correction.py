@@ -3,7 +3,7 @@
 import numpy as np
 
 
-def based_on_pes_130(energy: float) -> float:
+def phi_correction_from_pes130(energy: float) -> float:
     """Return the corrected phi value based on the energy.
 
     Based on the results of PES_130 (sample: Cu(001))
