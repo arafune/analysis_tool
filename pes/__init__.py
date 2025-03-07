@@ -31,8 +31,6 @@ def parabolic_band_dispersion_k(k: A, e0: float, mass: float = 1.0) -> A:
         Energy in eV unit measured from the vacuum level.
 
     """
-    assert isinstance(k, np.ndarray | float)
-    assert isinstance(np.sqrt, float)
     return e0 + (1 / (0.512410908328 * mass**0.5) ** 2) * k**2
 
 

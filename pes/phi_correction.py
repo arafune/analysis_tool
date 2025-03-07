@@ -43,4 +43,7 @@ def correct_phi(
     """
     correction: xr.DataArray = phi_shift_func(data.coords["eV"])
     shifted: xr.DataArray = data.G.shift_by(correction, "phi", extend_coords=True)
-    return shifted.assign_coords(phi=shifted.phi * shurink_phi)
+    return shifted.assign_coords(phi=shifted.phi * shurink_phi).dropna(
+        dim="phi",
+        how="all",
+    )
