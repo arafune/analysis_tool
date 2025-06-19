@@ -54,7 +54,9 @@ def ch_calib(
     offset_stride: float,
     sums: bool = True,
 ) -> xr.Dataset | xr.DataArray:
-    """Channel recalibrate about phi (See the marimo file in channnel_calibration_spl95.py.
+    """Channel recalibrate about phi
+
+    See the marimo file in channnel_calibration_spl95.py.
 
     Args:
         data: The dataarray to be corrected.
@@ -62,6 +64,8 @@ def ch_calib(
             In SPL95, the value is 0.09565217391304348 degrees
 
     Returns:
+        Calibrated ARPES data.
+
     """
     assert data.ndim == 3
     original_attrs = data.attrs
