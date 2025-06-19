@@ -49,12 +49,12 @@ def correct_phi(
     )
 
 
-def re_calib(
+def ch_calib(
     data: xr.DataArray,
     offset_stride: float,
     sums: bool = True,
 ) -> xr.Dataset | xr.DataArray:
-    """Recalibrate about phi (See the marimo file in channnel_calibration_spl95.py.
+    """Channel recalibrate about phi (See the marimo file in channnel_calibration_spl95.py.
 
     Args:
         data: The dataarray to be corrected.
