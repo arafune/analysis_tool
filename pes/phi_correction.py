@@ -47,3 +47,48 @@ def correct_phi(
         dim="phi",
         how="all",
     )
+
+
+def re_calib(
+    data: xr.DataArray,
+    offset_stride: float,
+    sums: bool = True,
+) -> xr.Dataset | xr.DataArray:
+    """Recalibrate about phi (See the marimo file in channnel_calibration_spl95.py.
+
+    Args:
+        data: The dataarray to be corrected.
+        offset_stride: The value for shift along phi direction.
+            In SPL95, the value is 0.09565217391304348 degrees
+
+    Returns:
+    """
+    assert data.ndim == 3
+    original_attrs = data.attrs
+    dict_data_array = {
+        f"idx{int(_.item())}": data.sel({"cycle": _}, drop=True).assign_attrs(
+            tmp_cycle=int(_.item())
+        )
+        for _ in data.coords["cycle"]
+    }
+
+    ds_dict = {}
+    for idx, da in dict_data_array.items():
+        shift_value: float = (da.attrs["tmp_cycle"] - 1) * offset_stride
+        tmpda: xr.DataArray = da.G.shift_by(
+            np.full(len(da.coords["eV"]), shift_value),
+            shift_axis="phi",
+        )
+        ds_dict[idx] = tmpda
+    ds = xr.Dataset(ds_dict)
+    if not sums:
+        dsarrays = ds.data_vars.values()
+        cycle_values = [da.attrs["tmp_cycle"] for da in dsarrays]
+        return xr.concat(
+            dsarrays,
+            dim=xr.DataArray(cycle_values, dims="cycle", name="cycle"),
+        )
+
+    new_da: xr.DataArray = sum(ds.data_vars.values())
+    new_da.attrs = original_attrs
+    return new_da
