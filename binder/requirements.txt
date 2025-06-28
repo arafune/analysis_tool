@@ -3,4 +3,5 @@ matplotlib
 numpy
 pandas
 polars
+openpyxl
 jupyter-server-proxy
