@@ -1,0 +1,6 @@
+marimo>=0.14
+matplotlib
+numpy
+pandas
+polars
+jupyter-server-proxy
