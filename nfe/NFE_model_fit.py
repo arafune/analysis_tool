@@ -14,6 +14,7 @@ def _():
     from typing import Literal
     from moire_band import energies, potential, HARTREE, EV, A, INV_ANG
     from numpy.typing import NDArray
+
     return A, INV_ANG, energies, mo, np, pd, pl, plt, potential
 
 
@@ -110,9 +111,7 @@ def _(
     Y = np.linspace(0, ymax, division)
     xx, yy = np.meshgrid(X, Y)
     z = potential(xx, yy, alpha_.value, beta_.value)
-    ax[1].imshow(
-        z, origin="lower", aspect=1, extent=[0, xmax, 0, ymax], cmap="RdBu_r"
-    )
+    ax[1].imshow(z, origin="lower", aspect=1, extent=[0, xmax, 0, ymax], cmap="RdBu_r")
     ax[1].set_xlabel("x/a")
     ax[1].set_ylabel("y/a")
     fig
