@@ -40,13 +40,19 @@ from numpy.typing import NDArray
 
 
 def crop(
-    pic: NDArray[np.float64], x: int = 946, y: int = 1460, side_length: int = 1600
-) -> NDArray[np.float_]:
-    """Return cropping data of the gray scale
+    pic: NDArray[np.float64],
+    x: int = 912,
+    y: int = 1866,
+    side_length: int = 1600,
+) -> NDArray[np.float64]:
+    """Return cropping data of the gray scale.
+
+    Note that the x- and y- coordinates are flipped judged by using standard
+    image viewers.
 
     Parameters
-    -----------
-    gray: NDArray
+    ----------
+    pic: NDArray
         grayscale data
     x: int
         x-point of the corner
@@ -56,13 +62,57 @@ def crop(
         the length of the square side
 
     Returns
-    ----------
+    -------
     NDArray
+
     """
     if pic.ndim == 2:
         return pic[x : x + side_length, y : y + side_length]
     elif pic.ndim == 3:
         return pic[x : x + side_length, y : y + side_length, :]
+    msg = "The dimension of pic is invalid."
+    raise RuntimeError(msg)
+
+
+def chose_single_color(
+    rgb: NDArray[np.float64], color: str = "G"
+) -> NDArray[np.float64]:
+    """Return single color data.
+
+    Parameters
+    ----------
+    rgb: NDArray
+    color: str
+        'R', 'G', or 'B'
+
+    Returns
+    -------
+    NDArray
+    """
+    color = color.upper()
+    if color == "R":
+        return rgb[:, :, 0]
+    elif color == "G":
+        return rgb[:, :, 1]
+    elif color == "B":
+        return rgb[:, :, 2]
+    msg = f"Color {color} is invalid."
+    raise RuntimeError(msg)
+
+
+def rgb2sum(rgb: NDArray[np.float64]) -> NDArray[np.float64]:
+    """Return the sum of RGB channels.
+
+    Parameters
+    ----------
+    rgb: NDArray
+
+    Returns
+    -------
+    NDArray
+
+    """
+    return rgb[:, :, 0] + rgb[:, :, 1] + rgb[:, :, 2]
 
 
 def rgb2gray(rgb: NDArray[np.float64]) -> NDArray[np.float64]:
@@ -81,8 +131,8 @@ def rgb2gray(rgb: NDArray[np.float64]) -> NDArray[np.float64]:
     ---------
     NDArray
     """
-    # return rgb[:, :, 0] * 0.2989 + rgb[:, :, 1] * 0.5870 + rgb[:, :, 2] * 0.1140
-    return rgb[:, :, 1]  # Take the green signal
+    return rgb[:, :, 0] * 0.2989 + rgb[:, :, 1] * 0.5870 + rgb[:, :, 2] * 0.1140
+    # return rgb[:, :, 1]  # Take the green signal
 
 
 if __name__ == "__main__":
