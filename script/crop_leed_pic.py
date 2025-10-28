@@ -38,6 +38,71 @@ import numpy as np
 import rawpy
 from numpy.typing import NDArray
 
+from scipy.ndimage import median_filter
+from scipy.ndimage import uniform_filter
+
+from scipy.ndimage import uniform_filter, binary_dilation
+
+
+def remove_cluster_spikes(arr, inner_size=3, outer_size=5, diff_threshold=300):
+    """Remove clustered (3x3) high-intensity spikes.
+
+    By replacing them with the average of surrounding pixels outside the cluster.
+
+    Parameters
+    ----------
+    arr : 2D np.ndarray
+        Input array.
+    inner_size : int
+        Size of the spike cluster to detect (e.g., 3 for 3x3).
+    outer_size : int
+        Size of the region used to compute the surrounding average (e.g., 5 for 5x5).
+    diff_threshold : float
+        Intensity difference threshold for detecting spike clusters.
+
+    Returns
+    -------
+    np.ndarray
+        Array with clustered spikes replaced by surrounding mean values.
+    """
+    arr = np.asarray(arr)
+    arr_filtered = arr.copy()
+
+    # Local mean using the inner (3x3) window
+    local_mean_inner = uniform_filter(arr, size=inner_size)
+
+    # Local mean using the outer (5x5) window
+    local_mean_outer = uniform_filter(arr, size=outer_size)
+
+    # Detect regions where the inner region is much brighter than its surroundings
+    mask = (local_mean_inner - local_mean_outer) > diff_threshold
+
+    # Expand mask slightly to cover the whole spike cluster
+    mask_dilated = binary_dilation(mask, structure=np.ones((inner_size, inner_size)))
+
+    # Replace masked (spike) pixels with the outer local mean
+    arr_filtered[mask_dilated] = local_mean_outer[mask_dilated]
+
+    return arr_filtered
+
+
+def remove_spikes(arr, size=3, threshold=3.0):
+    mean = uniform_filter(arr, size=size)
+    sq_mean = uniform_filter(arr**2, size=size)
+    std = np.sqrt(sq_mean - mean**2)
+    mask = np.abs(arr - mean) > threshold * std
+    arr_filtered = arr.copy()
+    arr_filtered[mask] = mean[mask]
+    return arr_filtered
+
+
+def remove_spikes_local_mean(arr, diff_threshold=500):
+    local_mean = uniform_filter(arr, size=3)
+    mask = (arr - local_mean) > diff_threshold
+    arr_filtered = arr.copy()
+    arr_filtered[mask] = 0
+    return arr_filtered
+
 
 def crop(
     pic: NDArray[np.float64],
@@ -118,33 +183,33 @@ def rgb2sum(rgb: NDArray[np.float64]) -> NDArray[np.float64]:
 def rgb2gray(rgb: NDArray[np.float64]) -> NDArray[np.float64]:
     """Return Gray scale data.
 
-
     0.2989 * R + 0.5870 * G + 0.1140 * B
     is the Matlab algorithm.  While it seems reasonable, it is not
     taken here for keeping the linearity.
 
     Parameters
-    -----------
+    ----------
     rgb: NDArray
 
     Returns
-    ---------
+    -------
     NDArray
+
     """
     return rgb[:, :, 0] * 0.2989 + rgb[:, :, 1] * 0.5870 + rgb[:, :, 2] * 0.1140
-    # return rgb[:, :, 1]  # Take the green signal
 
 
 if __name__ == "__main__":
     parse = argparse.ArgumentParser()
-    parse.add_argument("CR2file", help="CR2 file of the LEED picture", nargs="*")
-    parse.add_argument(
+    _ = parse.add_argument("CR2file", help="CR2 file of the LEED picture", nargs="*")
+    _ = parse.add_argument(
         "--color",
-        "-c",
-        action="store_true",
-        default=False,
-        help="Keep color information.",
+        help="""Color tiff output.
+If not specified, gray scale tiff is output.  The other options are:
+R or G or B: The Red (or Gree, Blue) channel only tiff output.
+sum: The sum of RGB channels tiff output.""",
     )
+
     args = parse.parse_args()
     for cr2_file in args.CR2file:
         p = pathlib.Path(cr2_file)
@@ -158,9 +223,14 @@ if __name__ == "__main__":
         )
         if not args.color:
             data = rgb2gray(data)
-        data = crop(data)
-        if args.color:
-            newfilename = p.stem + ".color.tiff"
+        elif args.color.upper() in ["R", "G", "B"]:
+            data = chose_single_color(data, args.color)
+        elif "sum" in str(args.color).lower():
+            data = rgb2sum(data)
         else:
-            newfilename = p.stem + ".tiff"
-        imageio.imsave(newfilename, data.astype("uint16"))
+            msg = "The --color option is invalid."
+            raise RuntimeError(msg)
+
+        data = crop(data)
+        data = remove_cluster_spikes(data, diff_threshold=300)
+        imageio.imsave(p.stem + ".tiff", data.astype("uint16"))
