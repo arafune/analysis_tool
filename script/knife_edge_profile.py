@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()  # add argument
     if args.output:
-        ouptut = args.output
+        output = args.output
     else:
         output = "fit_result.png"
 
