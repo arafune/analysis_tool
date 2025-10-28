@@ -42,6 +42,7 @@ class SACObject:
        mass data
     mass_amu: 1D-array
        X-axis data for QMS
+
     """
 
     def __init__(self, fhandle: str) -> None:

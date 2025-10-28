@@ -52,19 +52,25 @@ def correct_phi(
 def ch_calib(
     data: xr.DataArray,
     offset_stride: float,
+    *,
     sums: bool = True,
 ) -> xr.Dataset | xr.DataArray:
-    """Channel recalibrate about phi
+    """Recalibrate channels along the phi direction.
 
-    See the marimo file in channnel_calibration_spl95.py.
+    This function shifts each cycle in the data by a specified stride and optionally
+    sums the results.
 
     Args:
-        data: The dataarray to be corrected.
-        offset_stride: The value for shift along phi direction.
-            In SPL95, the value is 0.09565217391304348 degrees
+        data (xr.DataArray): The dataarray to be corrected. Must be 3-dimensional and
+            contain 'cycle' coordinate.
+        offset_stride (float): The value for shift along phi direction. In SPL95, the
+            value is 0.09565217391304348 degrees.
+        sums (bool, optional): If True, sum the recalibrated data arrays. If False,
+            return concatenated arrays. Defaults to True.
 
     Returns:
-        Calibrated ARPES data.
+        xr.Dataset | xr.DataArray: Calibrated ARPES data, either summed or concatenated
+            by cycle.
 
     """
     assert data.ndim == 3
@@ -78,7 +84,7 @@ def ch_calib(
 
     ds_dict = {}
     for idx, da in dict_data_array.items():
-        shift_value: float = (da.attrs["tmp_cycle"] - 1) * offset_stride
+        shift_value = (da.attrs["tmp_cycle"] - 1) * offset_stride
         tmpda: xr.DataArray = da.G.shift_by(
             np.full(len(da.coords["eV"]), shift_value),
             shift_axis="phi",
