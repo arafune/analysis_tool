@@ -38,6 +38,7 @@ Requirements:
 
 from typing import TYPE_CHECKING
 
+from datetime import datetime
 import h5py
 import numpy as np
 import xarray as xr
@@ -46,7 +47,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
 
-def readhdf5(frame: int, filename: str) -> xr.DataArray:
+def readhdf5(filename: str, frame: int = 1) -> xr.DataArray:
     """Read a beam monitor (BM) frame from an HDF5 file.
 
     This function reproduces the behavior of the MATLAB `readhdf5`
@@ -96,16 +97,21 @@ def readhdf5(frame: int, filename: str) -> xr.DataArray:
         pixelscaleyum: float = group["RAWFRAME/PIXELSCALEYUM"][()].item()
         assert isinstance(pixelscalexum, float)
         assert isinstance(pixelscaleyum, float)
-        x_axis: NDArray[np.float64] = np.linspace(
+        y_axis: NDArray[np.float64] = np.linspace(
             0,
             numrows * (pixelscalexum - 1),
             numrows,
         )
-        y_axis: NDArray[np.float64] = np.linspace(
+        x_axis: NDArray[np.float64] = np.linspace(
             0,
             numcols * (pixelscaleyum - 1),
             numcols,
         )
+        timestamp: datetime = parse_iso8601(
+            group["RAWFRAME/TIMESTAMP"][()].astype(str).item()
+        )
+        exposurestamp: float = group["RAWFRAME/EXPOSURESTAMP"][()].item()
+
         data: np.ndarray = group["DATA"][()]  # 1D array
         power_calibration_multiplier: float = group[
             "RAWFRAME/ENERGY/POWER_CALIBRATION_MULTIPLIER"
@@ -161,10 +167,15 @@ def readhdf5(frame: int, filename: str) -> xr.DataArray:
 
     return xr.DataArray(
         matrix / summing_count,
-        dims=("x", "y"),
+        dims=("y", "x"),
         coords={"x": x_axis, "y": y_axis},
         name="normalized intensity",
-        attrs={"average_count": average_count, "summing_count": summing_count},
+        attrs={
+            "average_count": average_count,
+            "summing_count": summing_count,
+            "timestamp": timestamp,
+            "exposure_stamp": exposurestamp,
+        },
     )
 
 
@@ -188,3 +199,21 @@ def hdf5data_to_matrix(data: np.ndarray, width: int, height: int) -> np.ndarray:
         msg = "Data size does not match WIDTH x HEIGHT."
         raise ValueError(msg)
     return data.reshape((height, width))
+
+
+def parse_iso8601(s: str) -> datetime:
+    if "." in s:
+        date_part, rest = s.split(".", 1)
+        microsec_and_tz = rest.split("+") if "+" in rest else rest.split("-")
+        microsec = microsec_and_tz[0][:6]  # 6桁に切り捨て
+        tz = (
+            "+" + microsec_and_tz[1]
+            if "+" in rest
+            else "-" + microsec_and_tz[1]
+            if "-" in rest
+            else ""
+        )
+        s_fixed = f"{date_part}.{microsec}{tz}"
+    else:
+        s_fixed = s
+    return datetime.fromisoformat(s_fixed)
