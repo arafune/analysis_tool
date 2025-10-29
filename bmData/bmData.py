@@ -1,5 +1,6 @@
-"""Module for reading beam monitor (BM) data stored in HDF5 files
-that follow a specific structure used in some beamline experiments.
+"""Module for reading beam monitor (BM) data stored in HDF5 file.
+
+This follows a specific structure used in some beamline experiments.
 
 This module reproduces the functionality of the original MATLAB function
 `readhdf5(frame, filename)` written for R2021b, including:
@@ -81,24 +82,28 @@ def readhdf5(frame: int, filename: str) -> np.ndarray:
     with h5py.File(filename, "r") as f:
         group = f[f"/BG_DATA/{frame}"]
 
-        numcols = int(group["RAWFRAME/WIDTH"][()])
-        numrows = int(group["RAWFRAME/HEIGHT"][()])
-        pixelscalexum = float(group["RAWFRAME/PIXELSCALEXUM"][()])
-        pixelscaleyum = float(group["RAWFRAME/PIXELSCALEYUM"][()])
+        numcols = group["RAWFRAME/WIDTH"][()].item()
+        numrows = group["RAWFRAME/HEIGHT"][()].item()
+        pixelscalexum = group["RAWFRAME/PIXELSCALEXUM"][()].item()
+        pixelscaleyum = group["RAWFRAME/PIXELSCALEYUM"][()].item()
         data = group["DATA"][()]  # 1D array
-        power_calibration_multiplier = float(
-            group["RAWFRAME/ENERGY/POWER_CALIBRATION_MULTIPLIER"][()]
-        )
-        encoding = group["RAWFRAME/BITENCODING"][()].astype(str).strip()
+        power_calibration_multiplier = group[
+            "RAWFRAME/ENERGY/POWER_CALIBRATION_MULTIPLIER"
+        ][()].item()
 
-    BitsPerPixel = 32
+        encoding = group["RAWFRAME/BITENCODING"][()].astype(str).item()
+        setting = f[f"/BG_SETUP/DATA_SOURCE_MANAGER"]
+        average_count = setting["PROCESSOR/AVERAGING_COUNT"][()].item()
+        summing_count = setting["PROCESSOR/SUMMING_COUNT"][()].item()
+
+    bits_per_pixel = 32
 
     if power_calibration_multiplier == 0:
         power_calibration_multiplier = 1.0
 
         def scale_and_reshape(data, bits):
             """Internal helper to normalize by bit depth and reshape."""
-            factor = 2 ** (BitsPerPixel - bits - 1)
+            factor = 2 ** (bits_per_pixel - bits - 1)
             return hdf5data_to_matrix(data / factor, numcols, numrows)
 
         enc = encoding.lower()
@@ -113,9 +118,9 @@ def readhdf5(frame: int, filename: str) -> np.ndarray:
         elif enc in {"l16_16", "l16", "r16_16", "r16"}:
             I = scale_and_reshape(data, 16)
         elif enc == "s16_14":
-            I = hdf5data_to_matrix(data / 2 ** (BitsPerPixel - 14), numcols, numrows)
+            I = hdf5data_to_matrix(data / 2 ** (bits_per_pixel - 14), numcols, numrows)
         elif enc == "s16_16":
-            I = hdf5data_to_matrix(data / 2 ** (BitsPerPixel - 16), numcols, numrows)
+            I = hdf5data_to_matrix(data / 2 ** (bits_per_pixel - 16), numcols, numrows)
         elif enc == "s32":
             I = hdf5data_to_matrix(data, numcols, numrows)
         else:
@@ -132,6 +137,8 @@ def readhdf5(frame: int, filename: str) -> np.ndarray:
     screendump("pixelscalexum", pixelscalexum)
     screendump("pixelscaleyum", pixelscaleyum)
     screendump("power_calibration_multiplier", power_calibration_multiplier)
+    screendump("average count", average_count)
+    screendump("summing count", summing_count)
 
     return I
 
@@ -148,22 +155,24 @@ def hdf5data_to_matrix(data: np.ndarray, width: int, height: int) -> np.ndarray:
         np.ndarray: 2D NumPy array of shape (height, width).
 
     Raises:
-        ValueError: If data length does not match width × height.
+        ValueError: If data length does not match width x height.
+
     """
     data = np.asarray(data)
     if data.size != width * height:
-        raise ValueError("Data size does not match WIDTH × HEIGHT.")
+        msg = "Data size does not match WIDTH x HEIGHT."
+        raise ValueError(msg)
     return data.reshape((height, width))
 
 
-def screendump(name: str, value):
+def screendump(name: str, value: str | float):
     """Print variable name and value to console (MATLAB screendump equivalent).
 
     Args:
         name (str): Variable name to display.
         value (Any): Variable value to print. Strings and numerics are formatted differently.
     """
-    if isinstance(value, str):
-        print(f"{name} = {value}")
+    if isinstance(value, float):
+        print(f"{name} = {value: .4f}")
     else:
-        print(f"{name} = {value:.4f}")
+        print(f"{name} = {value}")
