@@ -36,11 +36,17 @@ Requirements:
 
 """
 
+from typing import TYPE_CHECKING
+
 import h5py
 import numpy as np
+import xarray as xr
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 
-def readhdf5(frame: int, filename: str) -> np.ndarray:
+def readhdf5(frame: int, filename: str) -> xr.DataArray:
     """Read a beam monitor (BM) frame from an HDF5 file.
 
     This function reproduces the behavior of the MATLAB `readhdf5`
@@ -82,65 +88,84 @@ def readhdf5(frame: int, filename: str) -> np.ndarray:
     with h5py.File(filename, "r") as f:
         group = f[f"/BG_DATA/{frame}"]
 
-        numcols = group["RAWFRAME/WIDTH"][()].item()
-        numrows = group["RAWFRAME/HEIGHT"][()].item()
-        pixelscalexum = group["RAWFRAME/PIXELSCALEXUM"][()].item()
-        pixelscaleyum = group["RAWFRAME/PIXELSCALEYUM"][()].item()
-        data = group["DATA"][()]  # 1D array
-        power_calibration_multiplier = group[
+        numcols: int = group["RAWFRAME/WIDTH"][()].item()
+        numrows: int = group["RAWFRAME/HEIGHT"][()].item()
+        assert isinstance(numcols, int)
+        assert isinstance(numrows, int)
+        pixelscalexum: float = group["RAWFRAME/PIXELSCALEXUM"][()].item()
+        pixelscaleyum: float = group["RAWFRAME/PIXELSCALEYUM"][()].item()
+        assert isinstance(pixelscalexum, float)
+        assert isinstance(pixelscaleyum, float)
+        x_axis: NDArray[np.float64] = np.linspace(
+            0,
+            numrows * (pixelscalexum - 1),
+            numrows,
+        )
+        y_axis: NDArray[np.float64] = np.linspace(
+            0,
+            numcols * (pixelscaleyum - 1),
+            numcols,
+        )
+        data: np.ndarray = group["DATA"][()]  # 1D array
+        power_calibration_multiplier: float = group[
             "RAWFRAME/ENERGY/POWER_CALIBRATION_MULTIPLIER"
         ][()].item()
 
-        encoding = group["RAWFRAME/BITENCODING"][()].astype(str).item()
-        setting = f[f"/BG_SETUP/DATA_SOURCE_MANAGER"]
-        average_count = setting["PROCESSOR/AVERAGING_COUNT"][()].item()
-        summing_count = setting["PROCESSOR/SUMMING_COUNT"][()].item()
+        encoding: str = group["RAWFRAME/BITENCODING"][()].astype(str).item()
+        setting = f["/BG_SETUP/DATA_SOURCE_MANAGER"]
+        average_count: int = setting["PROCESSOR/AVERAGING_COUNT"][()].item()
+        summing_count: int = setting["PROCESSOR/SUMMING_COUNT"][()].item()
 
+    assert isinstance(encoding, str)
     bits_per_pixel = 32
+    power_calibration_multiplier = 10 ** (power_calibration_multiplier / 10)
+    assert isinstance(power_calibration_multiplier, float)
 
-    if power_calibration_multiplier == 0:
-        power_calibration_multiplier = 1.0
+    def scale_and_reshape(bits: int) -> np.ndarray:
+        """Return the matrix normalize by bit depth and reshape."""
+        factor: float = 2 ** (bits_per_pixel - bits - 1)
+        return hdf5data_to_matrix(data / factor, numcols, numrows)
 
-        def scale_and_reshape(data, bits):
-            """Internal helper to normalize by bit depth and reshape."""
-            factor = 2 ** (bits_per_pixel - bits - 1)
-            return hdf5data_to_matrix(data / factor, numcols, numrows)
-
-        enc = encoding.lower()
-        if enc in {"l8", "l16_8", "r8", "r16_8"}:
-            I = scale_and_reshape(data, 8)
-        elif enc in {"l16_10", "r16_10"}:
-            I = scale_and_reshape(data, 10)
-        elif enc in {"l16_12", "r16_12"}:
-            I = scale_and_reshape(data, 12)
-        elif enc in {"l16_14", "r16_14"}:
-            I = scale_and_reshape(data, 14)
-        elif enc in {"l16_16", "l16", "r16_16", "r16"}:
-            I = scale_and_reshape(data, 16)
-        elif enc == "s16_14":
-            I = hdf5data_to_matrix(data / 2 ** (bits_per_pixel - 14), numcols, numrows)
-        elif enc == "s16_16":
-            I = hdf5data_to_matrix(data / 2 ** (bits_per_pixel - 16), numcols, numrows)
-        elif enc == "s32":
-            I = hdf5data_to_matrix(data, numcols, numrows)
-        else:
-            raise ValueError(f"Unknown BITENCODING: {encoding}")
+    enc = encoding.lower()
+    bit_map = {
+        "l8": 8,
+        "r8": 8,
+        "l16_8": 8,
+        "r16_8": 8,
+        "l16_10": 10,
+        "r16_10": 10,
+        "l16_12": 12,
+        "r16_12": 12,
+        "l16_14": 14,
+        "r16_14": 14,
+        "l16_16": 16,
+        "r16_16": 16,
+        "l16": 16,
+        "r16": 16,
+    }
+    if enc in bit_map:
+        matrix = scale_and_reshape(bit_map[enc])
+    elif enc in {"s16_14", "s16_16"}:
+        bits = 14 if enc == "s16_14" else 16
+        matrix = hdf5data_to_matrix(
+            data / 2 ** (bits_per_pixel - bits),
+            numcols,
+            numrows,
+        )
+    elif enc == "s32":
+        matrix = hdf5data_to_matrix(data, numcols, numrows)
     else:
-        I = hdf5data_to_matrix(data, numcols, numrows)
-        I *= power_calibration_multiplier
+        msg = f"Unknown BITENCODING: {encoding}"
+        raise ValueError(msg)
+    matrix = hdf5data_to_matrix(data, numcols, numrows) * power_calibration_multiplier
 
-    # Print diagnostics
-    screendump("numrows", numrows)
-    screendump("numcols", numcols)
-    screendump("I(1,1)", I[0, 0])
-    screendump("encoding", encoding)
-    screendump("pixelscalexum", pixelscalexum)
-    screendump("pixelscaleyum", pixelscaleyum)
-    screendump("power_calibration_multiplier", power_calibration_multiplier)
-    screendump("average count", average_count)
-    screendump("summing count", summing_count)
-
-    return I
+    return xr.DataArray(
+        matrix / summing_count,
+        dims=("x", "y"),
+        coords={"x": x_axis, "y": y_axis},
+        name="normalized intensity",
+        attrs={"average_count": average_count, "summing_count": summing_count},
+    )
 
 
 def hdf5data_to_matrix(data: np.ndarray, width: int, height: int) -> np.ndarray:
@@ -163,16 +188,3 @@ def hdf5data_to_matrix(data: np.ndarray, width: int, height: int) -> np.ndarray:
         msg = "Data size does not match WIDTH x HEIGHT."
         raise ValueError(msg)
     return data.reshape((height, width))
-
-
-def screendump(name: str, value: str | float):
-    """Print variable name and value to console (MATLAB screendump equivalent).
-
-    Args:
-        name (str): Variable name to display.
-        value (Any): Variable value to print. Strings and numerics are formatted differently.
-    """
-    if isinstance(value, float):
-        print(f"{name} = {value: .4f}")
-    else:
-        print(f"{name} = {value}")
