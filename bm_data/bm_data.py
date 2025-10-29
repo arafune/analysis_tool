@@ -20,25 +20,18 @@ Typical HDF5 structure expected:
             ├── PIXELSCALEYUM
             ├── ENERGY/
             │   └── POWER_CALIBRATION_MULTIPLIER
+            ├── TIMESTAMP
+            ├── EXPOSURESTAMP
             └── BITENCODING
-
-
-Example:
-    >>> from bmData import readhdf5
-    >>> I = readhdf5(frame=0, filename="example.h5")
-    >>> print(I.shape)
-    (1024, 1280)
-
-Requirements:
-    - Python 3.12+
-    - h5py
-    - numpy
+     /BG_SETUP/DATA_SOURCE_MANAGER/
+        ├── PROCESSOR/AVERAGING_COUNT
+        └── PROCESSOR/SUMMING_COUNT
 
 """
 
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from datetime import datetime
 import h5py
 import numpy as np
 import xarray as xr
@@ -108,7 +101,7 @@ def readhdf5(filename: str, frame: int = 1) -> xr.DataArray:
             numcols,
         )
         timestamp: datetime = parse_iso8601(
-            group["RAWFRAME/TIMESTAMP"][()].astype(str).item()
+            group["RAWFRAME/TIMESTAMP"][()].astype(str).item(),
         )
         exposurestamp: float = group["RAWFRAME/EXPOSURESTAMP"][()].item()
 
