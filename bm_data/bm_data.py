@@ -166,7 +166,7 @@ def readhdf5(filename: str, frame: int = 1) -> xr.DataArray:
     matrix = hdf5data_to_matrix(data, numcols, numrows) * power_calibration_multiplier
 
     return xr.DataArray(
-        matrix / summing_count,
+        matrix / summing_count / exposurestamp,
         dims=("y", "x"),
         coords={"x": x_axis, "y": y_axis},
         name="normalized intensity",
