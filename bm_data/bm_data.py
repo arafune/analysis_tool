@@ -75,7 +75,47 @@ def gauss2d(
     )
 
 
-gmodel = Model(gauss2d)
+def rotated_gaussian(
+    xy: tuple[float, float],
+    amplitude: float,
+    x0: float,
+    y0: float,
+    sigma_x: float,
+    sigma_y: float,
+    theta: float,
+    offset: float,
+):
+    """2D gaussian with rotation.
+
+    Parameters
+    ----------
+    xy : tuple of np.ndarray
+        (x, y) meshgrid, produced by np.meshgrid(xvals, yvals)
+    amp : float
+        Amplitude of the gaussian
+    x0, y0 : float
+        Center coordinate of the gaussian.
+    sigma_x, sigma_y : float
+        Standard deviation of the gaussian.
+    theta : float
+        Rotation angle (Radians).
+    offset : float
+        Offset of the gaussian.
+
+    Returns
+    -------
+    np.ndarray
+        2D gaussian distribution.
+
+    """
+    x, y = xy
+    x_ = (x - x0) * np.cos(theta) + (y - y0) * np.sin(theta)
+    y_ = -(x - x0) * np.sin(theta) + (y - y0) * np.cos(theta)
+    g = amplitude * np.exp(-0.5 * ((x_ / sigma_x) ** 2 + (y_ / sigma_y) ** 2)) + offset
+    return g.ravel()
+
+
+gmodel = Model(rotated_gaussian)
 
 
 def bm_plot(
@@ -83,6 +123,7 @@ def bm_plot(
     pixel_radius: int = 30,
     figsize: tuple[float, float] = (15, 5),
     cmap: Colormap | str = "viridis",
+    rotation_gaussian: bool = True,
 ) -> tuple[Figure, ModelResult]:
     """Plot beam monitor data with Gaussian fit overlay.
 
@@ -122,11 +163,14 @@ def bm_plot(
         sigma_x=5.0,
         sigma_y=5.0,
         offset=z.min(),
+        theta=0.0,
         x0=x0,
         y0=y0,
     )
     params["x0"].vary = True
     params["y0"].vary = True
+    params["theta"].vary = rotation_gaussian
+
     result = gmodel.fit(z.ravel(), params, xy=(x.ravel(), y.ravel()))
     fit_z = result.best_fit.reshape(z.shape)
 
@@ -135,6 +179,7 @@ def bm_plot(
 
     ax2.plot(cropped.y, z[:, pixel_radius], "o", label="Data")
     ax2.plot(cropped.y, fit_z[:, pixel_radius], "-", label="Fit")
+
     ax1.set_ylim((0.0, None))
     ax2.set_ylim((0.0, None))
     return fig, result
@@ -186,6 +231,7 @@ def modelresult_plot(
     ax2 = fig.add_subplot(1, 3, 3)
     ax2.scatter(z_values, intensities, label="Intensity", color="green")
     ax2.set_title("Intensity")
+    ax2.set_xlabel("z (mm)")
     return fig
 
 
