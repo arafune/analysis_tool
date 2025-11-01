@@ -89,6 +89,7 @@ def bm_plot(
         data (xr.DataArray): 2D beam monitor data.
         pixel_radius (int): Radius around the peak for fitting.
         figsize (tuple): Figure size.
+        cmap (Coloramp | str): Colormap for the image.
 
     Returns:
         Figure, ModelResult: Matplotlib figure with the plot, and the fitting result.
