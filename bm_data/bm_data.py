@@ -65,12 +65,13 @@ def gauss2d(
 ) -> NDArray[np.float64]:
     """2D Gaussian function for fitting."""
     x, y = xy
-    return (
+    return np.asarray(
         amplitude
         * np.exp(
             -(((x - x0) ** 2) / (2 * sigma_x**2) + ((y - y0) ** 2) / (2 * sigma_y**2)),
         )
-        + offset
+        + offset,
+        dtype=np.float64,
     )
 
 
@@ -100,7 +101,7 @@ def bm_plot(
     ax1 = fig.add_subplot(1, 3, 2)
     ax2 = fig.add_subplot(1, 3, 3)
     y_idx, x_idx = np.unravel_index(data.values.argmax(), data.shape)
-    x0, y0 = data.x.values[x_idx], data.y.values[y_idx]
+    x0, y0 = float(data.x.values[x_idx]), float(data.y.values[y_idx])
     cropped = data.isel(
         {
             "x": slice(x_idx - pixel_radius, x_idx + pixel_radius),
@@ -118,8 +119,8 @@ def bm_plot(
 
     params = gmodel.make_params(
         amplitude=z.max() - z.min(),
-        sigma_x=5,
-        sigma_y=5,
+        sigma_x=5.0,
+        sigma_y=5.0,
         offset=z.min(),
         x0=x0,
         y0=y0,
@@ -134,8 +135,8 @@ def bm_plot(
 
     ax2.plot(cropped.y, z[:, pixel_radius], "o", label="Data")
     ax2.plot(cropped.y, fit_z[:, pixel_radius], "-", label="Fit")
-    ax1.set_ylim((0, None))
-    ax2.set_ylim((0, None))
+    ax1.set_ylim((0.0, None))
+    ax2.set_ylim((0.0, None))
     return fig, result
 
 
