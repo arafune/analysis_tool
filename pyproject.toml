@@ -27,3 +27,11 @@ ignore = [
   "FBT002", # boolean-default-value-in-function-definition
 ]
 select = ["ALL"]
+
+[tool.pyright]
+
+typeCheckingMode = "standard" # "off", "basic" "standard" "strict"
+
+reportMissingTypeStubs = false
+reportUnreachable = false
+reportUnusedCallResult = false

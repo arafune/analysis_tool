@@ -140,6 +140,55 @@ def bm_plot(
     return fig, result
 
 
+def modelresult_plot(
+    modelresults: list[ModelResult],
+    z_values: list[float],
+    figsize: tuple[float, float] = (8, 4),
+) -> Figure:
+    """Plot the model fitting results.
+
+    Args:
+        modelresults (list[ModelResult]): List of model fitting results.
+        z_values (list[float]): Corresponding z positions.
+        figsize (tuple): Figure size.
+
+    Returns:
+        Figure: Matplotlib figure with the plots.
+
+    """
+    assert len(modelresults) == len(z_values)
+    sigma_x = []
+    sigma_y = []
+    intensities = []
+    for modelresult in modelresults:
+        sigma_x.append(modelresult.params["sigma_x"].value)
+        sigma_y.append(modelresult.params["sigma_y"].value)
+        intensities.append(modelresult.params["amplitude"].value)
+
+    fig = plt.figure(figsize=figsize)
+    ax0 = fig.add_subplot(1, 3, 1)
+    ax0.plot(z_values, np.array(sigma_x) * 2.35482, label=r"$FWHM_x$")
+    ax0.plot(z_values, np.array(sigma_y) * 2.35482, label=r"$FWHM_y$")
+    ax0.set_title("FWHM")
+    ax0.legend()
+    ax0.set_xlabel("z (mm)")
+    ax0.set_ylabel(r"FWHM ($\mu$m)")
+
+    ax1 = fig.add_subplot(1, 3, 2)
+    ax1.scatter(
+        z_values,
+        1 / (np.array(sigma_x) * np.array(sigma_y)),
+        color="red",
+    )
+    ax1.set_title("Beam Sharpness (a.u.)")
+    ax1.set_xlabel("z (mm)")
+
+    ax2 = fig.add_subplot(1, 3, 3)
+    ax2.scatter(z_values, intensities, label="Intensity", color="green")
+    ax2.set_title("Intensity")
+    return fig
+
+
 def readhdf5(filename: str, frame: int = 1) -> xr.DataArray:
     """Read a beam monitor (BM) frame from an HDF5 file.
 
