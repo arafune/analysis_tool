@@ -84,7 +84,7 @@ def rotated_gaussian(
     sigma_y: float,
     theta: float,
     offset: float,
-):
+) -> NDArray[np.float64]:
     """2D gaussian with rotation.
 
     Parameters
@@ -123,6 +123,7 @@ def bm_plot(
     pixel_radius: int = 30,
     figsize: tuple[float, float] = (15, 5),
     cmap: Colormap | str = "viridis",
+    *,
     rotation_gaussian: bool = True,
 ) -> tuple[Figure, ModelResult]:
     """Plot beam monitor data with Gaussian fit overlay.
@@ -132,6 +133,7 @@ def bm_plot(
         pixel_radius (int): Radius around the peak for fitting.
         figsize (tuple): Figure size.
         cmap (Coloramp | str): Colormap for the image.
+        rotation_gaussian (bool): Whether to fit with rotation.
 
     Returns:
         Figure, ModelResult: Matplotlib figure with the plot, and the fitting result.
