@@ -36,15 +36,106 @@ Requirements:
 
 """
 
+from __future__ import annotations
+
 from datetime import datetime
 from typing import TYPE_CHECKING
 
 import h5py
+import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
+from lmfit import Model
 
 if TYPE_CHECKING:
+    from lmfit.model import ModelResult
+    from matplotlib.colors import Colormap
+    from matplotlib.figure import Figure
     from numpy.typing import NDArray
+
+
+def gauss2d(
+    xy: tuple[float, float],
+    amplitude: float,
+    sigma_x: float,
+    sigma_y: float,
+    offset: float,
+    x0: float,
+    y0: float,
+) -> NDArray[np.float64]:
+    """2D Gaussian function for fitting."""
+    x, y = xy
+    return (
+        amplitude
+        * np.exp(
+            -(((x - x0) ** 2) / (2 * sigma_x**2) + ((y - y0) ** 2) / (2 * sigma_y**2)),
+        )
+        + offset
+    )
+
+
+gmodel = Model(gauss2d)
+
+
+def bm_plot(
+    data: xr.DataArray,
+    pixel_radius: int = 30,
+    figsize: tuple[float, float] = (15, 5),
+    cmap: Colormap | str = "viridis",
+) -> tuple[Figure, ModelResult]:
+    """Plot beam monitor data with Gaussian fit overlay.
+
+    Args:
+        data (xr.DataArray): 2D beam monitor data.
+        pixel_radius (int): Radius around the peak for fitting.
+        figsize (tuple): Figure size.
+
+    Returns:
+        Figure, ModelResult: Matplotlib figure with the plot, and the fitting result.
+
+    """
+    fig: Figure = plt.figure(figsize=figsize)
+    ax0 = fig.add_subplot(1, 3, 1)
+    ax1 = fig.add_subplot(1, 3, 2)
+    ax2 = fig.add_subplot(1, 3, 3)
+    y_idx, x_idx = np.unravel_index(data.values.argmax(), data.shape)
+    x0, y0 = data.x.values[x_idx], data.y.values[y_idx]
+    cropped = data.isel(
+        {
+            "x": slice(x_idx - pixel_radius, x_idx + pixel_radius),
+            "y": slice(y_idx - pixel_radius, y_idx + pixel_radius),
+        },
+    )
+    cropped.plot(
+        ax=ax0,
+        cmap=cmap,
+        add_colorbar=False,
+    )
+
+    x, y = np.meshgrid(cropped.x.values, cropped.y.values)
+    z = cropped.values
+
+    params = gmodel.make_params(
+        amplitude=z.max() - z.min(),
+        sigma_x=5,
+        sigma_y=5,
+        offset=z.min(),
+        x0=x0,
+        y0=y0,
+    )
+    params["x0"].vary = True
+    params["y0"].vary = True
+    result = gmodel.fit(z.ravel(), params, xy=(x.ravel(), y.ravel()))
+    fit_z = result.best_fit.reshape(z.shape)
+
+    ax1.plot(cropped.x, z[pixel_radius, :], "o", label="Data")
+    ax1.plot(cropped.x, fit_z[pixel_radius, :], "-", label="Fit")
+
+    ax2.plot(cropped.y, z[:, pixel_radius], "o", label="Data")
+    ax2.plot(cropped.y, fit_z[:, pixel_radius], "-", label="Fit")
+    ax1.set_ylim((0, None))
+    ax2.set_ylim((0, None))
+    return fig, result
 
 
 def readhdf5(filename: str, frame: int = 1) -> xr.DataArray:
@@ -130,7 +221,7 @@ def readhdf5(filename: str, frame: int = 1) -> xr.DataArray:
     def scale_and_reshape(bits: int) -> np.ndarray:
         """Return the matrix normalize by bit depth and reshape."""
         factor: float = 2 ** (bits_per_pixel - bits - 1)
-        return hdf5data_to_matrix(data / factor, numcols, numrows)
+        return _hdf5data_to_matrix(data / factor, numcols, numrows)
 
     enc = encoding.lower()
     bit_map = {
@@ -153,17 +244,17 @@ def readhdf5(filename: str, frame: int = 1) -> xr.DataArray:
         matrix = scale_and_reshape(bit_map[enc])
     elif enc in {"s16_14", "s16_16"}:
         bits = 14 if enc == "s16_14" else 16
-        matrix = hdf5data_to_matrix(
+        matrix = _hdf5data_to_matrix(
             data / 2 ** (bits_per_pixel - bits),
             numcols,
             numrows,
         )
     elif enc == "s32":
-        matrix = hdf5data_to_matrix(data, numcols, numrows)
+        matrix = _hdf5data_to_matrix(data, numcols, numrows)
     else:
         msg = f"Unknown BITENCODING: {encoding}"
         raise ValueError(msg)
-    matrix = hdf5data_to_matrix(data, numcols, numrows) * power_calibration_multiplier
+    matrix = _hdf5data_to_matrix(data, numcols, numrows) * power_calibration_multiplier
 
     return xr.DataArray(
         matrix / summing_count / exposurestamp,
@@ -179,7 +270,7 @@ def readhdf5(filename: str, frame: int = 1) -> xr.DataArray:
     )
 
 
-def hdf5data_to_matrix(data: np.ndarray, width: int, height: int) -> np.ndarray:
+def _hdf5data_to_matrix(data: np.ndarray, width: int, height: int) -> np.ndarray:
     """Convert a 1D HDF5 data array into a 2D image.
 
     Args:
