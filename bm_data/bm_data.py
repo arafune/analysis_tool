@@ -156,6 +156,16 @@ def bm_plot(
         cmap=cmap,
         add_colorbar=False,
     )
+    ax0.text(
+        0.95,
+        0.95,
+        f"z={data.attrs['z']}",
+        transform=ax0.transAxes,
+        ha="right",
+        va="top",
+        fontsize=12,
+        color="white",
+    )
 
     x, y = np.meshgrid(cropped.x.values, cropped.y.values)
     z = cropped.values
