@@ -3,6 +3,8 @@
 import numpy as np
 from numpy.typing import NDArray
 
+from .sellmeier import DISPERSION_FUNCS
+
 
 def gaussian_pulse(
     t: NDArray[np.float64],
@@ -131,7 +133,19 @@ def gdd(input_pulse_duration_fs: float, output_pulse_duration_fs: float) -> floa
     )
 
 
-def gvd(lambda_micron: float, d2n: float) -> float:
+def gvd(lambda_micron: float, material: str) -> float | tuple[float, float]:
     """Return GVD in fs^2/mm units."""
     light_speed_micron_fs = 0.299792458
+    try:
+        disp_func = DISPERSION_FUNCS[material.lower()]
+    except KeyError as exc:
+        msg = f"Unknown material: {material}"
+        raise ValueError(msg) from exc
+    d2n = disp_func(lambda_micron, 2)  # second derivative
+    if isinstance(d2n, tuple):
+        return lambda_micron**3 / (2 * np.pi * light_speed_micron_fs**2) * d2n[
+            0
+        ] * 1e3, lambda_micron**3 / (2 * np.pi * light_speed_micron_fs**2) * d2n[
+            1
+        ] * 1e3
     return lambda_micron**3 / (2 * np.pi * light_speed_micron_fs**2) * d2n * 1e3

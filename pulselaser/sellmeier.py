@@ -2,10 +2,28 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import sympy as sp
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+__all__ = [
+    "DISPERSION_FUNCS",
+    "air",
+    "alpha_bbo",
+    "beta_bbo",
+    "bk7",
+    "caf2",
+    "calcite",
+    "fused_silica",
+    "mgf2",
+    "phase_matching_angle_bbo",
+    "quartz",
+    "sf10",
+]
 
 
 def three_term_sellmeier(  # noqa: PLR0913
@@ -155,7 +173,10 @@ def air_dispersion(
 # -----------
 
 
-def bk7(lambda_micron: float, *, derivative: int = 0) -> float:
+def bk7(
+    lambda_micron: float,
+    derivative: int = 0,
+) -> float:
     r"""Dispersion of BK7.
 
     https://refractiveindex.info/?shelf=glass&book=BK7&page=SCHOTT
@@ -184,7 +205,10 @@ def bk7(lambda_micron: float, *, derivative: int = 0) -> float:
     )
 
 
-def fused_silica(lambda_micron: float, *, derivative: int = 0) -> float:
+def fused_silica(
+    lambda_micron: float,
+    derivative: int = 0,
+) -> float:
     r"""Dispersion of Fused Silica (0.21- 3.71 micron).
 
     https://refractiveindex.info/?shelf=glass&book=fused_silica&page=Malitson
@@ -217,7 +241,10 @@ def fused_silica(lambda_micron: float, *, derivative: int = 0) -> float:
     )
 
 
-def caf2(lambda_micron: float, *, derivative: int = 0) -> float:
+def caf2(
+    lambda_micron: float,
+    derivative: int = 0,
+) -> float:
     r"""Dispersion of caf2 (0.15 - 12 micron).
 
     J. Phys. Chem. Ref. Data 9 161 (1980).
@@ -245,7 +272,10 @@ def caf2(lambda_micron: float, *, derivative: int = 0) -> float:
     )
 
 
-def sf10(lambda_micron: float, *, derivative: int = 0) -> float:
+def sf10(
+    lambda_micron: float,
+    derivative: int = 0,
+) -> float:
     r"""Dispersion of SF10 (0.15 - 12 micron).
 
     https://refractiveindex.info/?shelf=popular_glass&book=SF10&page=SCHOTT
@@ -272,7 +302,10 @@ def sf10(lambda_micron: float, *, derivative: int = 0) -> float:
     )
 
 
-def air(lambda_micron: float, *, derivative: int = 0) -> float:
+def air(
+    lambda_micron: float,
+    derivative: int = 0,
+) -> float:
     r"""Dispersion of air.
 
     https://refractiveindelambda_micron.info/?shelf=other&book=air&page=Ciddor
@@ -333,7 +366,6 @@ def bbo_sellmeier(  # noqa: PLR0913
 
 def alpha_bbo(
     lambda_micron: float,
-    *,
     derivative: int = 0,
 ) -> tuple[float, float]:
     r"""Dispersion of :math:`\alpha`-BBO.
@@ -381,7 +413,6 @@ def alpha_bbo(
 
 def beta_bbo(
     lambda_micron: float,
-    *,
     derivative: int = 0,
 ) -> tuple[float, float]:
     r"""Return :math:`n_o` and :math:`n_e` of :math:`\beta`-BBO.
@@ -431,7 +462,10 @@ def beta_bbo(
     )
 
 
-def quartz(lambda_micron: float, derivative: int = 0) -> tuple[float, float]:
+def quartz(
+    lambda_micron: float,
+    derivative: int = 0,
+) -> tuple[float, float]:
     r"""Dispersion of crystal quartz.
 
     Optics communications. 2011, vol. 284, issue 12, p. 2683-2686.
@@ -616,3 +650,17 @@ def phase_matching_angle_bbo(fundamental_micron: float) -> float:
         - (beta_bbo(fundamental_micron / 2)[0] ** (-2))
     )
     return np.rad2deg(np.arcsin(np.sqrt(sin2theta)))
+
+
+DISPERSION_FUNCS: dict[str, Callable[[float, int], float | tuple[float, float]]] = {
+    "bk7": bk7,
+    "fused_silica": fused_silica,
+    "caf2": caf2,
+    "sf10": sf10,
+    "air": air,
+    "alpha_bbo": alpha_bbo,
+    "beta_bbo": beta_bbo,
+    "quartz": quartz,
+    "calcite": calcite,
+    "mgf2": mgf2,
+}
