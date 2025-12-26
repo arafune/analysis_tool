@@ -1,6 +1,7 @@
 """Collection of Sellmeier equation."""
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -402,6 +403,11 @@ def alpha_bbo(
     coeffs_o = (2.7471, 0.01878, 0.01822, 0.01354)
     coeffs_e = (2.3174, 0.01224, 0.01667, 0.001516)
     * Negative birefringence
+
+    On Thorlabs web:
+    @587.6
+    n_o = 1.533
+    n_e = 1.673
 
     Parameters
     ----------

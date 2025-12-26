@@ -1,4 +1,6 @@
-#! /usr/bin/env python3
+"""Unit test for pulselaser.sellmeier."""
+
+import numpy as np
 
 import pulselaser.sellmeier as sellmeier
 
@@ -23,7 +25,12 @@ class TestCaF2:
 class TestSF10:
     def test_at_800nm(self) -> None:
         """Test for n of SF10 at 800nm ~1.7113."""
-        assert sellmeier.sf10(0.80) == 1.7112973271904233
+        np.testing.assert_allclose(
+            sellmeier.sf10(0.80),
+            1.7112,
+            atol=0.001,
+            rtol=0.001,
+        )
 
 
 class TestQuartz:
@@ -32,16 +39,20 @@ class TestQuartz:
 
 
 class TestAlhpaBBO:
-    def test_at_800nm(self) -> None:
-        assert sellmeier.alpha_bbo(0.800) == (1.6448253125768209, 1.52590513720448)
-
-    def test_at_400nm(self) -> None:
-        assert sellmeier.alpha_bbo(0.400) == (1.676336171290171, 1.5471238511499055)
+    def test_at_587p6(self) -> None:
+        np.testing.assert_allclose(
+            sellmeier.alpha_bbo(0.5876),
+            (1.673, 1.533),
+            rtol=0.001,
+            atol=0.001,
+        )
 
 
 class TestBetaBBO:
     def test_at_800nm(self) -> None:
-        assert sellmeier.beta_bbo(0.800) == (1.660553524880645, 1.5444203018104292)
-
-    def test_at_400nm(self) -> None:
-        assert sellmeier.beta_bbo(0.400) == (1.6929832659808661, 1.5678876665187913)
+        np.testing.assert_allclose(
+            sellmeier.beta_bbo(0.800),
+            (1.6614, 1.5462),
+            atol=0.001,
+            rtol=0.001,
+        )
