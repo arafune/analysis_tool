@@ -1,7 +1,6 @@
 """Collection of Sellmeier equation."""
 
 from __future__ import annotations
-
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -176,7 +175,9 @@ def air_dispersion(
 def bk7(
     lambda_micron: float,
     derivative: int = 0,
-) -> float:
+    *,
+    as_sympy: bool = False,
+) -> float | sp.Expr:
     r"""Dispersion of BK7.
 
     https://refractiveindex.info/?shelf=glass&book=BK7&page=SCHOTT
@@ -195,10 +196,36 @@ def bk7(
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     derivative: int
         Derivative order
+    as_sympy: bool
+        If True return the equation
 
     """
     b = (1.03961212, 0.231792344, 1.01046945)
     c = (0.00600069867, 0.0200179144, 103.560653)
+    if as_sympy:
+        lam, a, b1, b2, b3, c1, c2, c3 = sp.symbols(
+            "lambda, a, b1, b2, b3, c1, c2, c3",
+            real=True,
+        )
+        sym_obj = three_term_sellmeier(
+            lam,
+            a,
+            (b1, b2, b3),
+            (c1, c2, c3),
+            derivative_order=derivative,
+            as_sympy=True,
+        )
+        assert isinstance(sym_obj, sp.Expr)
+        subs = {
+            a: 0.0,
+            b1: b[0],
+            b2: b[1],
+            b3: b[2],
+            c1: c[0],
+            c2: c[1],
+            c3: b[2],
+        }
+        return sym_obj.subs(subs)
     return cast(
         "float",
         three_term_sellmeier(lambda_micron, 0, b, c, derivative_order=derivative),
@@ -652,7 +679,13 @@ def phase_matching_angle_bbo(fundamental_micron: float) -> float:
     return np.rad2deg(np.arcsin(np.sqrt(sin2theta)))
 
 
-DISPERSION_FUNCS: dict[str, Callable[[float, int], float | tuple[float, float]]] = {
+DISPERSION_FUNCS: dict[
+    str,
+    Callable[
+        [float, int],
+        float | tuple[float, float],
+    ],
+] = {
     "bk7": bk7,
     "fused_silica": fused_silica,
     "caf2": caf2,
