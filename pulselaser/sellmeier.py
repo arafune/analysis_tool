@@ -689,7 +689,7 @@ DISPERSION_FUNCS: dict[
     str,
     Callable[
         [float, int],
-        float | tuple[float, float],
+        float | tuple[float, float] | sp.Expr,
     ],
 ] = {
     "bk7": bk7,

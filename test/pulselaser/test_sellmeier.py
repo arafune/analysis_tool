@@ -2,9 +2,9 @@
 
 import numpy as np
 import pytest
+import sympy as sp
 
 import pulselaser.sellmeier as sellmeier
-import sympy as sp
 
 
 class TestAir:
@@ -100,10 +100,27 @@ class TestQuartz:
 
 
 class TestAlhpaBBO:
-    def test_at_dline(self) -> None:
+    @pytest.mark.parametrize(
+        ("wavelength", "refractive_index"),
+        [
+            (0.5876, (1.673, 1.533)),
+            (0.8000, (1.6639, 1.5284)),
+            (0.4000, (1.6962, 1.5500)),
+        ],
+    )
+    def test_refractive_indexe(
+        self,
+        wavelength: float,
+        refractive_index: tuple[float, float],
+    ) -> None:
+        """Test for refractive index of α-BBO.
+
+        The value for 0.8µm is taken from the Thorlabs.
+        The other values are just calculated results.
+        """  # noqa: RUF002
         np.testing.assert_allclose(
-            sellmeier.alpha_bbo(0.5876),
-            (1.673, 1.533),
+            sellmeier.alpha_bbo(wavelength),
+            refractive_index,
             rtol=0.001,
             atol=0.001,
         )
