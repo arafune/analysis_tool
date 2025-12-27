@@ -5,30 +5,35 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from datetime import datetime
-from pathlib import Path
 
 import numpy as np
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class Calib1d:
-    """Class for .calib1d file
+    """Class for .calib1d file.
 
     Attributes
-    --------------
+    ----------
     file_name: str
         file name for read
+
     """
 
     SL_Version: str = "4.57.1-r83491"
     SL_Build_Date: str = "2019-06-19 10:39:02 UTC"
 
     def __init__(self, file_name: str | Path = "") -> None:
-        """Initialization.
+        """Initialize Calib1d class.
 
         Parameters
-        ------------
+        ----------
         file_name: str
             calib1d data file name.  Suffix is .calib1d.
+
         """
         positions: list[float] = []
         shifts: list[float] = []
@@ -51,9 +56,10 @@ class Calib1d:
         """Read header.
 
         Attributes
-        -------------
+        ----------
         line: str
             line for read, begin with "#"
+
         """
         if "=" in line:
             item, value = line.split("=")
@@ -75,14 +81,15 @@ class Calib1d:
         return output_header
 
     def comment(self, text_str: str) -> None:
-        """Add comment in header
+        """Add comment in header.
 
         Attributes
-        -----------
+        ----------
         text_str: str
             string for comment
+
         """
-        self.header["# Comment       "] = ' "{}"\n'.format(text_str)
+        self.header["# Comment       "] = f' "{text_str}"\n'
 
     def save(self, filename: str) -> None:
         with open(filename, mode="w") as f:
