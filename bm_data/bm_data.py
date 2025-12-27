@@ -54,7 +54,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
 
-def gauss2d(
+def gauss2d(  # noqa: PLR0913
     xy: tuple[float, float],
     amplitude: float,
     sigma_x: float,
@@ -75,7 +75,7 @@ def gauss2d(
     )
 
 
-def rotated_gaussian(
+def rotated_gaussian(  # noqa: PLR0913
     xy: tuple[float, float],
     amplitude: float,
     x0: float,
@@ -91,7 +91,7 @@ def rotated_gaussian(
     ----------
     xy : tuple of np.ndarray
         (x, y) meshgrid, produced by np.meshgrid(xvals, yvals)
-    amp : float
+    amplitude : float
         Amplitude of the gaussian
     x0, y0 : float
         Center coordinate of the gaussian.

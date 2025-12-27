@@ -1,9 +1,15 @@
 """Basic functions for pulselaser module."""
 
+from typing import overload
+
 import numpy as np
+import sympy as sp
 from numpy.typing import NDArray
 
 from .sellmeier import DISPERSION_FUNCS
+
+Scalar = float | np.floating
+ScalarOrArray = Scalar | NDArray[np.floating]
 
 
 def gaussian_pulse(
@@ -110,7 +116,10 @@ def broadening_after_n(
     return broadening(broadening_after_n(initial_width_fs, gdd, iteration - 1), gdd)
 
 
-def gdd(input_pulse_duration_fs: float, output_pulse_duration_fs: float) -> float:
+def gdd(
+    input_pulse_duration_fs: float,
+    output_pulse_duration_fs: float,
+) -> float:
     """Return the GDD value of the optics.
 
     Parameters
@@ -133,19 +142,36 @@ def gdd(input_pulse_duration_fs: float, output_pulse_duration_fs: float) -> floa
     )
 
 
-def gvd(lambda_micron: float, material: str) -> float | tuple[float, float]:
-    """Return GVD in fs^2/mm units."""
-    light_speed_micron_fs = 0.299792458
+@overload
+def gvd(lambda_micron: Scalar, material: str) -> np.floating: ...
+
+
+@overload
+def gvd(lambda_micron: NDArray[np.floating], material: str) -> NDArray[np.floating]: ...
+
+
+def gvd(
+    lambda_micron: ScalarOrArray,
+    material: str,
+) -> np.floating | NDArray[np.floating]:
+    """Return GVD in fs^2/mm units.
+
+    Notes
+    -----
+    - Isotropic materials: shape (...)
+    - Birefringent materials: shape (..., 2) with (o, e)
+
+    """
+    light_speed_micron_fs: float = 0.299792458
     try:
         disp_func = DISPERSION_FUNCS[material.lower()]
     except KeyError as exc:
         msg = f"Unknown material: {material}"
         raise ValueError(msg) from exc
     d2n = disp_func(lambda_micron, 2)  # second derivative
-    if isinstance(d2n, tuple):
-        return lambda_micron**3 / (2 * np.pi * light_speed_micron_fs**2) * d2n[
-            0
-        ] * 1e3, lambda_micron**3 / (2 * np.pi * light_speed_micron_fs**2) * d2n[
-            1
-        ] * 1e3
-    return lambda_micron**3 / (2 * np.pi * light_speed_micron_fs**2) * d2n * 1e3
+    assert not isinstance(d2n, sp.Expr)
+
+    lm = np.asarray(lambda_micron, dtype=float)
+    factor = lm**3 / (2 * np.pi * light_speed_micron_fs**2) * 1e3
+    factor = factor[..., None] if np.ndim(d2n) == lm.ndim + 1 else factor
+    return factor * d2n

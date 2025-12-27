@@ -1,6 +1,5 @@
 """Berek Polarization Compensator:  Model 5540 New Focus."""
 
-
 import numpy as np
 
 from pulselaser.sellmeier import mgf2
@@ -21,6 +20,7 @@ def retardance(lambda_micron: float, tilt_angle_degree: float) -> float:
     -------
     float
         _description_
+
     """
     theta = np.deg2rad(tilt_angle_degree)
     return (
@@ -48,6 +48,7 @@ def tilt_angle_deg(retardation_indicator: float) -> float:
     -------
     float
         tilt angle in degree.
+
     """
     theta_r_rad = np.pi / 4 - np.arcsin((50.22 - retardation_indicator) / 71)
     return np.rad2deg(theta_r_rad)

@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Literal, overload
 
 import numpy as np
 import sympy as sp
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from numpy.typing import NDArray
+
+    from . import Scalar, ScalarOrArray
+
 
 __all__ = [
     "DISPERSION_FUNCS",
@@ -26,15 +31,63 @@ __all__ = [
 ]
 
 
+@overload
+def three_term_sellmeier(
+    lambda_micron: Scalar,
+    coeff_a: float,
+    coeffs_b: tuple[float, float, float],
+    coeffs_c: tuple[float, float, float],
+    derivative_order: int = 0,
+    *,
+    as_sympy: Literal[True],
+) -> sp.Expr: ...
+
+
+@overload
+def three_term_sellmeier(
+    lambda_micron: NDArray[np.floating],
+    coeff_a: float,
+    coeffs_b: tuple[float, float, float],
+    coeffs_c: tuple[float, float, float],
+    derivative_order: int = 0,
+    *,
+    as_sympy: Literal[True],
+) -> sp.Expr: ...
+
+
+@overload
+def three_term_sellmeier(
+    lambda_micron: Scalar,
+    coeff_a: float,
+    coeffs_b: tuple[float, float, float],
+    coeffs_c: tuple[float, float, float],
+    derivative_order: int = 0,
+    *,
+    as_sympy: Literal[False] = False,
+) -> np.floating: ...
+
+
+@overload
+def three_term_sellmeier(
+    lambda_micron: NDArray[np.floating],
+    coeff_a: float,
+    coeffs_b: tuple[float, float, float],
+    coeffs_c: tuple[float, float, float],
+    derivative_order: int = 0,
+    *,
+    as_sympy: Literal[False] = False,
+) -> NDArray[np.floating]: ...
+
+
 def three_term_sellmeier(  # noqa: PLR0913
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     coeff_a: float,
     coeffs_b: tuple[float, float, float],
     coeffs_c: tuple[float, float, float],
     derivative_order: int = 0,
     *,
     as_sympy: bool = False,
-) -> float | sp.Expr:
+) -> np.floating | NDArray[np.floating] | sp.Expr:
     r"""Return Sellmeier function.
 
     :math:`n^2 -1 = A + \frac{B_1 \lambda^2}{\lambda^2 - C_1} +
@@ -83,15 +136,63 @@ def three_term_sellmeier(  # noqa: PLR0913
     return delta_n_np(lambda_micron, coeff_a, *coeffs_b, *coeffs_c)
 
 
+@overload
+def two_term_sellmeier(
+    lambda_micron: Scalar,
+    coeff_a: float,
+    coeffs_b: tuple[float, float],
+    coeffs_c: tuple[float, float],
+    derivative_order: int = 0,
+    *,
+    as_sympy: Literal[True],
+) -> sp.Expr: ...
+
+
+@overload
+def two_term_sellmeier(
+    lambda_micron: NDArray[np.floating],
+    coeff_a: float,
+    coeffs_b: tuple[float, float],
+    coeffs_c: tuple[float, float],
+    derivative_order: int = 0,
+    *,
+    as_sympy: Literal[True],
+) -> sp.Expr: ...
+
+
+@overload
+def two_term_sellmeier(
+    lambda_micron: NDArray[np.floating],
+    coeff_a: float,
+    coeffs_b: tuple[float, float],
+    coeffs_c: tuple[float, float],
+    derivative_order: int = 0,
+    *,
+    as_sympy: Literal[False] = False,
+) -> NDArray[np.floating]: ...
+
+
+@overload
+def two_term_sellmeier(
+    lambda_micron: Scalar,
+    coeff_a: float,
+    coeffs_b: tuple[float, float],
+    coeffs_c: tuple[float, float],
+    derivative_order: int = 0,
+    *,
+    as_sympy: Literal[False] = False,
+) -> np.floating: ...
+
+
 def two_term_sellmeier(  # noqa: PLR0913
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     coeff_a: float,
     coeffs_b: tuple[float, float],
     coeffs_c: tuple[float, float],
     derivative_order: int = 0,
     *,
     as_sympy: bool = False,
-) -> float | sp.Expr:
+) -> np.floating | NDArray[np.floating] | sp.Expr:
     r"""Return the Sellmeier function represented by two terms.
 
     :math:`n^2 -1 = A + \frac{B_1 \lambda^2}{\lambda^2 - C_1} +
@@ -119,13 +220,22 @@ def two_term_sellmeier(  # noqa: PLR0913
         Calculated refractive index
 
     """
+    if as_sympy:
+        return three_term_sellmeier(
+            lambda_micron,
+            coeff_a,
+            (*coeffs_b, 0.0),
+            (*coeffs_c, 0.0),
+            derivative_order=derivative_order,
+            as_sympy=True,
+        )
     return three_term_sellmeier(
         lambda_micron,
         coeff_a,
         (*coeffs_b, 0.0),
         (*coeffs_c, 0.0),
         derivative_order=derivative_order,
-        as_sympy=as_sympy,
+        as_sympy=False,
     )
 
 
@@ -227,16 +337,19 @@ def bk7(
             c3: b[2],
         }
         return sym_obj.subs(subs)
-    return cast(
-        "float",
-        three_term_sellmeier(lambda_micron, 0, b, c, derivative_order=derivative),
+    return three_term_sellmeier(
+        lambda_micron,
+        0,
+        b,
+        c,
+        derivative_order=derivative,
     )
 
 
 def fused_silica(
     lambda_micron: float,
     derivative: int = 0,
-) -> float:
+) -> np.floating:
     r"""Dispersion of Fused Silica (0.21- 3.71 micron).
 
     https://refractiveindex.info/?shelf=glass&book=fused_silica&page=Malitson
@@ -257,22 +370,19 @@ def fused_silica(
     b = (0.6961663, 0.4079426, 0.8974794)
     # Malitson form: C_i = lambda_i^2
     c = (0.06840432**2, 0.11624142**2, 9.8961612**2)
-    return cast(
-        "float",
-        three_term_sellmeier(
-            lambda_micron,
-            0,
-            b,
-            c,
-            derivative_order=derivative,
-        ),
+    return three_term_sellmeier(
+        lambda_micron,
+        0,
+        b,
+        c,
+        derivative_order=derivative,
     )
 
 
 def caf2(
     lambda_micron: float,
     derivative: int = 0,
-) -> float:
+) -> np.floating:
     r"""Dispersion of caf2 (0.15 - 12 micron).
 
     J. Phys. Chem. Ref. Data 9 161 (1980).
@@ -288,22 +398,19 @@ def caf2(
     a = 0.33973
     b = (0.69913, 0.11994, 4.35181)
     c = (0.09374**2, 21.18**2, 38.46**2)
-    return cast(
-        "float",
-        three_term_sellmeier(
-            lambda_micron,
-            a,
-            b,
-            c,
-            derivative_order=derivative,
-        ),
+    return three_term_sellmeier(
+        lambda_micron,
+        a,
+        b,
+        c,
+        derivative_order=derivative,
     )
 
 
 def sf10(
     lambda_micron: float,
     derivative: int = 0,
-) -> float:
+) -> np.floating:
     r"""Dispersion of SF10 (0.15 - 12 micron).
 
     https://refractiveindex.info/?shelf=popular_glass&book=SF10&page=SCHOTT
@@ -318,8 +425,7 @@ def sf10(
     """
     b = (1.6215390, 0.256287842, 1.64447552)
     c = (0.0122241457, 0.0595736775, 147.468793)
-    return cast(
-        "float",
+    return (
         three_term_sellmeier(
             lambda_micron,
             0,
@@ -353,8 +459,7 @@ def air(
     """
     b = (0.05792105, 0.00167917)
     c = (238.0185, 57.362)
-    return cast(
-        "float",
+    return (
         air_dispersion(
             lambda_micron,
             b,
@@ -365,7 +470,7 @@ def air(
 
 
 def bbo_sellmeier(  # noqa: PLR0913
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     coeff_a: float,
     coeff_b: float,
     coeff_c: float,
@@ -373,7 +478,7 @@ def bbo_sellmeier(  # noqa: PLR0913
     derivative_order: int = 0,
     *,
     as_sympy: bool = False,
-) -> float | sp.Expr:
+) -> ScalarOrArray | sp.Expr:
     r"""Sellmeier equation for BBO.
 
     :math:`n^2(\lambda) = a + \frac{b}{\lambda^2 - c} - d \lambda^2`
@@ -393,10 +498,10 @@ def bbo_sellmeier(  # noqa: PLR0913
 
 
 def alpha_bbo(
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> tuple[float, float]:
-    r"""Dispersion of :math:`\alpha`-BBO.
+) -> NDArray[np.floating]:
+    r"""Dispersion of :math:`$\alpha$`-BBO.
 
     These coefficients are taken from . Applied Optics, 41(13), 2474.
 
@@ -419,8 +524,8 @@ def alpha_bbo(
 
     Return
     -------
-    tuple:
-        :math:`n_o` and :math:`n_e`
+    ndarray
+        shape (..., 2) with (:math:`n_o`, :math:`n_e`)
 
     """
     # The following coefficients are taken from
@@ -432,22 +537,27 @@ def alpha_bbo(
     # which is also used in Thorlabs's web site:
     coeffs_o = (2.7471, 0.01878, 0.01822, 0.01354)
     coeffs_e = (2.3174, 0.01224, 0.01667, 0.001516)
-    return (
-        cast(
-            "float",
-            bbo_sellmeier(lambda_micron, *coeffs_o, derivative_order=derivative),
-        ),
-        cast(
-            "float",
-            bbo_sellmeier(lambda_micron, *coeffs_e, derivative_order=derivative),
-        ),
+
+    n_o = bbo_sellmeier(
+        lambda_micron,
+        *coeffs_o,
+        derivative_order=derivative,
+    )
+    n_e = bbo_sellmeier(
+        lambda_micron,
+        *coeffs_e,
+        derivative_order=derivative,
+    )
+    return np.stack(
+        [np.asarray(n_o, dtype=float), np.asarray(n_e, dtype=float)],
+        axis=-1,
     )
 
 
 def beta_bbo(
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> tuple[float, float]:
+) -> NDArray[np.floating]:
     r"""Return :math:`n_o` and :math:`n_e` of :math:`\beta`-BBO.
 
     https://refractiveindex.info/?shelf=main&book=BaB2O4&page=Eimerl-o
@@ -467,8 +577,8 @@ def beta_bbo(
 
     Returns
     -------
-    tuple:
-        :math:`n_o` and :math:`n_e`
+    ndarray
+        shape (..., 2) with (:math:`n_o`, :math:`n_e`)
 
     """
     # the coeeficients taken from  IEEE J. Quantum Electron QE-22, 1013 (1986)
@@ -483,27 +593,31 @@ def beta_bbo(
     #
     coeffs_o = (2.7405, 0.0184, 0.0179, 0.0155)
     coeffs_e = (2.3730, 0.0128, 0.0156, 0.0044)
-    return (
-        cast(
-            "float",
-            bbo_sellmeier(lambda_micron, *coeffs_o, derivative_order=derivative),
-        ),
-        cast(
-            "float",
-            bbo_sellmeier(lambda_micron, *coeffs_e, derivative_order=derivative),
-        ),
+    n_o = bbo_sellmeier(
+        lambda_micron,
+        *coeffs_o,
+        derivative_order=derivative,
+    )
+    n_e = bbo_sellmeier(
+        lambda_micron,
+        *coeffs_e,
+        derivative_order=derivative,
+    )
+    return np.stack(
+        [np.asarray(n_o, dtype=float), np.asarray(n_e, dtype=float)],
+        axis=-1,
     )
 
 
 def quartz(
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> tuple[float, float]:
+) -> NDArray[np.floating]:
     r"""Dispersion of crystal quartz.
 
     Optics communications. 2011, vol. 284, issue 12, p. 2683-2686.
 
-    Opt. Commun. 163, 95-102 (1999 )
+    Opt. Commun. 163, 95-102 (1999).
     https://refractiveindex.info/?shelf=main&book=SiO2&page=Ghosh-e
 
 
@@ -516,8 +630,8 @@ def quartz(
 
     Returns
     -------
-    tuple:
-        :math:`n_o` and :math:`n_e`
+    ndarray
+        shape (..., 2) with (:math:`n_o`, :math:`n_e`)
 
     """
     coeff_e_a = 0.28851804
@@ -527,34 +641,32 @@ def quartz(
     coeff_o_a = 0.28604141
     coeffs_o_b = (1.07044083, 1.10202242)
     coeffs_o_c = (1.00585997 * 1e-2, 100)
-    return (
-        cast(
-            "float",
-            two_term_sellmeier(
-                lambda_micron,
-                coeff_o_a,
-                coeffs_o_b,
-                coeffs_o_c,
-                derivative_order=derivative,
-            ),
-        ),
-        cast(
-            "float",
-            two_term_sellmeier(
-                lambda_micron,
-                coeff_e_a,
-                coeffs_e_b,
-                coeffs_e_c,
-                derivative_order=derivative,
-            ),
-        ),
+
+    n_o = two_term_sellmeier(
+        lambda_micron,
+        coeff_o_a,
+        coeffs_o_b,
+        coeffs_o_c,
+        derivative_order=derivative,
+    )
+    n_e = two_term_sellmeier(
+        lambda_micron,
+        coeff_e_a,
+        coeffs_e_b,
+        coeffs_e_c,
+        derivative_order=derivative,
+    )
+
+    return np.stack(
+        [np.asarray(n_o, dtype=float), np.asarray(n_e, dtype=float)],
+        axis=-1,
     )
 
 
 def calcite(
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> tuple[float, float]:
+) -> NDArray[np.floating]:
     r"""Dispersion of calcite.  (:math:`\mathrm{CaCO}_3`).
 
     Opt. Commun. 163, 95-102 (1999)
@@ -572,8 +684,8 @@ def calcite(
 
     Returns
     -------
-    tuple:
-        :math:`n_o` and :math:`n_e`
+    ndarray
+        shape (..., 2) with (:math:`n_o`, :math:`n_e`)
 
     """
     coeff_e_a = 0.35859695
@@ -583,34 +695,32 @@ def calcite(
     coeff_o_a = 0.73358749
     coeffs_o_b = (0.96464345, 1.82831454)
     coeffs_o_c = (1.94325203 * 1e-2, 120)
-    return (
-        cast(
-            "float",
-            two_term_sellmeier(
-                lambda_micron,
-                coeff_o_a,
-                coeffs_o_b,
-                coeffs_o_c,
-                derivative_order=derivative,
-            ),
-        ),
-        cast(
-            "float",
-            two_term_sellmeier(
-                lambda_micron,
-                coeff_e_a,
-                coeffs_e_b,
-                coeffs_e_c,
-                derivative_order=derivative,
-            ),
-        ),
+
+    n_o = two_term_sellmeier(
+        lambda_micron,
+        coeff_o_a,
+        coeffs_o_b,
+        coeffs_o_c,
+        derivative_order=derivative,
+    )
+
+    n_e = two_term_sellmeier(
+        lambda_micron,
+        coeff_e_a,
+        coeffs_e_b,
+        coeffs_e_c,
+        derivative_order=derivative,
+    )
+    return np.stack(
+        [np.asarray(n_o, dtype=float), np.asarray(n_e, dtype=float)],
+        axis=-1,
     )
 
 
 def mgf2(
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> tuple[float, float]:
+) -> NDArray[np.floating]:
     r"""Dispersion of mgf2.
 
     Appl. Opt. 23, 1980-1985 (1984)
@@ -626,8 +736,8 @@ def mgf2(
 
     Returns
     -------
-    tuple:
-        :math:`n_o` and :math:`n_e`
+    ndarray
+        shape (..., 2) with (:math:`n_o`, :math:`n_e`)
 
     """
     coeff_e_a = 0
@@ -637,27 +747,23 @@ def mgf2(
     coeff_o_a = 0
     coeffs_o_b = (0.48755108, 0.39875031, 2.3120353)
     coeffs_o_c = (0.04338408**2, 0.09461442**2, 23.793604**2)
-    return (
-        cast(
-            "float",
-            three_term_sellmeier(
-                lambda_micron,
-                coeff_o_a,
-                coeffs_o_b,
-                coeffs_o_c,
-                derivative_order=derivative,
-            ),
-        ),
-        cast(
-            "float",
-            three_term_sellmeier(
-                lambda_micron,
-                coeff_e_a,
-                coeffs_e_b,
-                coeffs_e_c,
-                derivative_order=derivative,
-            ),
-        ),
+    n_o = three_term_sellmeier(
+        lambda_micron,
+        coeff_o_a,
+        coeffs_o_b,
+        coeffs_o_c,
+        derivative_order=derivative,
+    )
+    n_e = three_term_sellmeier(
+        lambda_micron,
+        coeff_e_a,
+        coeffs_e_b,
+        coeffs_e_c,
+        derivative_order=derivative,
+    )
+    return np.stack(
+        [np.asarray(n_o, dtype=float), np.asarray(n_e, dtype=float)],
+        axis=-1,
     )
 
 
