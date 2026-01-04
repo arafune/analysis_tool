@@ -10,6 +10,7 @@ import pytest
 import sympy as sp
 
 from pulselaser import sellmeier
+from pulselaser.sellmeier import Material
 
 
 class TestAir:
@@ -91,6 +92,36 @@ class TestSF10:
         )
 
 
+class TestSF11:
+    """Tests for SF11 dense flint glass."""
+
+    @pytest.mark.parametrize(
+        ("wavelength", "refractive_index"),
+        [
+            (0.8, 1.7646),
+            (0.5876, 1.7865),
+        ],
+    )
+    def test_refractive_index(
+        self,
+        wavelength: float,
+        refractive_index: float,
+    ) -> None:
+        """Verify the refractive index of CaF2 at 800 nm."""
+        np.testing.assert_allclose(
+            sellmeier.sf11(wavelength),
+            refractive_index,
+            atol=0.001,
+            rtol=0.001,
+        )
+        np.testing.assert_allclose(
+            Material.SF11(wavelength),
+            refractive_index,
+            atol=0.001,
+            rtol=0.001,
+        )
+
+
 class TestMgF2:
     """Tests for Magnesium Fluoride (MgF2) birefringence."""
 
@@ -152,7 +183,8 @@ class TestAlphaBBO:
     ) -> None:
         """Verify the birefringent refractive indices of a-BBO.
 
-        Multiple wavelengths."""
+        Multiple wavelengths.
+        """
         np.testing.assert_allclose(
             sellmeier.alpha_bbo(wavelength),
             refractive_index,

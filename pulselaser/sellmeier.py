@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, overload
+from enum import Enum
+from typing import TYPE_CHECKING, Literal, Protocol, overload, runtime_checkable
 
 import numpy as np
 import sympy as sp
@@ -28,7 +29,10 @@ __all__ = [
     "phase_matching_angle_bbo",
     "quartz",
     "sf10",
+    "sf11",
 ]
+
+DispersionResult = float | np.ndarray | sp.Expr
 
 
 @overload
@@ -334,7 +338,7 @@ def bk7(
             b3: b[2],
             c1: c[0],
             c2: c[1],
-            c3: b[2],
+            c3: c[2],
         }
         return sym_obj.subs(subs)
     return three_term_sellmeier(
@@ -383,7 +387,7 @@ def caf2(
     lambda_micron: float,
     derivative: int = 0,
 ) -> np.floating:
-    r"""Dispersion of caf2 (0.15 - 12 micron).
+    r"""Dispersion of CaF2 (0.15 - 12 micron).
 
     J. Phys. Chem. Ref. Data 9 161 (1980).
 
@@ -425,14 +429,39 @@ def sf10(
     """
     b = (1.6215390, 0.256287842, 1.64447552)
     c = (0.0122241457, 0.0595736775, 147.468793)
-    return (
-        three_term_sellmeier(
-            lambda_micron,
-            0,
-            b,
-            c,
-            derivative_order=derivative,
-        ),
+    return three_term_sellmeier(
+        lambda_micron,
+        0,
+        b,
+        c,
+        derivative_order=derivative,
+    )
+
+
+def sf11(
+    lambda_micron: ScalarOrArray,
+    derivative: int = 0,
+) -> np.floating:
+    r"""Dispersion of SF11 (0.37 - 2.5 micron).
+
+    https://refractiveindex.info/?shelf=specs&book=SCHOTT-optical&page=N-SF11
+
+    Parameters
+    ----------
+    lambda_micron: float
+        wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
+    derivative: int
+        The derivative order
+
+    """
+    b = (1.73759695, 0.313747346, 1.89878101)
+    c = (0.013188707, 0.0623068142, 155.23629)
+    return three_term_sellmeier(
+        lambda_micron,
+        0,
+        b,
+        c,
+        derivative_order=derivative,
     )
 
 
@@ -459,13 +488,11 @@ def air(
     """
     b = (0.05792105, 0.00167917)
     c = (238.0185, 57.362)
-    return (
-        air_dispersion(
-            lambda_micron,
-            b,
-            c,
-            derivative_order=derivative,
-        ),
+    return air_dispersion(
+        lambda_micron,
+        b,
+        c,
+        derivative_order=derivative,
     )
 
 
@@ -781,14 +808,16 @@ def phase_matching_angle_bbo(fundamental_micron: float) -> float:
         Phase matching angle (Unit: Degree)
 
     """
-    sin2theta = (
-        (beta_bbo(fundamental_micron)[0]) ** (-2)
-        - (beta_bbo(fundamental_micron / 2)[0] ** (-2))
-    ) / (
-        (beta_bbo(fundamental_micron / 2)[1]) ** (-2)
-        - (beta_bbo(fundamental_micron / 2)[0] ** (-2))
-    )
-    return np.rad2deg(np.arcsin(np.sqrt(sin2theta)))
+    n_f = beta_bbo(fundamental_micron)
+    n_sh = beta_bbo(fundamental_micron / 2)
+    n_o_f = n_f[..., 0]
+    n_o_sh = n_sh[..., 0]
+    n_e_sh = n_sh[..., 1]
+    sin2_theta = (n_o_f ** (-2) - n_o_sh ** (-2)) / (n_e_sh ** (-2) - n_o_sh ** (-2))
+    if not (0 < sin2_theta < 1):
+        msg = f"Invalid phase matching condition sin^2(theta)={sin2_theta}"
+        raise ValueError(msg)
+    return np.rad2deg(np.arcsin(np.sqrt(sin2_theta)))
 
 
 DISPERSION_FUNCS: dict[
@@ -808,4 +837,45 @@ DISPERSION_FUNCS: dict[
     "quartz": quartz,
     "calcite": calcite,
     "mgf2": mgf2,
+    "sf11": sf11,
 }
+
+
+@runtime_checkable
+class DispersionProtocol(Protocol):
+    def __call__(
+        self,
+        lambda_micron: ScalarOrArray,
+        derivative: int = 0,
+        **kwargs,
+    ) -> DispersionResult: ...
+
+
+class Material(Enum):
+    BK7 = bk7
+    FUSED_SILICA = fused_silica
+    CAF2 = caf2
+    SF10 = sf10
+    AIR = air
+    ALPHA_BBO = alpha_bbo
+    BETA_BBO = beta_bbo
+    QUARTZ = quartz
+    CALCITE = calcite
+    MGF2 = mgf2
+    SF11 = sf11
+
+    def __call__(
+        self,
+        *args,
+        **kwargs,
+    ) -> DispersionResult:
+        func: DispersionProtocol = self.value
+        return func(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, name: str) -> Material:
+        try:
+            return cls[name.upper()]
+        except KeyError as e:
+            msg = f"Unkonwn material: {name}. Available: {[m.name for m in cls]}"
+            raise ValueError(msg) from e
