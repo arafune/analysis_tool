@@ -69,9 +69,13 @@ class PrismPair:
         prism_apex
             The apex angle of the prism (degrees)
         prism_material
-            The material of the prsim.
+            The material of the prism.
 
         """
+        assert separation >= 0
+        assert prism_insert[0] >= 0
+        assert prism_insert[1] >= 0
+
         self.material = (
             Material.from_str(prism_material)
             if isinstance(prism_material, str)
