@@ -222,3 +222,8 @@ def test_phase_matching_angle_bbo_at_790() -> None:
         29.4,
         atol=0.01,
     )
+
+
+def test_enum_from_str() -> None:
+    mat = Material.from_str("sf11")
+    assert isinstance(mat, Material)

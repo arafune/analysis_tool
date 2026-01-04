@@ -1,36 +1,15 @@
 """Collection of Sellmeier equation."""
 
-from __future__ import annotations
-
+from collections.abc import Callable
 from enum import Enum
-from typing import TYPE_CHECKING, Literal, Protocol, overload, runtime_checkable
+from functools import partial
+from typing import Literal, Protocol, overload, runtime_checkable
 
 import numpy as np
 import sympy as sp
+from numpy.typing import NDArray
 
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
-    from numpy.typing import NDArray
-
-    from . import Scalar, ScalarOrArray
-
-
-__all__ = [
-    "DISPERSION_FUNCS",
-    "air",
-    "alpha_bbo",
-    "beta_bbo",
-    "bk7",
-    "caf2",
-    "calcite",
-    "fused_silica",
-    "mgf2",
-    "phase_matching_angle_bbo",
-    "quartz",
-    "sf10",
-    "sf11",
-]
+from .types import Scalar, ScalarOrArray
 
 DispersionResult = float | np.ndarray | sp.Expr
 
@@ -852,30 +831,30 @@ class DispersionProtocol(Protocol):
 
 
 class Material(Enum):
-    BK7 = bk7
-    FUSED_SILICA = fused_silica
-    CAF2 = caf2
-    SF10 = sf10
-    AIR = air
-    ALPHA_BBO = alpha_bbo
-    BETA_BBO = beta_bbo
-    QUARTZ = quartz
-    CALCITE = calcite
-    MGF2 = mgf2
-    SF11 = sf11
+    BK7 = partial(bk7)
+    FUSED_SILICA = partial(fused_silica)
+    CAF2 = partial(caf2)
+    SF10 = partial(sf10)
+    AIR = partial(air)
+    ALPHA_BBO = partial(alpha_bbo)
+    BETA_BBO = partial(beta_bbo)
+    QUARTZ = partial(quartz)
+    CALCITE = partial(calcite)
+    MGF2 = partial(mgf2)
+    SF11 = partial(sf11)
 
     def __call__(
         self,
         *args,
         **kwargs,
-    ) -> DispersionResult:
-        func: DispersionProtocol = self.value
+    ):
+        func = self.value
         return func(*args, **kwargs)
 
     @classmethod
-    def from_str(cls, name: str) -> Material:
+    def from_str(cls, name: str) -> "Material":
         try:
-            return cls[name.upper()]
+            return Material[name.strip().upper()]
         except KeyError as e:
             msg = f"Unkonwn material: {name}. Available: {[m.name for m in cls]}"
             raise ValueError(msg) from e

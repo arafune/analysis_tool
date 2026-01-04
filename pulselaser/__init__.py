@@ -7,9 +7,7 @@ import sympy as sp
 from numpy.typing import NDArray
 
 from .sellmeier import DISPERSION_FUNCS
-
-Scalar = float | np.floating
-ScalarOrArray = Scalar | NDArray[np.floating]
+from .types import ScalarOrArray, Scalar
 
 
 def gaussian_pulse(
