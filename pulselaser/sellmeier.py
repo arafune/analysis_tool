@@ -856,6 +856,7 @@ def mgf2(
         coeffs_o_b,
         coeffs_o_c,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
     n_e = three_term_sellmeier(
         lambda_micron,
@@ -863,6 +864,7 @@ def mgf2(
         coeffs_e_b,
         coeffs_e_c,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
     if as_sympy:
         assert isinstance(n_o, sp.Expr)

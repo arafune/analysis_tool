@@ -5,6 +5,7 @@ and birefringent crystals using Sellmeier equations against reference data
 from sources like refractiveindex.info and Thorlabs.
 """
 
+from multiprocessing import Value
 import numpy as np
 import pytest
 import sympy as sp
@@ -25,6 +26,10 @@ class TestAir:
         """Ensure a ValueError is raised when a negative derivative order is requested."""
         with pytest.raises(ValueError):
             sellmeier.air(0.5876, derivative=-1)
+
+    def test_for_sympy(self):
+        """Ensure sympy object is returned when as_sympy=True."""
+        isinstance(sellmeier.air(0.5876, derivative=0, as_sympy=True), sp.Expr)
 
 
 class TestBK7:
@@ -77,6 +82,10 @@ class TestCaF2:
             atol=0.001,
             rtol=0.001,
         )
+
+    def test_for_sympy(self) -> None:
+        """Ensure sympy object is returned when as_sympy=True."""
+        isinstance(sellmeier.caf2(0.5876, derivative=0, as_sympy=True), sp.Expr)
 
 
 class TestSF10:
@@ -137,6 +146,12 @@ class TestMgF2:
             rtol=0.001,
         )
 
+    def test_for_sympy(self) -> None:
+        """Ensure sympy object is returned when as_sympy=True."""
+        isinstance(sellmeier.mgf2(0.5876, derivative=0, as_sympy=True), tuple)
+        isinstance(sellmeier.mgf2(0.5876, derivative=0, as_sympy=True)[0], sp.Expr)
+        isinstance(sellmeier.mgf2(0.5876, derivative=0, as_sympy=True)[1], sp.Expr)
+
 
 class TestCalcite:
     """Tests for Calcite (CaCO3) birefringence."""
@@ -153,6 +168,12 @@ class TestCalcite:
             rtol=0.001,
         )
 
+    def test_for_sympy(self):
+        """Ensure sympy object is returned when as_sympy=True."""
+        isinstance(sellmeier.calcite(0.5876, derivative=0, as_sympy=True), tuple)
+        isinstance(sellmeier.calcite(0.5876, derivative=0, as_sympy=True)[0], sp.Expr)
+        isinstance(sellmeier.calcite(0.5876, derivative=0, as_sympy=True)[1], sp.Expr)
+
 
 class TestQuartz:
     """Tests for Crystalline Quartz."""
@@ -163,6 +184,12 @@ class TestQuartz:
             sellmeier.quartz(0.80),
             (1.5383355123424691, 1.5472301086112594),
         )
+
+    def test_for_sympy(self):
+        """Ensure sympy object is returned when as_sympy=True."""
+        isinstance(sellmeier.quartz(0.5876, derivative=0, as_sympy=True), tuple)
+        isinstance(sellmeier.quartz(0.5876, derivative=0, as_sympy=True)[0], sp.Expr)
+        isinstance(sellmeier.quartz(0.5876, derivative=0, as_sympy=True)[1], sp.Expr)
 
 
 class TestAlphaBBO:
@@ -192,6 +219,12 @@ class TestAlphaBBO:
             atol=0.001,
         )
 
+    def test_for_sympy(self):
+        """Ensure sympy object is returned when as_sympy=True."""
+        isinstance(sellmeier.alpha_bbo(0.5876, derivative=0, as_sympy=True), tuple)
+        isinstance(sellmeier.alpha_bbo(0.5876, derivative=0, as_sympy=True)[0], sp.Expr)
+        isinstance(sellmeier.alpha_bbo(0.5876, derivative=0, as_sympy=True)[1], sp.Expr)
+
 
 class TestBetaBBO:
     """Tests for Beta-Phase Barium Borate (b-BBO)."""
@@ -204,6 +237,12 @@ class TestBetaBBO:
             atol=0.001,
             rtol=0.001,
         )
+
+    def test_for_sympy(self):
+        """Ensure sympy object is returned when as_sympy=True."""
+        isinstance(sellmeier.beta_bbo(0.5876, derivative=0, as_sympy=True), tuple)
+        isinstance(sellmeier.beta_bbo(0.5876, derivative=0, as_sympy=True)[0], sp.Expr)
+        isinstance(sellmeier.beta_bbo(0.5876, derivative=0, as_sympy=True)[1], sp.Expr)
 
 
 def test_phase_matching_angle_bbo_at_800() -> None:
@@ -227,3 +266,10 @@ def test_phase_matching_angle_bbo_at_790() -> None:
 def test_enum_from_str() -> None:
     mat = Material.from_str("sf11")
     assert isinstance(mat, Material)
+
+
+def test_unknown_material() -> None:
+    with pytest.raises(AttributeError):
+        Material.UNKONWN(0.8)
+    with pytest.raises(ValueError, match="Unkonwn material:"):
+        Material.from_str("unknown")(0.8)
