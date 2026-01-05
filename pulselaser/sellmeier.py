@@ -70,7 +70,7 @@ def three_term_sellmeier(  # noqa: PLR0913
     derivative_order: int = 0,
     *,
     as_sympy: bool = False,
-) -> np.floating | NDArray[np.floating] | sp.Expr:
+) -> ScalarOrArray | sp.Expr:
     r"""Return Sellmeier function.
 
     :math:`n^2 -1 = A + \frac{B_1 \lambda^2}{\lambda^2 - C_1} +
@@ -112,10 +112,28 @@ def three_term_sellmeier(  # noqa: PLR0913
         + b2 * lam**2 / (lam**2 - c2)
         + b3 * lam**2 / (lam**2 - c3),
     )
-    delta_n = sp.diff(refractive_index, lam, derivative_order)
+    delta_n = sp.diff(
+        refractive_index,
+        lam,
+        derivative_order,
+    )
     if as_sympy:
-        return delta_n
-    delta_n_np = sp.lambdify((lam, a, b1, b2, b3, c1, c2, c3), delta_n, "numpy")
+        return delta_n.subs(
+            {
+                a: coeff_a,
+                b1: coeffs_b[0],
+                b2: coeffs_b[1],
+                b3: coeffs_b[2],
+                c1: coeffs_c[0],
+                c2: coeffs_c[1],
+                c3: coeffs_c[2],
+            },
+        )
+    delta_n_np = sp.lambdify(
+        (lam, a, b1, b2, b3, c1, c2, c3),
+        delta_n,
+        "numpy",
+    )
     return delta_n_np(lambda_micron, coeff_a, *coeffs_b, *coeffs_c)
 
 
@@ -175,7 +193,7 @@ def two_term_sellmeier(  # noqa: PLR0913
     derivative_order: int = 0,
     *,
     as_sympy: bool = False,
-) -> np.floating | NDArray[np.floating] | sp.Expr:
+) -> ScalarOrArray | sp.Expr:
     r"""Return the Sellmeier function represented by two terms.
 
     :math:`n^2 -1 = A + \frac{B_1 \lambda^2}{\lambda^2 - C_1} +
@@ -203,33 +221,24 @@ def two_term_sellmeier(  # noqa: PLR0913
         Calculated refractive index
 
     """
-    if as_sympy:
-        return three_term_sellmeier(
-            lambda_micron,
-            coeff_a,
-            (*coeffs_b, 0.0),
-            (*coeffs_c, 0.0),
-            derivative_order=derivative_order,
-            as_sympy=True,
-        )
     return three_term_sellmeier(
         lambda_micron,
         coeff_a,
         (*coeffs_b, 0.0),
         (*coeffs_c, 0.0),
         derivative_order=derivative_order,
-        as_sympy=False,
+        as_sympy=as_sympy,
     )
 
 
 def air_dispersion(
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     coeffs_b: tuple[float, float],
     coeffs_c: tuple[float, float],
     derivative_order: int = 0,
     *,
     as_sympy: bool = False,
-) -> float | sp.Expr:
+) -> ScalarOrArray | sp.Expr:
     """Return the Dispersion formula/value of the air.
 
     Ciddor-type formula, not Sellmeier.
@@ -258,20 +267,35 @@ def air_dispersion(
     refractive_index = 1 + b1 / (c1 - lam ** (-2)) + b2 / (c2 - lam ** (-2))
     delta_n = sp.diff(refractive_index, lam, derivative_order)
     if as_sympy:
-        return delta_n
-    delta_n_np = sp.lambdify((lam, b1, b2, c1, c2), delta_n, "numpy")
-    return delta_n_np(lambda_micron, *coeffs_b, *coeffs_c)
+        return delta_n.subs(
+            {
+                b1: coeffs_b[0],
+                b2: coeffs_b[1],
+                c1: coeffs_c[0],
+                c2: coeffs_c[1],
+            },
+        )
+    delta_n_np = sp.lambdify(
+        (lam, b1, b2, c1, c2),
+        delta_n,
+        "numpy",
+    )
+    return delta_n_np(
+        lambda_micron,
+        *coeffs_b,
+        *coeffs_c,
+    )
 
 
 # -----------
 
 
 def bk7(
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     derivative: int = 0,
     *,
     as_sympy: bool = False,
-) -> float | sp.Expr:
+) -> ScalarOrArray | sp.Expr:
     r"""Dispersion of BK7.
 
     https://refractiveindex.info/?shelf=glass&book=BK7&page=SCHOTT
@@ -296,43 +320,22 @@ def bk7(
     """
     b = (1.03961212, 0.231792344, 1.01046945)
     c = (0.00600069867, 0.0200179144, 103.560653)
-    if as_sympy:
-        lam, a, b1, b2, b3, c1, c2, c3 = sp.symbols(
-            "lambda, a, b1, b2, b3, c1, c2, c3",
-            real=True,
-        )
-        sym_obj = three_term_sellmeier(
-            lam,
-            a,
-            (b1, b2, b3),
-            (c1, c2, c3),
-            derivative_order=derivative,
-            as_sympy=True,
-        )
-        assert isinstance(sym_obj, sp.Expr)
-        subs = {
-            a: 0.0,
-            b1: b[0],
-            b2: b[1],
-            b3: b[2],
-            c1: c[0],
-            c2: c[1],
-            c3: c[2],
-        }
-        return sym_obj.subs(subs)
     return three_term_sellmeier(
         lambda_micron,
         0,
         b,
         c,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
 
 
 def fused_silica(
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> np.floating:
+    *,
+    as_sympy: bool = False,
+) -> ScalarOrArray | sp.Expr:
     r"""Dispersion of Fused Silica (0.21- 3.71 micron).
 
     https://refractiveindex.info/?shelf=glass&book=fused_silica&page=Malitson
@@ -343,6 +346,8 @@ def fused_silica(
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     derivative: int
         the derivative order
+    as_sympy: bool
+        If True return the equation
 
     Returns
     -------
@@ -359,13 +364,16 @@ def fused_silica(
         b,
         c,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
 
 
 def caf2(
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> np.floating:
+    *,
+    as_sympy: bool = False,
+) -> ScalarOrArray | sp.Expr:
     r"""Dispersion of CaF2 (0.15 - 12 micron).
 
     J. Phys. Chem. Ref. Data 9 161 (1980).
@@ -376,6 +384,8 @@ def caf2(
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     derivative: int
         the derivative order
+    as_sympy: bool
+        If True return the equation
 
     """
     a = 0.33973
@@ -387,13 +397,16 @@ def caf2(
         b,
         c,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
 
 
 def sf10(
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> np.floating:
+    *,
+    as_sympy: bool = False,
+) -> ScalarOrArray | sp.Expr:
     r"""Dispersion of SF10 (0.15 - 12 micron).
 
     https://refractiveindex.info/?shelf=popular_glass&book=SF10&page=SCHOTT
@@ -404,6 +417,8 @@ def sf10(
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     derivative: int
         The derivative order
+    as_sympy: bool
+        If True return the equation
 
     """
     b = (1.6215390, 0.256287842, 1.64447552)
@@ -414,13 +429,16 @@ def sf10(
         b,
         c,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
 
 
 def sf11(
     lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> np.floating:
+    *,
+    as_sympy: bool = False,
+) -> ScalarOrArray | sp.Expr:
     r"""Dispersion of SF11 (0.37 - 2.5 micron).
 
     https://refractiveindex.info/?shelf=specs&book=SCHOTT-optical&page=N-SF11
@@ -431,6 +449,8 @@ def sf11(
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     derivative: int
         The derivative order
+    as_sympy: bool
+        If True return the equation
 
     """
     b = (1.73759695, 0.313747346, 1.89878101)
@@ -441,13 +461,16 @@ def sf11(
         b,
         c,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
 
 
 def air(
-    lambda_micron: float,
+    lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> float:
+    *,
+    as_sympy: bool = False,
+) -> ScalarOrArray | sp.Expr:
     r"""Dispersion of air.
 
     https://refractiveindelambda_micron.info/?shelf=other&book=air&page=Ciddor
@@ -458,6 +481,8 @@ def air(
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     derivative: int
         The derivative order
+    as_sympy: bool
+        If True return the equation
 
     Returns
     -------
@@ -472,6 +497,7 @@ def air(
         b,
         c,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
 
 
@@ -498,15 +524,34 @@ def bbo_sellmeier(  # noqa: PLR0913
     refractive_index = sp.sqrt(a - d * lam**2 + b / (lam**2 - c))
     delta_n = sp.diff(refractive_index, lam, derivative_order)
     if as_sympy:
-        return delta_n
-    delta_n_np = sp.lambdify((lam, a, b, c, d), delta_n, "numpy")
-    return delta_n_np(lambda_micron, coeff_a, coeff_b, coeff_c, coeff_d)
+        return delta_n.subs(
+            {
+                a: coeff_a,
+                b: coeff_b,
+                c: coeff_c,
+                d: coeff_d,
+            },
+        )
+    delta_n_np = sp.lambdify(
+        (lam, a, b, c, d),
+        delta_n,
+        "numpy",
+    )
+    return delta_n_np(
+        lambda_micron,
+        coeff_a,
+        coeff_b,
+        coeff_c,
+        coeff_d,
+    )
 
 
 def alpha_bbo(
     lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> NDArray[np.floating]:
+    *,
+    as_sympy: bool = False,
+) -> NDArray[np.floating] | tuple[sp.Expr, sp.Expr]:
     r"""Dispersion of :math:`$\alpha$`-BBO.
 
     These coefficients are taken from . Applied Optics, 41(13), 2474.
@@ -526,6 +571,8 @@ def alpha_bbo(
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     derivative: int
         the order of derivative
+    as_sympy: bool
+        If True return the equation
 
 
     Return
@@ -548,14 +595,23 @@ def alpha_bbo(
         lambda_micron,
         *coeffs_o,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
     n_e = bbo_sellmeier(
         lambda_micron,
         *coeffs_e,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
+    if as_sympy:
+        assert isinstance(n_o, sp.Expr)
+        assert isinstance(n_e, sp.Expr)
+        return (n_o, n_e)
     return np.stack(
-        [np.asarray(n_o, dtype=float), np.asarray(n_e, dtype=float)],
+        [
+            np.asarray(n_o, dtype=float),
+            np.asarray(n_e, dtype=float),
+        ],
         axis=-1,
     )
 
@@ -563,7 +619,9 @@ def alpha_bbo(
 def beta_bbo(
     lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> NDArray[np.floating]:
+    *,
+    as_sympy: bool = False,
+) -> ScalarOrArray | tuple[sp.Expr, sp.Expr]:
     r"""Return :math:`n_o` and :math:`n_e` of :math:`\beta`-BBO.
 
     https://refractiveindex.info/?shelf=main&book=BaB2O4&page=Eimerl-o
@@ -580,6 +638,8 @@ def beta_bbo(
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     derivative: DERIVATIVE_ORDER
         Order of derivative (0, 1, 2)
+    as_sympy: bool
+        If True return the equation
 
     Returns
     -------
@@ -603,14 +663,23 @@ def beta_bbo(
         lambda_micron,
         *coeffs_o,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
     n_e = bbo_sellmeier(
         lambda_micron,
         *coeffs_e,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
+    if as_sympy:
+        assert isinstance(n_o, sp.Expr)
+        assert isinstance(n_e, sp.Expr)
+        return (n_o, n_e)
     return np.stack(
-        [np.asarray(n_o, dtype=float), np.asarray(n_e, dtype=float)],
+        [
+            np.asarray(n_o, dtype=float),
+            np.asarray(n_e, dtype=float),
+        ],
         axis=-1,
     )
 
@@ -618,7 +687,9 @@ def beta_bbo(
 def quartz(
     lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> NDArray[np.floating]:
+    *,
+    as_sympy: bool = False,
+) -> ScalarOrArray | tuple[sp.Expr, sp.Expr]:
     r"""Dispersion of crystal quartz.
 
     Optics communications. 2011, vol. 284, issue 12, p. 2683-2686.
@@ -633,6 +704,8 @@ def quartz(
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     derivative: DERIVATIVE_ORDER
         Order of derivative (0, 1, 2)
+    as_sympy: bool
+        If True return the equation
 
     Returns
     -------
@@ -654,6 +727,7 @@ def quartz(
         coeffs_o_b,
         coeffs_o_c,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
     n_e = two_term_sellmeier(
         lambda_micron,
@@ -661,10 +735,17 @@ def quartz(
         coeffs_e_b,
         coeffs_e_c,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
-
+    if as_sympy:
+        assert isinstance(n_o, sp.Expr)
+        assert isinstance(n_e, sp.Expr)
+        return (n_o, n_e)
     return np.stack(
-        [np.asarray(n_o, dtype=float), np.asarray(n_e, dtype=float)],
+        [
+            np.asarray(n_o, dtype=float),
+            np.asarray(n_e, dtype=float),
+        ],
         axis=-1,
     )
 
@@ -672,7 +753,9 @@ def quartz(
 def calcite(
     lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> NDArray[np.floating]:
+    *,
+    as_sympy: bool = False,
+) -> ScalarOrArray | tuple[sp.Expr, sp.Expr]:
     r"""Dispersion of calcite.  (:math:`\mathrm{CaCO}_3`).
 
     Opt. Commun. 163, 95-102 (1999)
@@ -687,6 +770,8 @@ def calcite(
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     derivative: DERIVATIVE_ORDER
         Order of derivative (0, 1, 2)
+    as_sympy: bool
+        If True return the equation
 
     Returns
     -------
@@ -708,17 +793,25 @@ def calcite(
         coeffs_o_b,
         coeffs_o_c,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
-
     n_e = two_term_sellmeier(
         lambda_micron,
         coeff_e_a,
         coeffs_e_b,
         coeffs_e_c,
         derivative_order=derivative,
+        as_sympy=as_sympy,
     )
+    if as_sympy:
+        assert isinstance(n_o, sp.Expr)
+        assert isinstance(n_e, sp.Expr)
+        return (n_o, n_e)
     return np.stack(
-        [np.asarray(n_o, dtype=float), np.asarray(n_e, dtype=float)],
+        [
+            np.asarray(n_o, dtype=float),
+            np.asarray(n_e, dtype=float),
+        ],
         axis=-1,
     )
 
@@ -726,7 +819,9 @@ def calcite(
 def mgf2(
     lambda_micron: ScalarOrArray,
     derivative: int = 0,
-) -> NDArray[np.floating]:
+    *,
+    as_sympy: bool = False,
+) -> ScalarOrArray | tuple[sp.Expr, sp.Expr]:
     r"""Dispersion of mgf2.
 
     Appl. Opt. 23, 1980-1985 (1984)
@@ -739,6 +834,8 @@ def mgf2(
         wavelength (:math:`\lambda`) in micron (:math:`\mu m`) unit.
     derivative: int
         Order of derivative
+    as_sympy: bool
+        If True return the equation
 
     Returns
     -------
@@ -767,8 +864,15 @@ def mgf2(
         coeffs_e_c,
         derivative_order=derivative,
     )
+    if as_sympy:
+        assert isinstance(n_o, sp.Expr)
+        assert isinstance(n_e, sp.Expr)
+        return (n_o, n_e)
     return np.stack(
-        [np.asarray(n_o, dtype=float), np.asarray(n_e, dtype=float)],
+        [
+            np.asarray(n_o, dtype=float),
+            np.asarray(n_e, dtype=float),
+        ],
         axis=-1,
     )
 
@@ -802,8 +906,8 @@ def phase_matching_angle_bbo(fundamental_micron: float) -> float:
 DISPERSION_FUNCS: dict[
     str,
     Callable[
-        [float, int],
-        float | tuple[float, float] | sp.Expr,
+        [ScalarOrArray, int, bool],
+        ScalarOrArray | sp.Expr | tuple[sp.Expr, sp.Expr],
     ],
 ] = {
     "bk7": bk7,
@@ -826,13 +930,15 @@ class DispersionProtocol(Protocol):
         self,
         lambda_micron: ScalarOrArray,
         derivative: int = 0,
-        **kwargs,
+        *,
+        as_sympy: bool = False,
     ) -> DispersionResult: ...
 
 
 class Material(Enum):
     BK7 = partial(bk7)
     FUSED_SILICA = partial(fused_silica)
+    UVFS = partial(fused_silica)  # noqa: PIE796
     CAF2 = partial(caf2)
     SF10 = partial(sf10)
     AIR = partial(air)
